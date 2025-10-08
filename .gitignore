@@ -35,4 +35,8 @@ logs/
 *.temp
 
 # Project planning
+DEVELOPMENT_GUIDE.md
 portfolio_project_plan.md
+
+# Public images
+frontend/public/symbols/image

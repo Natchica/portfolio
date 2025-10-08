@@ -11,7 +11,7 @@ A personal portfolio website combining One Piece Poneglyphs with blockchain aest
 
 ## Project Structure
 
-```
+```txt
 portfolio/
 ├── backend/         # Rust Axum server
 ├── frontend/        # React TypeScript app
