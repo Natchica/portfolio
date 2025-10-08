@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import { Navigation } from "./components/Navigation";
+import { AboutSection } from "./components/sections/AboutSection";
+import { ContactSection } from "./components/sections/ContactSection";
+import { ExperienceSection } from "./components/sections/ExperienceSection";
+import { ProjectsSection } from "./components/sections/ProjectsSection";
+import { SkillsSection } from "./components/sections/SkillsSection";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentSection, setCurrentSection] = useState(0);
+  const sections = [
+    "about",
+    "skills",
+    "experience",
+    "projects",
+    "contact",
+  ] as const;
+
+  // Track which section is currently visible
+  useEffect(() => {
+    const handleScroll = () => {
+      const sectionElements = sections.map((id) => document.getElementById(id));
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+      for (let i = sectionElements.length - 1; i >= 0; i--) {
+        const element = sectionElements[i];
+        if (element && element.offsetTop <= scrollPosition) {
+          setCurrentSection(i);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Call once on mount
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [sections]);
+
+  // Navigation function
+  const scrollToSection = (sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="portfolio-container">
+      {/* Navigation Menu */}
+      <Navigation
+        sections={sections}
+        currentSection={currentSection}
+        onNavigate={scrollToSection}
+      />
+
+      {/* Portfolio Sections */}
+      <AboutSection onNavigate={scrollToSection} />
+      <SkillsSection />
+      <ExperienceSection />
+      <ProjectsSection />
+      <ContactSection onNavigate={scrollToSection} />
+    </div>
+  );
 }
 
-export default App
+export default App;
