@@ -5,6 +5,7 @@ import { TransitionSection } from "./components/TransitionSection";
 import { AboutSection } from "./components/sections/AboutSection";
 import { ContactSection } from "./components/sections/ContactSection";
 import { ExperienceSection } from "./components/sections/ExperienceSection";
+import { PoneglyphAlphabetSection } from "./components/sections/PoneglyphAlphabetSection";
 import { ProjectsSection } from "./components/sections/ProjectsSection";
 import { SkillsSection } from "./components/sections/SkillsSection";
 
@@ -21,10 +22,22 @@ function App() {
     "skills",
     "experience",
     "projects",
+    "alphabet",
     "contact",
   ] as const;
   const isScrollingRef = useRef(false);
   const lastScrollY = useRef(0);
+
+  // Initial scroll to About section on mount
+  useEffect(() => {
+    const aboutSection = document.getElementById("about");
+    if (aboutSection) {
+      window.scrollTo({
+        top: aboutSection.offsetTop,
+        behavior: "instant" as ScrollBehavior,
+      });
+    }
+  }, []);
 
   // Track which section is currently visible and calculate scroll progress
   useEffect(() => {
@@ -242,6 +255,24 @@ function App() {
     }, 1000);
   };
 
+  // Back to top function - resets to origin
+  const scrollToTop = () => {
+    isScrollingRef.current = true;
+    setLoopCount(0); // Reset loop count to origin
+
+    const aboutSection = document.getElementById("about");
+    if (aboutSection) {
+      window.scrollTo({
+        top: aboutSection.offsetTop,
+        behavior: "smooth",
+      });
+    }
+
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 1000);
+  };
+
   return (
     <div className="portfolio-container">
       {/* Navigation Menu */}
@@ -252,10 +283,19 @@ function App() {
         onNavigate={scrollToSection}
       />
 
-      {/* Loop Counter (for debugging - can be styled as easter egg later) */}
+      {/* Loop Counter and Back to Top Button */}
       {loopCount > 0 && (
-        <div className="fixed top-4 left-4 z-50 bg-stone-900/80 backdrop-blur-lg px-4 py-2 rounded-lg border border-cyan-400/30 text-cyan-400 text-sm">
-          🏴‍☠️ Loops sailed: {loopCount}
+        <div className="fixed top-4 left-4 z-50 flex flex-col gap-3">
+          <div className="bg-stone-900/80 backdrop-blur-lg px-4 py-2 rounded-lg border border-cyan-400/30 text-cyan-400 text-sm">
+            🏴‍☠️ Loops sailed: {loopCount}
+          </div>
+          <button
+            onClick={scrollToTop}
+            className="bg-stone-900/80 backdrop-blur-lg px-4 py-2 rounded-lg border border-cyan-400/30 text-cyan-400 text-sm hover:bg-cyan-400/10 hover:border-cyan-400/50 transition-all duration-300 flex items-center justify-center gap-2"
+            aria-label="Back to top"
+          >
+            ⚓ Return to origin
+          </button>
         </div>
       )}
 
@@ -287,6 +327,13 @@ function App() {
 
       <div id="projects">
         <ProjectsSection />
+      </div>
+      <TransitionSection />
+      <TransitionSection />
+      <TransitionSection />
+
+      <div id="alphabet">
+        <PoneglyphAlphabetSection />
       </div>
       <TransitionSection />
       <TransitionSection />
