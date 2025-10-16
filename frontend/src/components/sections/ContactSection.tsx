@@ -31,6 +31,7 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Form */}
+            {/* TODO: Implement contact form backend - connect to Rust backend for email sending */}
             <div>
               <h3 className="text-2xl font-bold text-white mb-4">
                 Send a Message
@@ -76,17 +77,20 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
                   {[
                     {
                       label: "Email",
-                      value: "your.email@example.com",
+                      value: "Contact via form below",
                       icon: "📧",
                     },
                     { label: "Location", value: "France", icon: "📍" },
                     {
                       label: "Status",
-                      value: "Open to Opportunities",
+                      value: "Currently Employed - Open to Opportunities",
                       icon: "💼",
                     },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center space-x-3">
+                    <div
+                      key={item.label}
+                      className="flex items-center space-x-3"
+                    >
                       <span className="text-2xl">{item.icon}</span>
                       <div>
                         <p className="text-stone-400 text-sm">{item.label}</p>
@@ -101,6 +105,7 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
                 <h4 className="text-xl font-bold text-white mb-4">
                   Social Links
                 </h4>
+                {/* TODO: Add real social links - GitHub: Natchica, LinkedIn: nathan-gaud */}
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     { name: "GitHub", icon: "💻", url: "#" },
@@ -122,6 +127,7 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
               </div>
 
               <div className="pt-4 border-t border-stone-600">
+                {/* TODO: Implement CV download functionality */}
                 <button className="w-full py-3 bg-gradient-to-r from-cyber-600 to-cyber-500 rounded-lg font-semibold hover:from-cyber-500 hover:to-cyber-400 transition-all duration-300">
                   📄 Download CV
                 </button>

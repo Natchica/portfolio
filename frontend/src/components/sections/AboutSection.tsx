@@ -35,6 +35,11 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
           className="decrypt-animation"
         >
           {/* Profile Image Placeholder */}
+          {/* TODO: Add profile photo - Replace src with image path (e.g., /profile-photo.jpg in public folder)
+              Current placeholder shows developer emoji. To add photo:
+              1. Place image in /frontend/public/ folder
+              2. Replace <span> below with <img src="/your-photo.jpg" alt="Nathan GAUD" className="w-full h-full object-cover rounded-full" />
+          */}
           <motion.div
             className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-ocean-400 to-ocean-600 flex items-center justify-center"
             whileHover={{
@@ -53,7 +58,7 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
             animate={{ y: 0 }}
             transition={{ delay: 1, duration: 0.8 }}
           >
-            Nathan's Portfolio
+            Nathan GAUD
           </motion.h1>
 
           {/* Subtitle */}
@@ -62,6 +67,15 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 1.3, duration: 0.8 }}
+          >
+            Backend Web3 Software Engineer
+          </motion.p>
+
+          <motion.p
+            className="text-lg md:text-xl text-ocean-300 mb-6 italic"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
           >
             Genesis Block - The Origin Story
           </motion.p>
@@ -74,13 +88,21 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
             transition={{ delay: 1.6, duration: 0.8 }}
           >
             <p>
-              Welcome to my digital Poneglyph - where ancient mysteries meet
-              modern blockchain technology. I'm a passionate developer exploring
-              the intersection of web3, Rust, and innovative user experiences.
+              Welcome to my digital Poneglyph. As a Backend Web3 Software
+              Engineer at iExec, I develop decentralized applications and
+              blockchain infrastructure that power the future of distributed
+              computing. My work focuses on building secure, scalable backend
+              systems using Rust and Java.
+            </p>
+            <p>
+              What drives me in Web3 is the immutability and transparency of
+              blockchain technology - you can't lie with the blockchain. For me,
+              Web3 represents freedom and the power to build systems where truth
+              is verifiable and trust is built into the code itself.
             </p>
             <p className="text-cyber-400 font-semibold">
-              🦀 Currently mastering Rust • 🌊 Deep Ocean Blue Enthusiast • ⚓
-              One Piece Inspired
+              🦀 Rust & Java Developer • 🔗 Blockchain Enthusiast • 🌊 Building
+              the Decentralized Future
             </p>
           </motion.div>
 

@@ -14,34 +14,18 @@ interface Project {
 
 const projects: Project[] = [
   {
-    title: "Portfolio Website",
+    title: "Poneglyph Portfolio",
     description:
-      "This very website! A One Piece-inspired portfolio with blockchain aesthetics, built with React and Rust.",
+      "Personal portfolio combining One Piece aesthetics with blockchain themes. Built with React, TypeScript, and Rust backend featuring infinite scroll and decryption animations.",
     tech: ["React", "TypeScript", "Rust", "Tailwind CSS", "Framer Motion"],
     status: "In Development",
     icon: "⚓",
   },
   {
-    title: "TimeGuard App",
+    title: "Web3 Infrastructure Development",
     description:
-      "Personal time management application with clean UI and robust functionality for productivity tracking.",
-    tech: ["React", "Node.js", "MongoDB", "Material-UI"],
-    status: "Completed",
-    icon: "⏰",
-  },
-  {
-    title: "Blockchain Explorer",
-    description:
-      "Web3 application for exploring blockchain transactions with real-time data visualization.",
-    tech: ["React", "Web3.js", "Chart.js", "Ethereum"],
-    status: "Planned",
-    icon: "🔍",
-  },
-  {
-    title: "Rust API Server",
-    description:
-      "High-performance backend server built with Axum, showcasing modern Rust web development practices.",
-    tech: ["Rust", "Axum", "PostgreSQL", "Docker"],
+      "Backend engineering for decentralized cloud computing platform. Confidential project work involving Rust and Java development for blockchain-integrated middleware.",
+    tech: ["Rust", "Java", "Blockchain", "Web3", "Microservices"],
     status: "In Development",
     icon: "🦀",
   },
@@ -126,7 +110,7 @@ export function ProjectsSection() {
             transition={{ delay: 1, duration: 0.5 }}
           >
             <button className="px-8 py-3 bg-gradient-to-r from-cyber-600 to-cyber-500 rounded-lg font-semibold hover:from-cyber-500 hover:to-cyber-400 transition-all duration-300">
-              View All on GitHub
+              More Projects Coming Soon
             </button>
           </motion.div>
         </motion.div>

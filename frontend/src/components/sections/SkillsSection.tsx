@@ -11,12 +11,13 @@ interface Skill {
 }
 
 const skills: Skill[] = [
-  { name: "Rust", level: 85, icon: "🦀" },
-  { name: "JavaScript/TypeScript", level: 90, icon: "⚡" },
-  { name: "React", level: 95, icon: "⚛️" },
-  { name: "Web3/Blockchain", level: 70, icon: "🔗" },
-  { name: "Backend Development", level: 80, icon: "⚙️" },
-  { name: "UI/UX Design", level: 75, icon: "🎨" },
+  { name: "Rust", level: 90, icon: "🦀" },
+  { name: "Java", level: 90, icon: "☕" },
+  { name: "TypeScript", level: 70, icon: "⚡" },
+  { name: "Solidity", level: 65, icon: "📜" },
+  { name: "Backend Development", level: 85, icon: "⚙️" },
+  { name: "Web3/Blockchain", level: 75, icon: "🔗" },
+  { name: "DevOps/CI-CD", level: 70, icon: "🔄" },
 ];
 
 export function SkillsSection() {

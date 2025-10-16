@@ -15,35 +15,35 @@ interface ExperienceItem {
 const experiences: ExperienceItem[] = [
   {
     type: "Education",
-    title: "ENSEEIHT - Computer Science Engineering",
-    period: "2019-2024",
+    title: "Diplôme d'Ingénieur - Software Engineering",
+    period: "2021-2024",
     description:
-      "Advanced studies in computer science and engineering with focus on software development and systems architecture.",
+      "Engineering degree in Computer Science from INP-ENSEEIHT, specializing in Systems and Software Engineering. Included Erasmus semester in Madrid focusing on Data Sciences and Intelligent Systems.",
     icon: "🎓",
   },
   {
-    type: "Experience",
-    title: "Full-Stack Developer",
-    period: "2023-Present",
+    type: "Certification",
+    title: "Blockchain Principles & Digital Currencies",
+    period: "2023",
     description:
-      "Building innovative web applications with modern technologies, specializing in React and backend development.",
+      "MOOC certification from University of Nicosia covering blockchain fundamentals, cryptocurrency principles, and decentralized applications.",
+    icon: "🔗",
+  },
+  {
+    type: "Experience",
+    title: "Backend Web3 Software Engineer - iExec",
+    period: "Feb 2024-Present",
+    description:
+      "Developing backend services for decentralized computing platform. Working with Rust and Java to build scalable Web3 infrastructure. Managing middleware roadmap, implementing automated testing, and mentoring junior developers.",
     icon: "💼",
   },
   {
-    type: "Project",
-    title: "TimeGuard Application",
-    period: "2023",
+    type: "Internship",
+    title: "Software Quality Engineer - EES Clemessy",
+    period: "Jun-Aug 2023",
     description:
-      "Personal project showcasing time management solutions with clean UI/UX design and robust functionality.",
-    icon: "⏰",
-  },
-  {
-    type: "Skills",
-    title: "Web3 & Blockchain Exploration",
-    period: "2024-Present",
-    description:
-      "Diving deep into decentralized technologies, smart contracts, and the future of web development.",
-    icon: "🔗",
+      "Conducted comprehensive software testing, benchmarked automated testing tools, and implemented POC for functional test automation.",
+    icon: "⚙️",
   },
 ];
 
