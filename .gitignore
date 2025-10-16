@@ -40,3 +40,7 @@ portfolio_project_plan.md
 
 # Public images
 frontend/public/symbols/image
+frontend/public/symbols/svg_original
+
+# Scripts
+scripts/
