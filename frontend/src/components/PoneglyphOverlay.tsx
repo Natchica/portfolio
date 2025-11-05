@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { textToSymbolGrid } from "../utils/poneglyphConverter";
 
 interface PoneglyphOverlayProps {
@@ -16,25 +16,45 @@ export function PoneglyphOverlay({
 }: PoneglyphOverlayProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [windowWidth, setWindowWidth] = useState<number>(() => {
+    if (globalThis.window === undefined) return 0;
+    return globalThis.window.innerWidth;
+  });
+
+  // Listen for window resize events
+  useEffect(() => {
+    if (globalThis.window === undefined) return;
+
+    const handleResize = () => {
+      setWindowWidth(globalThis.window.innerWidth);
+    };
+
+    globalThis.window.addEventListener("resize", handleResize);
+    return () => globalThis.window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Calculate responsive columns based on viewport
   const responsiveColumns = useMemo(() => {
-    if (typeof window === "undefined") return columns;
-    if (window.innerWidth < 640) return 8; // mobile
-    if (window.innerWidth < 1024) return 12; // tablet
+    if (globalThis.window === undefined || windowWidth === 0) return columns;
+    if (windowWidth < 640) return 8; // mobile
+    if (windowWidth < 1024) return 12; // tablet
     return columns; // desktop
-  }, [columns]);
+  }, [columns, windowWidth]);
 
   // Remove spaces and repeat text to fill grid pattern
   const textWithoutSpaces = useMemo(() => {
-    return text.replace(/\s+/g, "");
+    return text.replaceAll(/\s+/g, "");
   }, [text]);
 
   const repeatedText = useMemo(() => {
+    // Handle empty or whitespace-only text
+    if (textWithoutSpaces.length === 0) {
+      return "";
+    }
     const repeatCount = Math.ceil(
       (responsiveColumns * 15) / textWithoutSpaces.length
     );
-    return Array(repeatCount).fill(textWithoutSpaces).join("");
+    return new Array(repeatCount).fill(textWithoutSpaces).join("");
   }, [textWithoutSpaces, responsiveColumns]);
 
   // Convert text to symbol grid with minimum rows to ensure full coverage
@@ -48,17 +68,40 @@ export function PoneglyphOverlay({
   // Once started, it continues forever (never resets)
   const shouldDecrypt = hasStarted;
 
+  const handleActivate = () => {
+    // Only start if hovered (user must be hovering when clicking)
+    if (isHovered && !hasStarted) {
+      setHasStarted(true);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      // For keyboard, allow activation without hover requirement
+      if (!hasStarted) {
+        setHasStarted(true);
+      }
+    }
+  };
+
   return (
-    <div
+    <button
+      type="button"
       className="poneglyph-overlay"
+      style={{
+        border: "none",
+        background: "none",
+        padding: 0,
+        margin: 0,
+        cursor: "pointer",
+        width: "100%",
+        height: "100%",
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => {
-        // Only start if hovered (user must be hovering when clicking)
-        if (isHovered && !hasStarted) {
-          setHasStarted(true);
-        }
-      }}
+      onClick={handleActivate}
+      onKeyDown={handleKeyDown}
     >
       <div
         className="poneglyph-grid h-full w-full"
@@ -130,6 +173,6 @@ export function PoneglyphOverlay({
           })
         )}
       </div>
-    </div>
+    </button>
   );
 }
