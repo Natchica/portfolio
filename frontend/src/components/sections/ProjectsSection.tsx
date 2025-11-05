@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
+import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
 
-const ancientScript =
-  "⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡";
+const PONEGLYPH_QUOTE = "Monkey D. Luffy I'm going to be the Pirate King";
 
 interface Project {
   title: string;
@@ -46,32 +46,23 @@ export function ProjectsSection() {
   return (
     <PoneglyphSection id="projects">
       <motion.div
-        className="poneglyph-block"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
+        className="relative"
+        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="ancient-text mb-6">{ancientScript}</div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-        >
+        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-cyber-400 via-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Treasure Maps
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project, index) => (
-              <motion.div
+            {projects.map((project) => (
+              <div
                 key={project.title}
-                className="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg hover:shadow-xl hover:shadow-cyber-400/20 transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2, duration: 0.5 }}
-                whileHover={{ scale: 1.02 }}
+                className="bg-gradient-to-br from-stone-700 to-stone-800 p-6 rounded-lg hover:shadow-xl hover:shadow-cyber-400/20 transition-all duration-300 hover:scale-[1.02]"
               >
                 <div className="flex items-center mb-4">
                   <span className="text-3xl mr-3">{project.icon}</span>
@@ -99,21 +90,16 @@ export function ProjectsSection() {
                     </span>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          <motion.div
-            className="text-center mt-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
+          <div className="text-center mt-8">
             <button className="px-8 py-3 bg-gradient-to-r from-cyber-600 to-cyber-500 rounded-lg font-semibold hover:from-cyber-500 hover:to-cyber-400 transition-all duration-300">
               More Projects Coming Soon
             </button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </motion.div>
     </PoneglyphSection>
   );

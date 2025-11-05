@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
+import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
 
-const ancientScript =
-  "⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡";
+const PONEGLYPH_QUOTE =
+  "Bob Marley If there's a problem there's a solution If there's no solution there's no problem";
 
 interface ContactSectionProps {
   readonly onNavigate: (section: string) => void;
@@ -12,19 +13,14 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
   return (
     <PoneglyphSection id="contact" showConnectionLine={false}>
       <motion.div
-        className="poneglyph-block"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
+        className="relative"
+        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="ancient-text mb-6">{ancientScript}</div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-        >
+        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Final Poneglyph
           </h2>
@@ -136,12 +132,7 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
           </div>
 
           {/* Loop back to beginning */}
-          <motion.div
-            className="text-center mt-12 pt-8 border-t border-stone-600"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
+          <div className="text-center mt-12 pt-8 border-t border-stone-600">
             <p className="text-stone-400 mb-4">The blockchain continues...</p>
             <button
               onClick={() => onNavigate("about")}
@@ -149,8 +140,8 @@ export function ContactSection({ onNavigate }: ContactSectionProps) {
             >
               ⚓ Return to Genesis Block
             </button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </motion.div>
     </PoneglyphSection>
   );

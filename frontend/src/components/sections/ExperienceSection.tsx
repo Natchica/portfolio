@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
+import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
 
-const ancientScript =
-  "⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡ ⬟⬢⬡⬟ ⬢⬡⬟⬢ ⬡⬟⬢⬡";
+const PONEGLYPH_QUOTE = "Gol D. Roger I left everything I own in that place";
 
 interface ExperienceItem {
   type: string;
@@ -51,31 +51,23 @@ export function ExperienceSection() {
   return (
     <PoneglyphSection id="experience">
       <motion.div
-        className="poneglyph-block"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
+        className="relative"
+        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="ancient-text mb-6">{ancientScript}</div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-        >
+        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Historical Records
           </h2>
 
           <div className="space-y-8">
-            {experiences.map((item, index) => (
-              <motion.div
-                key={`${item.type}-${index}`}
+            {experiences.map((item) => (
+              <div
+                key={`${item.type}-${item.title}`}
                 className="flex items-start space-x-4 bg-gradient-to-r from-stone-700/50 to-stone-800/50 p-6 rounded-lg backdrop-blur-sm"
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.2, duration: 0.5 }}
               >
                 <div className="text-3xl">{item.icon}</div>
                 <div className="flex-1">
@@ -90,10 +82,10 @@ export function ExperienceSection() {
                   <p className="text-sm text-ocean-300 mb-2">{item.type}</p>
                   <p className="text-stone-300">{item.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </PoneglyphSection>
   );
