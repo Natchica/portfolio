@@ -62,25 +62,6 @@ body::-webkit-scrollbar {
   width: 100%;
 }
 
-/* Ancient Script Effect */
-.ancient-text {
-  font-family: "Georgia", serif;
-  opacity: 0.3;
-  font-size: 0.8rem;
-  line-height: 2;
-  margin-bottom: 1rem;
-  color: #a0aec0;
-}
-
-/* Blockchain Connection Lines */
-.blockchain-line {
-  position: absolute;
-  background: linear-gradient(90deg, #00bfff, #00d4ff);
-  height: 2px;
-  box-shadow: 0 0 10px #00bfff;
-  animation: glow 2s ease-in-out infinite alternate;
-}
-
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
@@ -92,15 +73,6 @@ html {
 /* Hide scrollbar for Chrome, Safari and Opera */
 html::-webkit-scrollbar {
   display: none;
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 10px #00bfff;
-  }
-  to {
-    box-shadow: 0 0 20px #00d4ff, 0 0 30px #00d4ff;
-  }
 }
 
 /* Poneglyph Overlay Styling */

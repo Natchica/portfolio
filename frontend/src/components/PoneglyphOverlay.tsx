@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
-import { useRef, useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { textToSymbolGrid } from "../utils/poneglyphConverter";
 
 interface PoneglyphOverlayProps {
   readonly text: string;
   readonly columns?: number;
-  readonly onDecryptionStateChange?: (isDecrypting: boolean, lineCount: number) => void;
 }
 
 export const LINE_DELAY = 0.1;
@@ -14,9 +13,7 @@ export const LINE_DURATION = 0.2;
 export function PoneglyphOverlay({
   text,
   columns = 15,
-  onDecryptionStateChange,
 }: PoneglyphOverlayProps) {
-  const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -34,7 +31,9 @@ export function PoneglyphOverlay({
   }, [text]);
 
   const repeatedText = useMemo(() => {
-    const repeatCount = Math.ceil((responsiveColumns * 15) / textWithoutSpaces.length);
+    const repeatCount = Math.ceil(
+      (responsiveColumns * 15) / textWithoutSpaces.length
+    );
     return Array(repeatCount).fill(textWithoutSpaces).join("");
   }, [textWithoutSpaces, responsiveColumns]);
 
@@ -49,16 +48,8 @@ export function PoneglyphOverlay({
   // Once started, it continues forever (never resets)
   const shouldDecrypt = hasStarted;
 
-  // Notify parent of decryption state
-  useEffect(() => {
-    if (onDecryptionStateChange) {
-      onDecryptionStateChange(shouldDecrypt, symbolGrid.length);
-    }
-  }, [shouldDecrypt, symbolGrid.length, onDecryptionStateChange]);
-
   return (
     <div
-      ref={ref}
       className="poneglyph-overlay"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

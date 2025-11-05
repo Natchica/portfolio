@@ -3,23 +3,3 @@
   min-height: 100vh;
   position: relative;
 }
-
-.decrypt-animation {
-  animation: decrypt 2s ease-out forwards;
-}
-
-@keyframes decrypt {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-    filter: blur(5px);
-  }
-  50% {
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
