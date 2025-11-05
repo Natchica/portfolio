@@ -34,12 +34,6 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
           transition={{ duration: 2, delay: 0.5 }}
           className="decrypt-animation"
         >
-          {/* Profile Image Placeholder */}
-          {/* TODO: Add profile photo - Replace src with image path (e.g., /profile-photo.jpg in public folder)
-              Current placeholder shows developer emoji. To add photo:
-              1. Place image in /frontend/public/ folder
-              2. Replace <span> below with <img src="/your-photo.jpg" alt="Nathan GAUD" className="w-full h-full object-cover rounded-full" />
-          */}
           <motion.div
             className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-ocean-400 to-ocean-600 flex items-center justify-center"
             whileHover={{
@@ -48,7 +42,7 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
             }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <span className="text-4xl">👨‍💻</span>
+            <img src="/Nathan-G.png" alt="Nathan GAUD" className="w-full h-full object-cover rounded-full" />
           </motion.div>
 
           {/* Title with Blockchain Effect */}
