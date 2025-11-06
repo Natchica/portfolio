@@ -1,7 +1,7 @@
-import { useRef, memo } from "react";
+import { memo, useRef } from "react";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
-import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 const PONEGLYPH_QUOTE =
   "Satoshi Nakamoto The root problem with conventional currency is all the trust that's required to make it work";
@@ -13,7 +13,7 @@ interface AboutSectionProps {
 export const AboutSection = memo(function AboutSection({
   onNavigate,
 }: AboutSectionProps) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isVisible = useIntersectionObserver(ref, {
     once: true,
     rootMargin: "-10%",
