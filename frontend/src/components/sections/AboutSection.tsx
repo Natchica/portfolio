@@ -4,7 +4,8 @@ import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
 
 const PONEGLYPH_QUOTE =
-  "Satoshi Nakamoto The root problem with conventional currency is all the trust that's required to make it work";
+  "The root problem with conventional currency is all the trust that is required to make it work";
+const QUOTE_AUTHOR = "Satoshi Nakamoto";
 
 interface AboutSectionProps {
   readonly onNavigate: (section: string) => void;
@@ -25,7 +26,11 @@ export const AboutSection = memo(function AboutSection({
         ref={ref}
         className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
-        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <PoneglyphOverlay
+          author={QUOTE_AUTHOR}
+          quote={PONEGLYPH_QUOTE}
+          columns={15}
+        />
         <div className="poneglyph-block text-center relative z-[1]">
           {/* Decrypted Content */}
           <div>

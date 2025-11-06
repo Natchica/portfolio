@@ -1,9 +1,10 @@
-import { useRef, memo } from "react";
+import { memo, useRef } from "react";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
-import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-const PONEGLYPH_QUOTE = "Monkey D. Luffy I'm going to be the Pirate King";
+const PONEGLYPH_QUOTE = "I am going to be the Pirate King";
+const QUOTE_AUTHOR = "Monkey D Luffy";
 
 interface Project {
   title: string;
@@ -56,7 +57,11 @@ export const ProjectsSection = memo(function ProjectsSection() {
         ref={ref}
         className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
-        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <PoneglyphOverlay
+          author={QUOTE_AUTHOR}
+          quote={PONEGLYPH_QUOTE}
+          columns={15}
+        />
         <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-cyber-400 via-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Treasure Maps

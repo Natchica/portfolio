@@ -32,6 +32,10 @@ const CHAR_TO_SYMBOL: Record<string, string> = {
   z: "/symbols/svg/letters/szc.svg",
   y: "/symbols/svg/letters/yll.svg",
 
+  // Fallback mappings for missing letters
+  h: "/symbols/svg/letters/g.svg", // h → g (visually similar)
+  w: "/symbols/svg/letters/u.svg", // w → u (phonetically similar)
+
   // Numbers
   "0": "/symbols/svg/numbers/0.svg",
   "1": "/symbols/svg/numbers/1.svg",
@@ -104,6 +108,120 @@ export function generateRandomSymbols(count: number): string {
 }
 
 /**
+ * Converts text to a grid of symbol paths with author and quote integrated
+ * Layout: random → blank → author → blank → random → blank → quote → blank → random
+ * All three random suites have the same length, placed sequentially without centering
+ * @param rows - Number of rows to generate based on container height
+ */
+export function textToCenteredSymbolGrid(
+  author: string,
+  quote: string,
+  columns: number,
+  rows: number
+): (string | null)[][] {
+  // Remove spaces from author and quote for symbol conversion
+  const authorNoSpaces = author.replaceAll(/\s+/g, "");
+  const quoteNoSpaces = quote.replaceAll(/\s+/g, "");
+
+  // Convert to symbols
+  const authorSymbols = textToSymbols(authorNoSpaces);
+  const quoteSymbols = textToSymbols(quoteNoSpaces);
+
+  // Calculate random suite length based on total available space in the grid
+  // We want the three random suites to fill the remaining space after author, quote, and blanks
+  // Total space = columns * rows (entire grid)
+  // Fixed content = author + quote + 4 blanks
+  // Available for random suites = total space - fixed content
+  // Each random suite = available / 3 (all three suites are identical)
+  const totalSpace = columns * rows;
+  const fixedContentLength = authorSymbols.length + quoteSymbols.length + 4; // 4 blanks
+  const availableForRandomSuites = Math.max(0, totalSpace - fixedContentLength);
+  const randomSuiteLength = Math.max(
+    1,
+    Math.floor(availableForRandomSuites / 3)
+  );
+
+  // Generate ONE random suite and reuse it 3 times (all identical)
+  const randomSuiteText = generateRandomSymbols(randomSuiteLength);
+  const randomSuite = textToSymbols(randomSuiteText);
+
+  // Build content array sequentially: random → blank → author → blank → random → blank → quote → blank → random
+  // All three random suites have the same length
+  const contentArray: (string | null)[] = [
+    ...randomSuite, // First random suite (length: randomSuiteLength)
+    null, // Blank 1
+    ...authorSymbols, // Author
+    null, // Blank 2
+    ...randomSuite, // Second random suite (same length: randomSuiteLength)
+    null, // Blank 3
+    ...quoteSymbols, // Quote
+    null, // Blank 4
+    ...randomSuite, // Third random suite (same length: randomSuiteLength)
+  ];
+
+  // Wrap content across multiple lines
+  const contentLines: (string | null)[][] = [];
+  let currentLine: (string | null)[] = [];
+  let contentIndex = 0;
+
+  while (contentIndex < contentArray.length) {
+    const remainingInLine = columns - currentLine.length;
+    const remainingContent = contentArray.length - contentIndex;
+
+    if (remainingInLine >= remainingContent) {
+      // All remaining content fits on current line
+      currentLine.push(...contentArray.slice(contentIndex));
+      contentIndex = contentArray.length;
+    } else {
+      // Fill current line up to column limit
+      const toAdd = contentArray.slice(
+        contentIndex,
+        contentIndex + remainingInLine
+      );
+      currentLine.push(...toAdd);
+      contentIndex += remainingInLine;
+    }
+
+    // If line is full or we've processed all content, finalize the line
+    if (currentLine.length >= columns || contentIndex >= contentArray.length) {
+      // Ensure line is exactly columns wide
+      if (currentLine.length < columns) {
+        // Fill remaining space with random symbols
+        const remaining = columns - currentLine.length;
+        const extraRandom = textToSymbols(generateRandomSymbols(remaining));
+        currentLine.push(...extraRandom);
+      } else if (currentLine.length > columns) {
+        // Trim excess (shouldn't happen, but handle it)
+        currentLine = currentLine.slice(0, columns);
+      }
+      contentLines.push([...currentLine]);
+      currentLine = [];
+    }
+  }
+
+  // Position content lines vertically centered
+  const contentStartRow = Math.max(
+    0,
+    Math.floor((rows - contentLines.length) / 2)
+  );
+  const grid: (string | null)[][] = [];
+
+  for (let row = 0; row < rows; row++) {
+    const contentLineIndex = row - contentStartRow;
+    if (contentLineIndex >= 0 && contentLineIndex < contentLines.length) {
+      // Use content line
+      grid.push([...contentLines[contentLineIndex]]);
+    } else {
+      // Fill with random symbols
+      const randomText = generateRandomSymbols(columns);
+      grid.push(textToSymbols(randomText));
+    }
+  }
+
+  return grid;
+}
+
+/**
  * Converts text to a grid of symbol paths
  * Returns a 2D array where each inner array represents a line
  * Ensures minimum rows to cover the block
@@ -128,4 +246,3 @@ export function textToSymbolGrid(
 
   return lines.map((line) => textToSymbols(line));
 }
-
