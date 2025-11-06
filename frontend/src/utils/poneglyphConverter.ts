@@ -137,7 +137,7 @@ export function textToCenteredSymbolGrid(
   const fixedContentLength = authorSymbols.length + quoteSymbols.length + 4; // 4 blanks
   const availableForRandomSuites = Math.max(0, totalSpace - fixedContentLength);
   const randomSuiteLength = Math.max(
-    1,
+    0,
     Math.floor(availableForRandomSuites / 3)
   );
 
