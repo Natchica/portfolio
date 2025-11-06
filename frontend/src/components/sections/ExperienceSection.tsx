@@ -1,9 +1,10 @@
-import { useRef, memo } from "react";
+import { memo, useRef } from "react";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
-import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-const PONEGLYPH_QUOTE = "Gol D. Roger I left everything I own in that place";
+const PONEGLYPH_QUOTE = "I left everything I own in that place";
+const QUOTE_AUTHOR = "Gol D Roger";
 
 interface ExperienceItem {
   type: string;
@@ -61,7 +62,11 @@ export const ExperienceSection = memo(function ExperienceSection() {
         ref={ref}
         className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
-        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <PoneglyphOverlay
+          author={QUOTE_AUTHOR}
+          quote={PONEGLYPH_QUOTE}
+          columns={15}
+        />
         <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Historical Records

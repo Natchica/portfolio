@@ -32,6 +32,10 @@ const CHAR_TO_SYMBOL: Record<string, string> = {
   z: "/symbols/svg/letters/szc.svg",
   y: "/symbols/svg/letters/yll.svg",
 
+  // Fallback mappings for missing letters
+  h: "/symbols/svg/letters/g.svg", // h → g (visually similar)
+  w: "/symbols/svg/letters/u.svg", // w → u (phonetically similar)
+
   // Numbers
   "0": "/symbols/svg/numbers/0.svg",
   "1": "/symbols/svg/numbers/1.svg",
@@ -60,40 +64,17 @@ export function charToSymbol(char: string): string | null {
 export function textToSymbols(text: string): (string | null)[] {
   return text.split("").map((char) => {
     if (char === " ") {
-      return null; // Space
+      return null;
     }
     return charToSymbol(char);
   });
 }
 
-/**
- * Splits text into lines for grid arrangement
- * No word boundaries - just splits at the specified length
- */
-export function splitTextIntoLines(
-  text: string,
-  symbolsPerLine: number
-): string[] {
-  const lines: string[] = [];
-
-  for (let i = 0; i < text.length; i += symbolsPerLine) {
-    lines.push(text.slice(i, i + symbolsPerLine));
-  }
-
-  return lines;
-}
-
-/**
- * Gets all available characters that can be converted to symbols
- */
-export function getAvailableChars(): string[] {
+function getAvailableChars(): string[] {
   return Object.keys(CHAR_TO_SYMBOL);
 }
 
-/**
- * Generates random symbols to fill space
- */
-export function generateRandomSymbols(count: number): string {
+function generateRandomSymbols(count: number): string {
   const availableChars = getAvailableChars();
   let result = "";
   for (let i = 0; i < count; i++) {
@@ -104,28 +85,92 @@ export function generateRandomSymbols(count: number): string {
 }
 
 /**
- * Converts text to a grid of symbol paths
- * Returns a 2D array where each inner array represents a line
- * Ensures minimum rows to cover the block
+ * Converts text to a grid of symbol paths with author and quote integrated
+ * Layout: random → blank → author → blank → random → blank → quote → blank → random
  */
-export function textToSymbolGrid(
-  text: string,
+export function textToCenteredSymbolGrid(
+  author: string,
+  quote: string,
   columns: number,
-  minRows: number = 20
+  rows: number
 ): (string | null)[][] {
-  const lines = splitTextIntoLines(text, columns);
+  const authorNoSpaces = author.replaceAll(/\s+/g, "");
+  const quoteNoSpaces = quote.replaceAll(/\s+/g, "");
+  const authorSymbols = textToSymbols(authorNoSpaces);
+  const quoteSymbols = textToSymbols(quoteNoSpaces);
 
-  // Calculate how many more lines we need
-  const rowsNeeded = Math.max(minRows - lines.length, 0);
+  const totalSpace = columns * rows;
+  const fixedContentLength = authorSymbols.length + quoteSymbols.length + 4;
+  const availableForRandomSuites = Math.max(0, totalSpace - fixedContentLength);
+  const randomSuiteLength = Math.max(
+    0,
+    Math.floor(availableForRandomSuites / 3)
+  );
 
-  // Generate random symbols to fill remaining space if needed
-  if (rowsNeeded > 0) {
-    // Add two spaces at the beginning for visual separation
-    const randomText = "  " + generateRandomSymbols(rowsNeeded * columns);
-    const randomLines = splitTextIntoLines(randomText, columns);
-    lines.push(...randomLines);
+  const randomSuiteText = generateRandomSymbols(randomSuiteLength);
+  const randomSuite = textToSymbols(randomSuiteText);
+
+  const contentArray: (string | null)[] = [
+    ...randomSuite,
+    null,
+    ...authorSymbols,
+    null,
+    ...randomSuite,
+    null,
+    ...quoteSymbols,
+    null,
+    ...randomSuite,
+  ];
+
+  const contentLines: (string | null)[][] = [];
+  let currentLine: (string | null)[] = [];
+  let contentIndex = 0;
+
+  while (contentIndex < contentArray.length) {
+    const remainingInLine = columns - currentLine.length;
+    const remainingContent = contentArray.length - contentIndex;
+
+    if (remainingInLine >= remainingContent) {
+      currentLine.push(...contentArray.slice(contentIndex));
+      contentIndex = contentArray.length;
+    } else {
+      const toAdd = contentArray.slice(
+        contentIndex,
+        contentIndex + remainingInLine
+      );
+      currentLine.push(...toAdd);
+      contentIndex += remainingInLine;
+    }
+
+    if (currentLine.length >= columns || contentIndex >= contentArray.length) {
+      if (currentLine.length < columns) {
+        const remaining = columns - currentLine.length;
+        const extraRandom = textToSymbols(generateRandomSymbols(remaining));
+        currentLine.push(...extraRandom);
+      } else if (currentLine.length > columns) {
+        currentLine = currentLine.slice(0, columns);
+      }
+      contentLines.push([...currentLine]);
+      currentLine = [];
+    }
   }
 
-  return lines.map((line) => textToSymbols(line));
-}
+  const actualRows = Math.max(rows, contentLines.length);
+  const contentStartRow = Math.max(
+    0,
+    Math.floor((actualRows - contentLines.length) / 2)
+  );
+  const grid: (string | null)[][] = [];
 
+  for (let row = 0; row < actualRows; row++) {
+    const contentLineIndex = row - contentStartRow;
+    if (contentLineIndex >= 0 && contentLineIndex < contentLines.length) {
+      grid.push([...contentLines[contentLineIndex]]);
+    } else {
+      const randomText = generateRandomSymbols(columns);
+      grid.push(textToSymbols(randomText));
+    }
+  }
+
+  return grid;
+}

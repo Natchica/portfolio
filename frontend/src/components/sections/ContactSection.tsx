@@ -1,10 +1,11 @@
-import { useRef, memo } from "react";
+import { memo, useRef } from "react";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
-import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 const PONEGLYPH_QUOTE =
-  "Bob Marley If there's a problem there's a solution If there's no solution there's no problem";
+  "If there is a problem there is a solution If there is no solution there is no problem";
+const QUOTE_AUTHOR = "Bob Marley";
 
 interface ContactSectionProps {
   readonly onNavigate: (section: string) => void;
@@ -25,7 +26,11 @@ export const ContactSection = memo(function ContactSection({
         ref={ref}
         className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
-        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <PoneglyphOverlay
+          author={QUOTE_AUTHOR}
+          quote={PONEGLYPH_QUOTE}
+          columns={15}
+        />
         <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-ocean-300 to-cyber-400 bg-clip-text text-transparent">
             Final Poneglyph

@@ -1,65 +1,68 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDebounce } from "../hooks/useDebounce";
-import { textToSymbolGrid } from "../utils/poneglyphConverter";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { textToCenteredSymbolGrid } from "../utils/poneglyphConverter";
 import "./PoneglyphOverlay.css";
 
 interface PoneglyphOverlayProps {
-  readonly text: string;
+  readonly author: string;
+  readonly quote: string;
   readonly columns?: number;
 }
 
 export function PoneglyphOverlay({
-  text,
+  author,
+  quote,
   columns = 15,
 }: PoneglyphOverlayProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
-  const [windowWidth, setWindowWidth] = useState<number>(() => {
-    if (globalThis.window === undefined) return 0;
-    return globalThis.window.innerWidth;
-  });
-
-  const debouncedWindowWidth = useDebounce(windowWidth, 150);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState<number>(0);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   useEffect(() => {
-    if (globalThis.window === undefined) return;
+    if (!containerRef.current) return;
 
-    const handleResize = () => {
-      setWindowWidth(globalThis.window.innerWidth);
+    const updateSize = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.clientHeight);
+        setContainerWidth(containerRef.current.clientWidth);
+      }
     };
 
-    globalThis.window.addEventListener("resize", handleResize, {
-      passive: true,
-    });
-    return () => globalThis.window.removeEventListener("resize", handleResize);
+    updateSize();
+
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   const responsiveColumns = useMemo(() => {
-    if (globalThis.window === undefined || debouncedWindowWidth === 0)
-      return columns;
-    if (debouncedWindowWidth < 640) return 8;
-    if (debouncedWindowWidth < 1024) return 12;
-    return columns;
-  }, [columns, debouncedWindowWidth]);
+    const columnWidth = 32;
+    const calculatedColumns =
+      containerWidth > 0
+        ? Math.max(1, Math.floor(containerWidth / columnWidth))
+        : columns;
 
-  const textWithoutSpaces = useMemo(() => {
-    return text.replaceAll(/\s+/g, "");
-  }, [text]);
-
-  const repeatedText = useMemo(() => {
-    if (textWithoutSpaces.length === 0) {
-      return "";
-    }
-    const repeatCount = Math.ceil(
-      (responsiveColumns * 15) / textWithoutSpaces.length
-    );
-    return new Array(repeatCount).fill(textWithoutSpaces).join("");
-  }, [textWithoutSpaces, responsiveColumns]);
+    return calculatedColumns;
+  }, [containerWidth, columns]);
 
   const symbolGrid = useMemo(() => {
-    const minRows = 50;
-    return textToSymbolGrid(repeatedText, responsiveColumns, minRows);
-  }, [repeatedText, responsiveColumns]);
+    const rowHeight = 32;
+    const calculatedRows =
+      containerHeight > 0
+        ? Math.max(1, Math.floor(containerHeight / rowHeight))
+        : 50;
+
+    return textToCenteredSymbolGrid(
+      author,
+      quote,
+      responsiveColumns,
+      calculatedRows
+    );
+  }, [author, quote, responsiveColumns, containerHeight]);
 
   const handleActivate = () => {
     if (isHovered && !hasStarted) {
@@ -95,6 +98,7 @@ export function PoneglyphOverlay({
       onKeyDown={handleKeyDown}
     >
       <div
+        ref={containerRef}
         className="poneglyph-grid h-full w-full"
         style={{
           display: "grid",

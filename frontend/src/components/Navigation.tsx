@@ -5,7 +5,7 @@ interface NavigationProps {
   readonly currentSection: number;
   readonly scrollProgress: {
     section: number;
-    dotIndex: number; // -1 = none, 0-2 = which dot is active
+    dotIndex: number;
   };
   readonly onNavigate: (sectionId: string) => void;
 }

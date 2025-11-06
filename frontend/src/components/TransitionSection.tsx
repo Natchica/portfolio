@@ -1,21 +1,15 @@
 interface TransitionSectionProps {
   readonly id?: string;
-  readonly height?: string;
 }
 
-export function TransitionSection({
-  id,
-  height = "100vh",
-}: TransitionSectionProps) {
+export function TransitionSection({ id }: TransitionSectionProps) {
   return (
     <section
       id={id}
       className="transition-section relative"
-      style={{ height, minHeight: height }}
+      style={{ height: "100vh", minHeight: "100vh" }}
     >
-      {/* Invisible spacer for now - future animations can go here */}
       <div className="absolute inset-0 flex items-center justify-center opacity-0">
-        {/* Future: Blockchain connection animations, particles, glowing lines */}
         <div className="w-1 h-full bg-gradient-to-b from-transparent via-cyber-400/20 to-transparent opacity-0" />
       </div>
     </section>

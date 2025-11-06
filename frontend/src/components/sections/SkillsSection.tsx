@@ -1,10 +1,10 @@
-import { useRef, memo } from "react";
+import { memo, useRef } from "react";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
-import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-const PONEGLYPH_QUOTE =
-  "Michael Saylor Bitcoin is the apex property of the human race";
+const PONEGLYPH_QUOTE = "Bitcoin is the apex property of the human race";
+const QUOTE_AUTHOR = "Michael Saylor";
 
 interface Skill {
   name: string;
@@ -35,7 +35,11 @@ export const SkillsSection = memo(function SkillsSection() {
         ref={ref}
         className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
-        <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
+        <PoneglyphOverlay
+          author={QUOTE_AUTHOR}
+          quote={PONEGLYPH_QUOTE}
+          columns={15}
+        />
         <div className="poneglyph-block relative z-[1]">
           <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-cyber-400 to-ocean-300 bg-clip-text text-transparent">
             Technical Glyphs
