@@ -200,13 +200,16 @@ export function textToCenteredSymbolGrid(
   }
 
   // Position content lines vertically centered
+  // If content overflows available rows, ensure we show all content lines
+  // by expanding the grid to fit all content (or at least prioritize showing all content)
+  const actualRows = Math.max(rows, contentLines.length);
   const contentStartRow = Math.max(
     0,
-    Math.floor((rows - contentLines.length) / 2)
+    Math.floor((actualRows - contentLines.length) / 2)
   );
   const grid: (string | null)[][] = [];
 
-  for (let row = 0; row < rows; row++) {
+  for (let row = 0; row < actualRows; row++) {
     const contentLineIndex = row - contentStartRow;
     if (contentLineIndex >= 0 && contentLineIndex < contentLines.length) {
       // Use content line
