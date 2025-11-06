@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { useRef, memo } from "react";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 const PONEGLYPH_QUOTE = "Gol D. Roger I left everything I own in that place";
 
@@ -47,15 +48,18 @@ const experiences: ExperienceItem[] = [
   },
 ];
 
-export function ExperienceSection() {
+export const ExperienceSection = memo(function ExperienceSection() {
+  const ref = useRef(null);
+  const isVisible = useIntersectionObserver(ref, {
+    once: true,
+    rootMargin: "-10%",
+  });
+
   return (
     <PoneglyphSection id="experience">
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+      <div
+        ref={ref}
+        className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
         <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
         <div className="poneglyph-block relative z-[1]">
@@ -86,7 +90,7 @@ export function ExperienceSection() {
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
     </PoneglyphSection>
   );
-}
+});

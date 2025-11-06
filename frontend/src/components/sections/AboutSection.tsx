@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { useRef, memo } from "react";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 const PONEGLYPH_QUOTE =
   "Satoshi Nakamoto The root problem with conventional currency is all the trust that's required to make it work";
@@ -9,15 +10,20 @@ interface AboutSectionProps {
   readonly onNavigate: (section: string) => void;
 }
 
-export function AboutSection({ onNavigate }: AboutSectionProps) {
+export const AboutSection = memo(function AboutSection({
+  onNavigate,
+}: AboutSectionProps) {
+  const ref = useRef(null);
+  const isVisible = useIntersectionObserver(ref, {
+    once: true,
+    rootMargin: "-10%",
+  });
+
   return (
     <PoneglyphSection id="about">
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+      <div
+        ref={ref}
+        className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
         <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
         <div className="poneglyph-block text-center relative z-[1]">
@@ -27,6 +33,11 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
               <img
                 src="/Nathan-G.png"
                 alt="Nathan GAUD"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                width="128"
+                height="128"
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
@@ -83,7 +94,7 @@ export function AboutSection({ onNavigate }: AboutSectionProps) {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </PoneglyphSection>
   );
-}
+});

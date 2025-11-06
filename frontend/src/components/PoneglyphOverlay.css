@@ -1,0 +1,30 @@
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.poneglyph-symbol-cell {
+  background: #4a5568;
+  animation: fadeOut 0.2s ease-in-out forwards;
+  animation-delay: calc(var(--line-index) * 0.1s);
+  animation-play-state: paused;
+  width: 100%;
+  height: 100%;
+  min-height: 32px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.poneglyph-symbol-cell.animating {
+  animation-play-state: running;
+  will-change: opacity;
+}

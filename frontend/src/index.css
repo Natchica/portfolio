@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Custom Portfolio Styles */
 :root {
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -19,19 +18,20 @@ body {
   min-height: 100vh;
   color: white;
   overflow-x: hidden;
-  /* Hide scrollbar for all browsers */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-  /* Prevent rubber-band scroll bounce */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   overscroll-behavior-y: none;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 body::-webkit-scrollbar {
   display: none;
 }
 
-/* Poneglyph Section Styling */
+.portfolio-container {
+  min-height: 100vh;
+  position: relative;
+}
+
 .poneglyph-section {
   min-height: 100vh;
   display: flex;
@@ -41,7 +41,6 @@ body::-webkit-scrollbar {
   position: relative;
 }
 
-/* Transition Section Styling */
 .transition-section {
   display: flex;
   align-items: center;
@@ -54,28 +53,23 @@ body::-webkit-scrollbar {
   background: linear-gradient(145deg, #4a5568, #2d3748);
   border-radius: 1rem;
   padding: 3rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   max-width: 800px;
   width: 100%;
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-  /* Hide scrollbar for all browsers */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 html::-webkit-scrollbar {
   display: none;
 }
 
-/* Poneglyph Overlay Styling */
 .poneglyph-overlay {
   position: absolute;
   inset: 0;
@@ -85,14 +79,21 @@ html::-webkit-scrollbar {
   pointer-events: auto;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .poneglyph-grid {
   overflow: hidden;
   align-content: start;
   border-radius: 1rem;
+  background: #4a5568;
+  animation: removeGridBackground 0.01s ease-in-out 2s forwards;
+}
+
+@keyframes removeGridBackground {
+  to {
+    background: transparent;
+  }
 }
 
 .poneglyph-symbol {
@@ -110,4 +111,98 @@ html::-webkit-scrollbar {
   height: 100%;
   object-fit: contain;
   filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.3));
+}
+
+.section-entrance {
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.section-entrance.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.nav-container {
+  opacity: 0;
+  transform: translateX(20px);
+  animation: slideInRight 0.5s ease forwards;
+}
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nav-button {
+  --nav-button-scale: 1;
+  --nav-button-shadow-opacity: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: scale(var(--nav-button-scale));
+  box-shadow: 0 0 25px
+    rgba(0, 212, 255, calc(0.7 * var(--nav-button-shadow-opacity)));
+}
+
+.nav-button.active {
+  --nav-button-scale: 1.15;
+  --nav-button-shadow-opacity: 1;
+}
+
+.nav-button:hover:not(.active) {
+  --nav-button-scale: 1.1;
+}
+
+.nav-dot {
+  --nav-dot-scale: 1;
+  --nav-dot-opacity: 0.4;
+  --nav-dot-bg: #4a5568;
+  --nav-dot-shadow-opacity: 0;
+  transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+  background-color: var(--nav-dot-bg);
+  transform: scale(var(--nav-dot-scale));
+  opacity: var(--nav-dot-opacity);
+  box-shadow: 0 0 15px
+    rgba(0, 212, 255, calc(0.8 * var(--nav-dot-shadow-opacity)));
+}
+
+.nav-dot.active {
+  --nav-dot-scale: 1.3;
+  --nav-dot-opacity: 1;
+  --nav-dot-bg: #00d4ff;
+  --nav-dot-shadow-opacity: 1;
+}
+
+.connection-line {
+  transition: height 1s ease, opacity 1s ease;
+  transition-delay: 0.5s;
+  height: 0;
+  opacity: 0;
+}
+
+.connection-line.visible {
+  height: 4rem;
+  opacity: 1;
+}
+
+.connection-dot {
+  transition: transform 0.5s ease;
+  transition-delay: 1s;
+  transform: scale(0);
+}
+
+.connection-dot.visible {
+  transform: scale(1);
+}
+
+.nav-button,
+.nav-dot,
+.section-entrance {
+  will-change: transform;
+}
+
+* {
+  -webkit-overflow-scrolling: touch;
 }

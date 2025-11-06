@@ -1,14 +1,12 @@
-import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { useDebounce } from "../hooks/useDebounce";
 import { textToSymbolGrid } from "../utils/poneglyphConverter";
+import "./PoneglyphOverlay.css";
 
 interface PoneglyphOverlayProps {
   readonly text: string;
   readonly columns?: number;
 }
-
-export const LINE_DELAY = 0.1;
-export const LINE_DURATION = 0.2;
 
 export function PoneglyphOverlay({
   text,
@@ -21,7 +19,8 @@ export function PoneglyphOverlay({
     return globalThis.window.innerWidth;
   });
 
-  // Listen for window resize events
+  const debouncedWindowWidth = useDebounce(windowWidth, 150);
+
   useEffect(() => {
     if (globalThis.window === undefined) return;
 
@@ -29,25 +28,25 @@ export function PoneglyphOverlay({
       setWindowWidth(globalThis.window.innerWidth);
     };
 
-    globalThis.window.addEventListener("resize", handleResize);
+    globalThis.window.addEventListener("resize", handleResize, {
+      passive: true,
+    });
     return () => globalThis.window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Calculate responsive columns based on viewport
   const responsiveColumns = useMemo(() => {
-    if (globalThis.window === undefined || windowWidth === 0) return columns;
-    if (windowWidth < 640) return 8; // mobile
-    if (windowWidth < 1024) return 12; // tablet
-    return columns; // desktop
-  }, [columns, windowWidth]);
+    if (globalThis.window === undefined || debouncedWindowWidth === 0)
+      return columns;
+    if (debouncedWindowWidth < 640) return 8;
+    if (debouncedWindowWidth < 1024) return 12;
+    return columns;
+  }, [columns, debouncedWindowWidth]);
 
-  // Remove spaces and repeat text to fill grid pattern
   const textWithoutSpaces = useMemo(() => {
     return text.replaceAll(/\s+/g, "");
   }, [text]);
 
   const repeatedText = useMemo(() => {
-    // Handle empty or whitespace-only text
     if (textWithoutSpaces.length === 0) {
       return "";
     }
@@ -57,19 +56,12 @@ export function PoneglyphOverlay({
     return new Array(repeatCount).fill(textWithoutSpaces).join("");
   }, [textWithoutSpaces, responsiveColumns]);
 
-  // Convert text to symbol grid with minimum rows to ensure full coverage
-  // Use generous row count to ensure complete block coverage
   const symbolGrid = useMemo(() => {
-    const minRows = 50; // Generous minimum to ensure full block coverage
+    const minRows = 50;
     return textToSymbolGrid(repeatedText, responsiveColumns, minRows);
   }, [repeatedText, responsiveColumns]);
 
-  // Animation should start only when both hovered and clicked
-  // Once started, it continues forever (never resets)
-  const shouldDecrypt = hasStarted;
-
   const handleActivate = () => {
-    // Only start if hovered (user must be hovering when clicking)
     if (isHovered && !hasStarted) {
       setHasStarted(true);
     }
@@ -78,7 +70,6 @@ export function PoneglyphOverlay({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      // For keyboard, allow activation without hover requirement
       if (!hasStarted) {
         setHasStarted(true);
       }
@@ -117,58 +108,31 @@ export function PoneglyphOverlay({
         {symbolGrid.map((line, lineIndex) =>
           line.map((symbolPath, symbolIndex) => {
             return (
-              <motion.div
+              <div
                 key={`${lineIndex}-${symbolIndex}`}
-                className="poneglyph-symbol flex items-center justify-center relative"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  minHeight: "32px",
-                  margin: 0,
-                  padding: 0,
-                  boxSizing: "border-box",
-                }}
-                initial={{ opacity: 1 }}
-                animate={{
-                  opacity: shouldDecrypt ? 0 : 1,
-                }}
-                transition={{
-                  duration: LINE_DURATION,
-                  delay: lineIndex * LINE_DELAY,
-                  ease: "easeInOut",
-                }}
+                className={`poneglyph-symbol-cell ${
+                  hasStarted ? "animating" : ""
+                }`}
+                style={
+                  {
+                    "--line-index": lineIndex,
+                  } as React.CSSProperties
+                }
               >
-                {/* Background that matches overlay container - fades with symbol */}
-                <motion.div
-                  className="absolute inset-0"
-                  style={{
-                    background: "#4a5568",
-                    zIndex: -1,
-                    margin: 0,
-                    padding: 0,
-                    borderRadius: 0,
-                    boxSizing: "border-box",
-                  }}
-                  initial={{ opacity: 1 }}
-                  animate={{
-                    opacity: shouldDecrypt ? 0 : 1,
-                  }}
-                  transition={{
-                    duration: LINE_DURATION,
-                    delay: lineIndex * LINE_DELAY,
-                    ease: "easeInOut",
-                  }}
-                />
                 {symbolPath ? (
                   <img
                     src={symbolPath}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="32"
+                    height="32"
                     className="w-full h-full object-contain max-w-[32px] max-h-[32px] relative z-10"
                   />
                 ) : (
                   <div className="w-full h-full" />
                 )}
-              </motion.div>
+              </div>
             );
           })
         )}
