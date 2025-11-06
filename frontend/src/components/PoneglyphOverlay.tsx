@@ -40,25 +40,21 @@ export function PoneglyphOverlay({
   }, []);
 
   const responsiveColumns = useMemo(() => {
-    // Calculate columns based on container width
-    // Each column should be approximately 32px wide (matching row height)
     const columnWidth = 32;
     const calculatedColumns =
       containerWidth > 0
         ? Math.max(1, Math.floor(containerWidth / columnWidth))
-        : columns; // Fallback to prop value if width not yet measured
+        : columns;
 
     return calculatedColumns;
   }, [containerWidth, columns]);
 
   const symbolGrid = useMemo(() => {
-    // Calculate rows based on container height
-    // Each row is minmax(32px, 1fr), so we use 32px as base row height
     const rowHeight = 32;
     const calculatedRows =
       containerHeight > 0
         ? Math.max(1, Math.floor(containerHeight / rowHeight))
-        : 50; // Fallback to 50 if height not yet measured
+        : 50;
 
     return textToCenteredSymbolGrid(
       author,
