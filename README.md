@@ -7,7 +7,7 @@ A personal portfolio website combining One Piece Poneglyphs with blockchain aest
 - **Backend:** Rust (Axum)
 - **Frontend:** React + TypeScript
 - **Styling:** Tailwind CSS
-- **Animations:** Framer Motion
+- **Animations:** Pure CSS
 
 ## Project Structure
 

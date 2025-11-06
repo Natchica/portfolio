@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { useRef, memo } from "react";
 import { PoneglyphOverlay } from "../PoneglyphOverlay";
 import { PoneglyphSection } from "../PoneglyphSection";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 const PONEGLYPH_QUOTE = "Monkey D. Luffy I'm going to be the Pirate King";
 
@@ -17,7 +18,7 @@ const projects: Project[] = [
     title: "Poneglyph Portfolio",
     description:
       "Personal portfolio combining One Piece aesthetics with blockchain themes. Built with React, TypeScript, and Rust backend featuring infinite scroll and decryption animations.",
-    tech: ["React", "TypeScript", "Rust", "Tailwind CSS", "Framer Motion"],
+    tech: ["React", "TypeScript", "Rust", "Tailwind CSS"],
     status: "In Development",
     icon: "⚓",
   },
@@ -31,7 +32,7 @@ const projects: Project[] = [
   },
 ];
 
-export function ProjectsSection() {
+export const ProjectsSection = memo(function ProjectsSection() {
   const getStatusColor = (status: Project["status"]) => {
     switch (status) {
       case "Completed":
@@ -43,14 +44,17 @@ export function ProjectsSection() {
     }
   };
 
+  const ref = useRef(null);
+  const isVisible = useIntersectionObserver(ref, {
+    once: true,
+    rootMargin: "-10%",
+  });
+
   return (
     <PoneglyphSection id="projects">
-      <motion.div
-        className="relative"
-        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+      <div
+        ref={ref}
+        className={`relative section-entrance ${isVisible ? "visible" : ""}`}
       >
         <PoneglyphOverlay text={PONEGLYPH_QUOTE} columns={15} />
         <div className="poneglyph-block relative z-[1]">
@@ -100,7 +104,7 @@ export function ProjectsSection() {
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </PoneglyphSection>
   );
-}
+});
