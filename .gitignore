@@ -1,20 +1,12 @@
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
 # Build outputs
-dist/
-build/
 target/
+frontend/dist/
+.trunk/
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
 # IDE files
 .vscode/
@@ -28,19 +20,11 @@ Thumbs.db
 
 # Logs
 *.log
-logs/
 
 # Temporary files
 *.tmp
 *.temp
 
-# Project planning
-DEVELOPMENT_GUIDE.md
-portfolio_project_plan.md
-
-# Public images
+# Source assets (originals not needed in repo)
 frontend/public/symbols/image
 frontend/public/symbols/svg_original
-
-# Scripts
-scripts/
