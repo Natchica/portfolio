@@ -65,7 +65,7 @@ pub fn Navigation(
                                         Some(
                                             view! {
                                                 <div class="nav-dots-group">
-                                                    {(0..3)
+                                                    {(0..1)
                                                         .map(|dot_index| {
                                                             view! {
                                                                 <div class={move || {

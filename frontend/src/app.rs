@@ -175,12 +175,10 @@ pub fn App() -> impl IntoView {
             if viewport_middle >= current_bottom && viewport_middle <= next_top {
                 let zone_height = next_top - current_bottom;
                 let progress = (viewport_middle - current_bottom) / zone_height;
-                active_dot_index = if progress < 0.33 {
+                active_dot_index = if progress < 0.5 {
                     0
-                } else if progress < 0.66 {
-                    1
                 } else {
-                    2
+                    -1
                 };
             }
         }
@@ -384,41 +382,32 @@ pub fn App() -> impl IntoView {
             <div id="about">
                 <AboutSection on_navigate=about_scroll />
             </div>
-            <TransitionSection />
-            <TransitionSection />
-            <TransitionSection />
+            <TransitionSection chain=true />
 
             <div id="skills">
                 <SkillsSection />
             </div>
-            <TransitionSection />
-            <TransitionSection />
-            <TransitionSection />
+            <TransitionSection chain=true />
 
             <div id="experience">
                 <ExperienceSection />
             </div>
-            <TransitionSection />
-            <TransitionSection />
-            <TransitionSection />
+            <TransitionSection chain=true />
 
             <div id="projects">
                 <ProjectsSection />
             </div>
-            <TransitionSection />
-            <TransitionSection />
-            <TransitionSection />
+            <TransitionSection chain=true />
 
             <div id="alphabet">
                 <PoneglyphAlphabetSection />
             </div>
-            <TransitionSection />
-            <TransitionSection />
-            <TransitionSection />
+            <TransitionSection chain=true />
 
             <div id="contact">
                 <ContactSection on_navigate=contact_scroll />
             </div>
+            <TransitionSection chain=true fade=true />
 
             <TransitionSection id="transition-loop-bottom-1" />
             <TransitionSection id="transition-loop-bottom-2" />
