@@ -21,6 +21,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
             ..Default::default()
         },
     );
+    let (decoded, set_decoded) = signal(false);
 
     let nav_about = on_navigate.clone();
 
@@ -36,12 +37,21 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                     }
                 }}
             >
-                <PoneglyphOverlay author=QUOTE_AUTHOR quote=PONEGLYPH_QUOTE columns=15 />
-                <div class="poneglyph-block content-layer">
+                <PoneglyphOverlay
+                    author=QUOTE_AUTHOR
+                    quote=PONEGLYPH_QUOTE
+                    columns=15
+                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                />
+                <div class=move || if decoded.get() {
+                    "poneglyph-block content-layer content-decoded"
+                } else {
+                    "poneglyph-block content-layer"
+                }>
                     <h2 class="section-header">"Final Poneglyph"</h2>
                     <div class="contact-grid">
                         // Contact Form
-                        <div>
+                        <div class="stagger-item" style="--item-index: 0;">
                             <h3 class="contact-subtitle">"Send a Message"</h3>
                             <form class="contact-form">
                                 <div>
@@ -71,7 +81,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                             </form>
                         </div>
                         // Contact Info
-                        <div class="contact-info-panel">
+                        <div class="contact-info-panel stagger-item" style="--item-index: 1;">
                             <div>
                                 <h3 class="contact-subtitle">"Connect With Me"</h3>
                                 <div class="contact-info-list">
@@ -129,7 +139,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                         </div>
                     </div>
                     // Loop back
-                    <div class="loop-back-section">
+                    <div class="loop-back-section stagger-item" style="--item-index: 2;">
                         <p class="loop-back-text">"The blockchain continues..."</p>
                         <button
                             class="btn-outline btn-genesis"

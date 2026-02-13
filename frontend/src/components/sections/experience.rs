@@ -59,6 +59,7 @@ pub fn ExperienceSection() -> impl IntoView {
             ..Default::default()
         },
     );
+    let (decoded, set_decoded) = signal(false);
 
     view! {
         <PoneglyphSection id="experience-inner">
@@ -72,15 +73,26 @@ pub fn ExperienceSection() -> impl IntoView {
                     }
                 }}
             >
-                <PoneglyphOverlay author=QUOTE_AUTHOR quote=PONEGLYPH_QUOTE columns=15 />
-                <div class="poneglyph-block content-layer">
+                <PoneglyphOverlay
+                    author=QUOTE_AUTHOR
+                    quote=PONEGLYPH_QUOTE
+                    columns=15
+                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                />
+                <div class=move || if decoded.get() {
+                    "poneglyph-block content-layer content-decoded"
+                } else {
+                    "poneglyph-block content-layer"
+                }>
                     <h2 class="section-header">"Historical Records"</h2>
                     <div class="experience-list">
                         {EXPERIENCES
                             .iter()
-                            .map(|item| {
+                            .enumerate()
+                            .map(|(index, item)| {
+                                let stagger = format!("--item-index: {index};");
                                 view! {
-                                    <div class="experience-item">
+                                    <div class="experience-item stagger-slide" style={stagger}>
                                         <div class="experience-icon">{item.icon}</div>
                                         <div class="experience-content">
                                             <div class="experience-header">

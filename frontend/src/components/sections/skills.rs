@@ -64,6 +64,7 @@ pub fn SkillsSection() -> impl IntoView {
             ..Default::default()
         },
     );
+    let (decoded, set_decoded) = signal(false);
 
     view! {
         <PoneglyphSection id="skills-inner">
@@ -77,16 +78,27 @@ pub fn SkillsSection() -> impl IntoView {
                     }
                 }}
             >
-                <PoneglyphOverlay author=QUOTE_AUTHOR quote=PONEGLYPH_QUOTE columns=15 />
-                <div class="poneglyph-block content-layer">
+                <PoneglyphOverlay
+                    author=QUOTE_AUTHOR
+                    quote=PONEGLYPH_QUOTE
+                    columns=15
+                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                />
+                <div class=move || if decoded.get() {
+                    "poneglyph-block content-layer content-decoded"
+                } else {
+                    "poneglyph-block content-layer"
+                }>
                     <h2 class="section-header">"Technical Glyphs"</h2>
                     <div class="skill-grid">
                         {SKILLS
                             .iter()
-                            .map(|skill| {
+                            .enumerate()
+                            .map(|(index, skill)| {
                                 let width_style = format!("width: {}%;", skill.level);
+                                let stagger = format!("--item-index: {index};");
                                 view! {
-                                    <div class="skill-card">
+                                    <div class="skill-card stagger-item" style={stagger}>
                                         <div class="skill-card-header">
                                             <span class="skill-icon">{skill.icon}</span>
                                             <h3 class="skill-name">{skill.name}</h3>

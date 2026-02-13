@@ -3,6 +3,19 @@ use wasm_bindgen::prelude::*;
 
 use crate::utils::poneglyph_converter::text_to_centered_symbol_grid;
 
+fn schedule_callback(duration_secs: f64, cb: Callback<()>) {
+    let millis = ((duration_secs * 0.7) * 1000.0) as i32;
+    let closure = Closure::<dyn Fn()>::new(move || {
+        cb.run(());
+    });
+    let window = web_sys::window().expect("no window");
+    let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+        closure.as_ref().unchecked_ref(),
+        millis,
+    );
+    closure.forget();
+}
+
 fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> f64 {
     let corners = [(0.0, 0.0), (cols, 0.0), (0.0, rows), (cols, rows)];
     corners
@@ -20,6 +33,7 @@ pub fn PoneglyphOverlay(
     author: &'static str,
     quote: &'static str,
     #[prop(default = 15)] columns: usize,
+    #[prop(optional)] on_decode_complete: Option<Callback<()>>,
 ) -> impl IntoView {
     let (has_started, set_has_started) = signal(false);
     let (is_hovered, set_is_hovered) = signal(false);
@@ -103,9 +117,13 @@ pub fn PoneglyphOverlay(
                         let cols = responsive_columns.get_untracked() as f64;
                         let rows = symbol_grid.get_untracked().len() as f64;
                         let max_dist = max_corner_distance(click_col, click_row, cols, rows);
-                        decode_duration.set(max_dist * 0.04 + 0.6);
+                        let dur = max_dist * 0.04 + 0.6;
+                        decode_duration.set(dur);
                         click_coords.set(Some((x, y)));
                         set_has_started.set(true);
+                        if let Some(cb) = on_decode_complete {
+                            schedule_callback(dur, cb);
+                        }
                     }
                 }
             }
@@ -118,9 +136,13 @@ pub fn PoneglyphOverlay(
                     let cols = responsive_columns.get_untracked() as f64;
                     let rows = symbol_grid.get_untracked().len() as f64;
                     let max_dist = max_corner_distance(cols / 2.0, rows / 2.0, cols, rows);
-                    decode_duration.set(max_dist * 0.04 + 0.6);
+                    let dur = max_dist * 0.04 + 0.6;
+                    decode_duration.set(dur);
                     click_coords.set(Some((cw / 2.0, ch / 2.0)));
                     set_has_started.set(true);
+                    if let Some(cb) = on_decode_complete {
+                        schedule_callback(dur, cb);
+                    }
                 }
             }
         >
