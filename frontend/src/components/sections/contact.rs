@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::components::poneglyph_overlay::PoneglyphOverlay;
 use crate::components::poneglyph_section::PoneglyphSection;
 use crate::hooks::use_intersection_observer::{
-    use_intersection_observer, IntersectionObserverOptions,
+    IntersectionObserverOptions, use_intersection_observer,
 };
 
 const PONEGLYPH_QUOTE: &str =

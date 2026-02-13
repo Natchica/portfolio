@@ -1,7 +1,7 @@
 use leptos::prelude::*;
 
 use crate::hooks::use_intersection_observer::{
-    use_intersection_observer, IntersectionObserverOptions,
+    IntersectionObserverOptions, use_intersection_observer,
 };
 
 #[component]

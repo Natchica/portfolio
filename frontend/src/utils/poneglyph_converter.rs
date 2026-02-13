@@ -38,8 +38,8 @@ pub fn char_to_symbol(c: char) -> Option<&'static str> {
 }
 
 const AVAILABLE_CHARS: &[char] = &[
-    'a', 'd', 'e', 'f', 'g', 'i', 'j', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'u', 'x', 'b', 'v',
-    'k', 'q', 'c', 's', 'z', 'y', 'h', 'w', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'a', 'd', 'e', 'f', 'g', 'i', 'j', 'l', 'm', 'n', 'o', 'p', 'r', 't', 'u', 'x', 'b', 'v', 'k',
+    'q', 'c', 's', 'z', 'y', 'h', 'w', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 ];
 
 /// Converts text to an array of Poneglyph symbol paths.

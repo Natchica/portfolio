@@ -11,9 +11,7 @@ pub fn use_throttled_scroll(callback: impl Fn() + 'static) {
 
     let handler = Closure::<dyn Fn()>::new(move || {
         if let Some(id) = raf_id_clone.get() {
-            let _ = web_sys::window()
-                .unwrap()
-                .cancel_animation_frame(id);
+            let _ = web_sys::window().unwrap().cancel_animation_frame(id);
         }
 
         let raf_id_inner = raf_id_clone.clone();

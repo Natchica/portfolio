@@ -1,9 +1,5 @@
-use axum::{
-    response::Json,
-    routing::get,
-    Router,
-};
-use serde_json::{json, Value};
+use axum::{Router, response::Json, routing::get};
+use serde_json::{Value, json};
 use tower_http::cors::CorsLayer;
 
 #[tokio::main]

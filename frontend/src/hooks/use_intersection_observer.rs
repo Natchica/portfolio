@@ -33,7 +33,9 @@ pub fn use_intersection_observer(
 
         let closure = Closure::<dyn Fn(js_sys::Array, web_sys::IntersectionObserver)>::new(
             move |entries: js_sys::Array, observer: web_sys::IntersectionObserver| {
-                if let Some(entry) = entries.get(0).dyn_ref::<web_sys::IntersectionObserverEntry>()
+                if let Some(entry) = entries
+                    .get(0)
+                    .dyn_ref::<web_sys::IntersectionObserverEntry>()
                 {
                     let intersecting = entry.is_intersecting();
                     set_intersecting.set(intersecting);
@@ -48,9 +50,11 @@ pub fn use_intersection_observer(
         init.set_threshold(&JsValue::from_f64(options.threshold));
         init.set_root_margin(options.root_margin);
 
-        let observer =
-            web_sys::IntersectionObserver::new_with_options(closure.as_ref().unchecked_ref(), &init)
-                .expect("Failed to create IntersectionObserver");
+        let observer = web_sys::IntersectionObserver::new_with_options(
+            closure.as_ref().unchecked_ref(),
+            &init,
+        )
+        .expect("Failed to create IntersectionObserver");
 
         let el: &web_sys::Element = &element;
         observer.observe(el);

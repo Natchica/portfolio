@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::components::poneglyph_overlay::PoneglyphOverlay;
 use crate::components::poneglyph_section::PoneglyphSection;
 use crate::hooks::use_intersection_observer::{
-    use_intersection_observer, IntersectionObserverOptions,
+    IntersectionObserverOptions, use_intersection_observer,
 };
 
 const PONEGLYPH_QUOTE: &str = "Bitcoin is the apex property of the human race";
@@ -16,13 +16,41 @@ struct Skill {
 }
 
 const SKILLS: &[Skill] = &[
-    Skill { name: "Rust", level: 90, icon: "\u{1f980}" },
-    Skill { name: "Java", level: 90, icon: "\u{2615}" },
-    Skill { name: "TypeScript", level: 70, icon: "\u{26a1}" },
-    Skill { name: "Solidity", level: 65, icon: "\u{1f4dc}" },
-    Skill { name: "Backend Development", level: 85, icon: "\u{2699}\u{fe0f}" },
-    Skill { name: "Web3/Blockchain", level: 75, icon: "\u{1f517}" },
-    Skill { name: "DevOps/CI-CD", level: 70, icon: "\u{1f504}" },
+    Skill {
+        name: "Rust",
+        level: 90,
+        icon: "\u{1f980}",
+    },
+    Skill {
+        name: "Java",
+        level: 90,
+        icon: "\u{2615}",
+    },
+    Skill {
+        name: "TypeScript",
+        level: 70,
+        icon: "\u{26a1}",
+    },
+    Skill {
+        name: "Solidity",
+        level: 65,
+        icon: "\u{1f4dc}",
+    },
+    Skill {
+        name: "Backend Development",
+        level: 85,
+        icon: "\u{2699}\u{fe0f}",
+    },
+    Skill {
+        name: "Web3/Blockchain",
+        level: 75,
+        icon: "\u{1f517}",
+    },
+    Skill {
+        name: "DevOps/CI-CD",
+        level: 70,
+        icon: "\u{1f504}",
+    },
 ];
 
 #[component]
