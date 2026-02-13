@@ -21,6 +21,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
             ..Default::default()
         },
     );
+    let (decoded, set_decoded) = signal(false);
 
     let nav_skills = on_navigate.clone();
     let nav_contact = on_navigate.clone();
@@ -37,10 +38,19 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                     }
                 }}
             >
-                <PoneglyphOverlay author=QUOTE_AUTHOR quote=PONEGLYPH_QUOTE columns=15 />
-                <div class="poneglyph-block text-center content-layer">
+                <PoneglyphOverlay
+                    author=QUOTE_AUTHOR
+                    quote=PONEGLYPH_QUOTE
+                    columns=15
+                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                />
+                <div class=move || if decoded.get() {
+                    "poneglyph-block text-center content-layer content-decoded"
+                } else {
+                    "poneglyph-block text-center content-layer"
+                }>
                     <div>
-                        <div class="profile-image-wrapper">
+                        <div class="profile-image-wrapper stagger-item" style="--item-index: 0;">
                             <img
                                 src="Nathan-G.png"
                                 alt="Nathan GAUD"
@@ -51,10 +61,10 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                                 class="profile-image"
                             />
                         </div>
-                        <h1 class="section-header about-title">"Nathan GAUD"</h1>
-                        <p class="subtitle">"Backend Web3 Software Engineer"</p>
-                        <p class="section-subtitle">"Genesis Block - The Origin Story"</p>
-                        <div class="description">
+                        <h1 class="section-header about-title stagger-item" style="--item-index: 1;">"Nathan GAUD"</h1>
+                        <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Web3 Software Engineer"</p>
+                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Genesis Block - The Origin Story"</p>
+                        <div class="description stagger-item" style="--item-index: 3;">
                             <p>
                                 "Welcome to my digital Poneglyph. As a Backend Web3 Software \
                                  Engineer at iExec, I develop decentralized applications and \
@@ -72,7 +82,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                                 "\u{1f980} Rust & Java Developer \u{2022} \u{1f517} Blockchain Enthusiast \u{2022} \u{1f30a} Building the Decentralized Future"
                             </p>
                         </div>
-                        <div class="cta-buttons">
+                        <div class="cta-buttons stagger-item" style="--item-index: 4;">
                             <button
                                 class="btn-primary"
                                 on:click=move |_| nav_skills("skills".to_string())

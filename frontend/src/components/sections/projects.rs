@@ -48,6 +48,7 @@ pub fn ProjectsSection() -> impl IntoView {
             ..Default::default()
         },
     );
+    let (decoded, set_decoded) = signal(false);
 
     view! {
         <PoneglyphSection id="projects-inner">
@@ -61,15 +62,26 @@ pub fn ProjectsSection() -> impl IntoView {
                     }
                 }}
             >
-                <PoneglyphOverlay author=QUOTE_AUTHOR quote=PONEGLYPH_QUOTE columns=15 />
-                <div class="poneglyph-block content-layer">
+                <PoneglyphOverlay
+                    author=QUOTE_AUTHOR
+                    quote=PONEGLYPH_QUOTE
+                    columns=15
+                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                />
+                <div class=move || if decoded.get() {
+                    "poneglyph-block content-layer content-decoded"
+                } else {
+                    "poneglyph-block content-layer"
+                }>
                     <h2 class="section-header">"Treasure Maps"</h2>
                     <div class="project-grid">
                         {PROJECTS
                             .iter()
-                            .map(|project| {
+                            .enumerate()
+                            .map(|(index, project)| {
+                                let stagger = format!("--item-index: {index};");
                                 view! {
-                                    <div class="project-card">
+                                    <div class="project-card stagger-scale" style={stagger}>
                                         <div class="project-card-header">
                                             <span class="project-icon">{project.icon}</span>
                                             <div>

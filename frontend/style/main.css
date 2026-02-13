@@ -87,7 +87,7 @@ body::-webkit-scrollbar {
 .section-entrance {
   opacity: 0;
   transform: translateY(50px) scale(0.95);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .section-entrance.visible {
@@ -97,6 +97,61 @@ body::-webkit-scrollbar {
 
 .section-entrance-wrapper {
   position: relative;
+}
+
+/* Stagger animations — triggered by parent .section-entrance.visible */
+.stagger-item,
+.stagger-slide,
+.stagger-scale {
+  opacity: 0;
+}
+
+.content-decoded .stagger-item {
+  animation: staggerFadeUp 0.5s ease-out forwards;
+  animation-delay: calc(var(--item-index, 0) * 0.08s);
+}
+
+.content-decoded .stagger-slide {
+  animation: staggerSlideLeft 0.5s ease-out forwards;
+  animation-delay: calc(var(--item-index, 0) * 0.1s);
+}
+
+.content-decoded .stagger-scale {
+  animation: staggerScaleUp 0.4s ease-out forwards;
+  animation-delay: calc(var(--item-index, 0) * 0.12s);
+}
+
+@keyframes staggerFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes staggerSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes staggerScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ============================================================
