@@ -10,7 +10,7 @@ pub fn PoneglyphSection(
     #[prop(optional)] show_connection_line: Option<bool>,
     children: Children,
 ) -> impl IntoView {
-    let show_line = show_connection_line.unwrap_or(true);
+    let show_line = show_connection_line.unwrap_or(false);
     let node_ref = NodeRef::<leptos::html::Div>::new();
     let is_in_view = use_intersection_observer(
         node_ref,
