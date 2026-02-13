@@ -1,6 +1,6 @@
 use leptos::prelude::*;
-use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::Closure;
 
 use crate::components::navigation::{Navigation, ScrollProgress};
 use crate::components::sections::about::AboutSection;
@@ -12,7 +12,14 @@ use crate::components::sections::skills::SkillsSection;
 use crate::components::transition_section::TransitionSection;
 use crate::hooks::use_throttled_scroll::use_throttled_scroll;
 
-const SECTIONS: &[&str] = &["about", "skills", "experience", "projects", "alphabet", "contact"];
+const SECTIONS: &[&str] = &[
+    "about",
+    "skills",
+    "experience",
+    "projects",
+    "alphabet",
+    "contact",
+];
 
 #[derive(Clone, Debug)]
 struct SectionPosition {
@@ -81,7 +88,7 @@ pub fn App() -> impl IntoView {
     };
 
     // Initial scroll to about section + position calculation
-    let recalc = recalculate_positions.clone();
+    let recalc = recalculate_positions;
     Effect::new(move |_| {
         let window = web_sys::window().unwrap();
         if let Some(about) = window.document().and_then(|d| d.get_element_by_id("about")) {
@@ -92,8 +99,8 @@ pub fn App() -> impl IntoView {
             window.scroll_to_with_scroll_to_options(&opts);
         }
 
-        let recalc_inner = recalc.clone();
-        let recalc_inner2 = recalc.clone();
+        let recalc_inner = recalc;
+        let recalc_inner2 = recalc;
         let closure = Closure::<dyn FnMut()>::once(move || {
             recalc_inner();
             let closure2 = Closure::<dyn FnMut()>::once(move || {
@@ -196,83 +203,84 @@ pub fn App() -> impl IntoView {
         }
 
         // Scroll down: bottom transition teleport to top
-        if scroll_down {
-            if let Some(ref bottom2) = transitions.bottom2 {
-                if viewport_middle >= bottom2.top && viewport_middle <= bottom2.bottom {
-                    let progress = (viewport_middle - bottom2.top) / bottom2.height;
-                    if (0.5..=0.7).contains(&progress) {
-                        if let Some(ref top1) = transitions.top1 {
-                            is_scrolling.set(true);
-                            set_loop_count.update(|c| *c += 1);
+        if scroll_down
+            && let Some(ref bottom2) = transitions.bottom2
+            && viewport_middle >= bottom2.top
+            && viewport_middle <= bottom2.bottom
+        {
+            let progress = (viewport_middle - bottom2.top) / bottom2.height;
+            if (0.5..=0.7).contains(&progress)
+                && let Some(ref top1) = transitions.top1
+            {
+                is_scrolling.set(true);
+                set_loop_count.update(|c| *c += 1);
 
-                            let offset = viewport_middle - bottom2.top;
-                            let new_scroll = top1.top + offset;
+                let offset = viewport_middle - bottom2.top;
+                let new_scroll = top1.top + offset;
 
-                            let opts = web_sys::ScrollToOptions::new();
-                            opts.set_top(new_scroll);
-                            opts.set_behavior(web_sys::ScrollBehavior::Instant);
-                            window.scroll_to_with_scroll_to_options(&opts);
+                let opts = web_sys::ScrollToOptions::new();
+                opts.set_top(new_scroll);
+                opts.set_behavior(web_sys::ScrollBehavior::Instant);
+                window.scroll_to_with_scroll_to_options(&opts);
 
-                            let closure = Closure::<dyn FnMut()>::once(move || {
-                                is_scrolling.set(false);
-                            });
-                            window
-                                .set_timeout_with_callback_and_timeout_and_arguments_0(
-                                    closure.as_ref().unchecked_ref(),
-                                    50,
-                                )
-                                .unwrap();
-                            closure.forget();
-                        }
-                    }
-                }
+                let closure = Closure::<dyn FnMut()>::once(move || {
+                    is_scrolling.set(false);
+                });
+                window
+                    .set_timeout_with_callback_and_timeout_and_arguments_0(
+                        closure.as_ref().unchecked_ref(),
+                        50,
+                    )
+                    .unwrap();
+                closure.forget();
             }
         }
 
         // Scroll up: top transition teleport to bottom
-        if !scroll_down && loop_count.get_untracked() > 0 {
-            if let Some(ref top1) = transitions.top1 {
-                if viewport_middle >= top1.top && viewport_middle <= top1.bottom {
-                    let progress = (viewport_middle - top1.top) / top1.height;
-                    if (0.3..=0.5).contains(&progress) {
-                        if let Some(ref bottom2) = transitions.bottom2 {
-                            is_scrolling.set(true);
-                            set_loop_count.update(|c| *c = c.saturating_sub(1));
+        if !scroll_down
+            && loop_count.get_untracked() > 0
+            && let Some(ref top1) = transitions.top1
+            && viewport_middle >= top1.top
+            && viewport_middle <= top1.bottom
+        {
+            let progress = (viewport_middle - top1.top) / top1.height;
+            if (0.3..=0.5).contains(&progress)
+                && let Some(ref bottom2) = transitions.bottom2
+            {
+                is_scrolling.set(true);
+                set_loop_count.update(|c| *c = c.saturating_sub(1));
 
-                            let offset = viewport_middle - top1.top;
-                            let new_scroll = bottom2.top + offset;
+                let offset = viewport_middle - top1.top;
+                let new_scroll = bottom2.top + offset;
 
-                            let opts = web_sys::ScrollToOptions::new();
-                            opts.set_top(new_scroll);
-                            opts.set_behavior(web_sys::ScrollBehavior::Instant);
-                            window.scroll_to_with_scroll_to_options(&opts);
+                let opts = web_sys::ScrollToOptions::new();
+                opts.set_top(new_scroll);
+                opts.set_behavior(web_sys::ScrollBehavior::Instant);
+                window.scroll_to_with_scroll_to_options(&opts);
 
-                            let closure = Closure::<dyn FnMut()>::once(move || {
-                                is_scrolling.set(false);
-                            });
-                            window
-                                .set_timeout_with_callback_and_timeout_and_arguments_0(
-                                    closure.as_ref().unchecked_ref(),
-                                    50,
-                                )
-                                .unwrap();
-                            closure.forget();
-                        }
-                    }
-                }
+                let closure = Closure::<dyn FnMut()>::once(move || {
+                    is_scrolling.set(false);
+                });
+                window
+                    .set_timeout_with_callback_and_timeout_and_arguments_0(
+                        closure.as_ref().unchecked_ref(),
+                        50,
+                    )
+                    .unwrap();
+                closure.forget();
             }
         }
 
         // Prevent scrolling above top transition when loop_count == 0
-        if loop_count.get_untracked() == 0 && !scroll_down {
-            if let Some(ref top1) = transitions.top1 {
-                if scroll_position < top1.top {
-                    let opts = web_sys::ScrollToOptions::new();
-                    opts.set_top(top1.top);
-                    opts.set_behavior(web_sys::ScrollBehavior::Instant);
-                    window.scroll_to_with_scroll_to_options(&opts);
-                }
-            }
+        if loop_count.get_untracked() == 0
+            && !scroll_down
+            && let Some(ref top1) = transitions.top1
+            && scroll_position < top1.top
+        {
+            let opts = web_sys::ScrollToOptions::new();
+            opts.set_top(top1.top);
+            opts.set_behavior(web_sys::ScrollBehavior::Instant);
+            window.scroll_to_with_scroll_to_options(&opts);
         }
 
         // transitions already read via get_untracked
@@ -281,21 +289,20 @@ pub fn App() -> impl IntoView {
     use_throttled_scroll(handle_scroll);
 
     let scroll_to_section = move |section_id: String| {
-            let index = SECTIONS.iter().position(|s| *s == section_id);
-            if let Some(idx) = index {
-                set_current_section.set(idx);
-            }
-            is_scrolling.set(true);
+        let index = SECTIONS.iter().position(|s| *s == section_id);
+        if let Some(idx) = index {
+            set_current_section.set(idx);
+        }
+        is_scrolling.set(true);
 
-            if let Some(window) = web_sys::window() {
-                if let Some(doc) = window.document() {
-                    if let Some(el) = doc.get_element_by_id(&section_id) {
-                        let opts = web_sys::ScrollIntoViewOptions::new();
-                        opts.set_behavior(web_sys::ScrollBehavior::Smooth);
-                        el.scroll_into_view_with_scroll_into_view_options(&opts);
-                    }
-                }
-            }
+        if let Some(window) = web_sys::window()
+            && let Some(doc) = window.document()
+            && let Some(el) = doc.get_element_by_id(&section_id)
+        {
+            let opts = web_sys::ScrollIntoViewOptions::new();
+            opts.set_behavior(web_sys::ScrollBehavior::Smooth);
+            el.scroll_into_view_with_scroll_into_view_options(&opts);
+        }
 
         let closure = Closure::<dyn FnMut()>::once(move || {
             is_scrolling.set(false);
@@ -314,16 +321,15 @@ pub fn App() -> impl IntoView {
         is_scrolling.set(true);
         set_loop_count.set(0);
 
-        if let Some(window) = web_sys::window() {
-            if let Some(doc) = window.document() {
-                if let Some(about) = doc.get_element_by_id("about") {
-                    let el: &web_sys::HtmlElement = about.unchecked_ref();
-                    let opts = web_sys::ScrollToOptions::new();
-                    opts.set_top(el.offset_top() as f64);
-                    opts.set_behavior(web_sys::ScrollBehavior::Smooth);
-                    window.scroll_to_with_scroll_to_options(&opts);
-                }
-            }
+        if let Some(window) = web_sys::window()
+            && let Some(doc) = window.document()
+            && let Some(about) = doc.get_element_by_id("about")
+        {
+            let el: &web_sys::HtmlElement = about.unchecked_ref();
+            let opts = web_sys::ScrollToOptions::new();
+            opts.set_top(el.offset_top() as f64);
+            opts.set_behavior(web_sys::ScrollBehavior::Smooth);
+            window.scroll_to_with_scroll_to_options(&opts);
         }
 
         let closure = Closure::<dyn FnMut()>::once(move || {
@@ -339,9 +345,9 @@ pub fn App() -> impl IntoView {
         closure.forget();
     };
 
-    let nav_scroll = scroll_to_section.clone();
-    let about_scroll = scroll_to_section.clone();
-    let contact_scroll = scroll_to_section.clone();
+    let nav_scroll = scroll_to_section;
+    let about_scroll = scroll_to_section;
+    let contact_scroll = scroll_to_section;
 
     view! {
         <div class="portfolio-container">
@@ -361,7 +367,7 @@ pub fn App() -> impl IntoView {
                                 <div class="loop-counter-badge">
                                     {format!("\u{1f3f4}\u{200d}\u{2620}\u{fe0f} Loops sailed: {}", count)}
                                 </div>
-                                <button class="loop-counter-btn" on:click=scroll_to_top.clone()>
+                                <button class="loop-counter-btn" on:click=scroll_to_top>
                                     "\u{2693} Return to origin"
                                 </button>
                             </div>

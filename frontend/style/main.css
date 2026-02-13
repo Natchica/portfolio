@@ -334,7 +334,7 @@ body::-webkit-scrollbar {
   position: absolute;
   inset: 0;
   z-index: 10;
-  background: transparent;
+  background: #4a5568;
   border-radius: 1rem;
   pointer-events: auto;
   overflow: hidden;
@@ -352,12 +352,28 @@ body::-webkit-scrollbar {
   height: 100%;
 }
 
+.poneglyph-overlay.decoding {
+  animation: fadeBackground var(--decode-total, 3s) ease-in forwards;
+}
+
 .poneglyph-grid {
   overflow: hidden;
   align-content: start;
   border-radius: 1rem;
   background: #4a5568;
-  animation: removeGridBackground 0.01s ease-in-out 2s forwards;
+}
+
+.decoding .poneglyph-grid {
+  animation: fadeBackground var(--decode-total, 3s) ease-in forwards;
+}
+
+@keyframes fadeBackground {
+  from {
+    background-color: #4a5568;
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
 .poneglyph-grid-full {
@@ -369,11 +385,6 @@ body::-webkit-scrollbar {
   width: 100%;
 }
 
-@keyframes removeGridBackground {
-  to {
-    background: transparent;
-  }
-}
 
 .poneglyph-symbol {
   display: flex;
@@ -392,20 +403,42 @@ body::-webkit-scrollbar {
   filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.3));
 }
 
-/* Overlay cell + fade-out animation */
-@keyframes fadeOut {
-  from {
+/* Overlay cell + radial decode animation */
+@keyframes poneglyphDecode {
+  0% {
     opacity: 1;
   }
-  to {
+  15% {
+    opacity: 1;
+    transform: scale(1.08);
+    filter: brightness(1.5) hue-rotate(30deg);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(0.95);
+    filter: brightness(1.2) hue-rotate(-20deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+    filter: brightness(1.8) hue-rotate(60deg);
+  }
+  65% {
+    opacity: 0.7;
+    transform: scale(1);
+    filter: brightness(1.3);
+  }
+  100% {
     opacity: 0;
+    transform: scale(0.85);
+    filter: brightness(2.5);
   }
 }
 
 .poneglyph-symbol-cell {
   background: #4a5568;
-  animation: fadeOut 0.2s ease-in-out forwards;
-  animation-delay: calc(var(--line-index) * 0.1s);
+  animation: poneglyphDecode 0.6s ease-in-out forwards;
+  animation-delay: calc(var(--decode-delay, 0) * 0.04s);
   animation-play-state: paused;
   width: 100%;
   height: 100%;
@@ -421,7 +454,7 @@ body::-webkit-scrollbar {
 
 .poneglyph-symbol-cell.animating {
   animation-play-state: running;
-  will-change: opacity;
+  will-change: opacity, transform, filter;
 }
 
 .poneglyph-cell-img {
