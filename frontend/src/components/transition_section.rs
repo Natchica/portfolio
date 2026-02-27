@@ -1,6 +1,13 @@
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
+use leptos::either::Either;
 use leptos::prelude::*;
 use wasm_bindgen::JsCast;
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::closure::Closure;
+
+use crate::components::sections::alphabet::PoneglyphAlphabetSection;
+use crate::context::EasterEggState;
 
 const GLYPHS: &[&str] = &[
     "symbols/svg/letters/a.svg",
@@ -59,54 +66,118 @@ fn generate_helix_nodes(fade: bool) -> Vec<HelixNode> {
     nodes
 }
 
-/// Apply magnetic repulsion: each node within `radius` px of cursor
-/// gets pushed radially outward with quadratic falloff.
-fn apply_repulsion(container: &web_sys::Element, mx: f64, my: f64) {
-    let radius: f64 = 350.0;
-    let max_force: f64 = 200.0;
+// Bouncing easter egg trigger with RAF-driven physics
+#[component]
+fn EasterEggTrigger(unlocked: RwSignal<bool>) -> impl IntoView {
+    let pos_x = RwSignal::new(50.0_f64 + fastrand::f64() * 300.0);
+    let pos_y = RwSignal::new(50.0_f64 + fastrand::f64() * 200.0);
 
-    let Ok(nodes) = container.query_selector_all(".helix-node") else {
-        return;
-    };
-    for i in 0..nodes.length() {
-        let Some(node) = nodes.item(i) else { continue };
-        let elem: &web_sys::Element = node.unchecked_ref();
-        let nr = elem.get_bounding_client_rect();
-        let nx = nr.left() + nr.width() / 2.0;
-        let ny = nr.top() + nr.height() / 2.0;
-        let dx = nx - mx;
-        let dy = ny - my;
-        let dist = (dx * dx + dy * dy).sqrt();
+    let stopped = RwSignal::new(false);
+    on_cleanup(move || stopped.set(true));
 
-        let html_node: &web_sys::HtmlElement = node.unchecked_ref();
-        if dist < radius && dist > 1.0 {
-            let t = 1.0 - dist / radius;
-            let force = t * t * max_force;
-            let rx = dx / dist * force;
-            let ry = dy / dist * force;
-            let _ = html_node
-                .style()
-                .set_property("--repel-x", &format!("{rx:.1}px"));
-            let _ = html_node
-                .style()
-                .set_property("--repel-y", &format!("{ry:.1}px"));
-        } else {
-            let _ = html_node.style().set_property("--repel-x", "0px");
-            let _ = html_node.style().set_property("--repel-y", "0px");
-        }
+    let init_speed = 0.6 + fastrand::f64() * 1.2;
+    let init_angle = fastrand::f64() * std::f64::consts::TAU;
+    let vx = Rc::new(Cell::new(init_angle.cos() * init_speed));
+    let vy = Rc::new(Cell::new(init_angle.sin() * init_speed));
+    let frames_to_change: Rc<Cell<u32>> = Rc::new(Cell::new(fastrand::u32(60..240)));
+
+    type RafClosure = Rc<RefCell<Option<Closure<dyn FnMut()>>>>;
+    let f: RafClosure = Rc::new(RefCell::new(None));
+    let f_inner = f.clone();
+    let f_sched = f.clone();
+
+    {
+        let vx = vx.clone();
+        let vy = vy.clone();
+        let frames_to_change = frames_to_change.clone();
+
+        *f.borrow_mut() = Some(Closure::new(move || {
+            if stopped.get_untracked() || unlocked.get_untracked() {
+                return;
+            }
+
+            let window = match web_sys::window() {
+                Some(w) => w,
+                None => return,
+            };
+            let w = (window
+                .inner_width()
+                .ok()
+                .and_then(|v| v.as_f64())
+                .unwrap_or(1280.0)
+                - 48.0)
+                .max(0.0);
+            let h = (window
+                .inner_height()
+                .ok()
+                .and_then(|v| v.as_f64())
+                .unwrap_or(768.0)
+                - 50.0)
+                .max(0.0);
+
+            let x = pos_x.get_untracked();
+            let y = pos_y.get_untracked();
+            let mut cur_vx = vx.get();
+            let mut cur_vy = vy.get();
+
+            let mut new_x = x + cur_vx;
+            let mut new_y = y + cur_vy;
+
+            if new_x <= 0.0 {
+                new_x = 0.0;
+                cur_vx = cur_vx.abs();
+            } else if new_x >= w {
+                new_x = w;
+                cur_vx = -cur_vx.abs();
+            }
+            if new_y <= 0.0 {
+                new_y = 0.0;
+                cur_vy = cur_vy.abs();
+            } else if new_y >= h {
+                new_y = h;
+                cur_vy = -cur_vy.abs();
+            }
+
+            let ftc = frames_to_change.get();
+            if ftc == 0 {
+                let new_speed = 0.15 + fastrand::f64() * 2.8;
+                let cur_angle = cur_vy.atan2(cur_vx);
+                let twist = (fastrand::f64() - 0.5) * std::f64::consts::PI * 1.5;
+                let new_angle = cur_angle + twist;
+                cur_vx = new_angle.cos() * new_speed;
+                cur_vy = new_angle.sin() * new_speed;
+                frames_to_change.set(fastrand::u32(30..300));
+            } else {
+                frames_to_change.set(ftc - 1);
+            }
+
+            vx.set(cur_vx);
+            vy.set(cur_vy);
+            pos_x.set(new_x);
+            pos_y.set(new_y);
+
+            let _ = window.request_animation_frame(
+                f_inner.borrow().as_ref().unwrap().as_ref().unchecked_ref(),
+            );
+        }));
     }
-}
 
-/// Reset all node repulsion vars to 0 (CSS transition handles spring-back).
-fn clear_repulsion(container: &web_sys::Element) {
-    let Ok(nodes) = container.query_selector_all(".helix-node") else {
-        return;
-    };
-    for i in 0..nodes.length() {
-        let Some(node) = nodes.item(i) else { continue };
-        let html_node: &web_sys::HtmlElement = node.unchecked_ref();
-        let _ = html_node.style().set_property("--repel-x", "0px");
-        let _ = html_node.style().set_property("--repel-y", "0px");
+    if let Some(window) = web_sys::window() {
+        let _ = window
+            .request_animation_frame(f_sched.borrow().as_ref().unwrap().as_ref().unchecked_ref());
+    }
+    std::mem::forget(f_sched);
+
+    view! {
+        <button
+            class="easter-egg-trigger"
+            type="button"
+            aria-label="???"
+            style=move || format!("left: {}px; top: {}px;", pos_x.get() as i32, pos_y.get() as i32)
+            on:click=move |_| unlocked.set(true)
+        >
+            <img src="symbols/ng-logo.svg" alt="" width="46" height="48" />
+        </button>
     }
 }
 
@@ -115,47 +186,13 @@ pub fn TransitionSection(
     #[prop(optional)] id: Option<&'static str>,
     #[prop(optional)] chain: Option<bool>,
     #[prop(optional)] fade: Option<bool>,
+    #[prop(optional)] easter_egg: Option<bool>,
 ) -> impl IntoView {
     let is_chain = chain.unwrap_or(false);
 
     if is_chain {
-        let node_ref = NodeRef::<leptos::html::Div>::new();
         let is_fade = fade.unwrap_or(false);
         let nodes = generate_helix_nodes(is_fade);
-
-        // Magnetic repulsion on mousemove, spring-back on mouseleave
-        Effect::new(move |_| {
-            let Some(el) = node_ref.get() else { return };
-            let target: &web_sys::EventTarget = &el;
-
-            // Mousemove: compute per-node repulsion, disable transition for instant tracking
-            let move_closure =
-                Closure::<dyn Fn(web_sys::MouseEvent)>::new(move |ev: web_sys::MouseEvent| {
-                    let Some(el) = node_ref.get() else { return };
-                    let _ = el.class_list().add_1("repelling");
-                    let elem: &web_sys::Element = &el;
-                    apply_repulsion(elem, ev.client_x() as f64, ev.client_y() as f64);
-                });
-
-            // Mouseleave: re-enable transition, reset repulsion (spring-back)
-            let leave_closure = Closure::<dyn Fn()>::new(move || {
-                let Some(el) = node_ref.get() else { return };
-                let _ = el.class_list().remove_1("repelling");
-                let elem: &web_sys::Element = &el;
-                clear_repulsion(elem);
-            });
-
-            let _ = target.add_event_listener_with_callback(
-                "mousemove",
-                move_closure.as_ref().unchecked_ref(),
-            );
-            let _ = target.add_event_listener_with_callback(
-                "mouseleave",
-                leave_closure.as_ref().unchecked_ref(),
-            );
-            move_closure.forget();
-            leave_closure.forget();
-        });
 
         let node_views: Vec<_> = nodes
             .iter()
@@ -190,7 +227,6 @@ pub fn TransitionSection(
 
         leptos::either::Either::Left(view! {
             <div
-                node_ref=node_ref
                 id={id.unwrap_or_default()}
                 class=move || {
                     let mut cls = String::from("transition-section transition-chain");
@@ -204,16 +240,50 @@ pub fn TransitionSection(
             </div>
         })
     } else {
-        leptos::either::Either::Right(view! {
-            <section
-                id={id.unwrap_or_default()}
-                class="transition-section"
-                style="height: 100vh; min-height: 100vh;"
-            >
-                <div class="transition-inner">
-                    <div class="transition-line" />
-                </div>
-            </section>
+        let is_easter_egg = easter_egg.unwrap_or(false);
+        let maybe_state = if is_easter_egg {
+            use_context::<EasterEggState>()
+        } else {
+            None
+        };
+
+        leptos::either::Either::Right(if let Some(state) = maybe_state {
+            let unlocked = state.alphabet_unlocked;
+            (move || {
+                if unlocked.get() {
+                    Either::Left(view! {
+                        <div id={id.unwrap_or_default()}>
+                            <PoneglyphAlphabetSection />
+                        </div>
+                    })
+                } else {
+                    Either::Right(view! {
+                        <section
+                            id={id.unwrap_or_default()}
+                            class="transition-section"
+                            style="height: 100vh; min-height: 100vh;"
+                        >
+                            <div class="easter-egg-container">
+                                <EasterEggTrigger unlocked=unlocked />
+                            </div>
+                        </section>
+                    })
+                }
+            })
+            .into_any()
+        } else {
+            view! {
+                <section
+                    id={id.unwrap_or_default()}
+                    class="transition-section"
+                    style="height: 100vh; min-height: 100vh;"
+                >
+                    <div class="transition-inner">
+                        <div class="transition-line" />
+                    </div>
+                </section>
+            }
+            .into_any()
         })
     }
 }

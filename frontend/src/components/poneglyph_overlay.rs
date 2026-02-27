@@ -200,8 +200,7 @@ pub fn PoneglyphOverlay(
                                                             <img
                                                                 src={p}
                                                                 alt=""
-                                                                loading="lazy"
-                                                                decoding="async"
+
                                                                 width="32"
                                                                 height="32"
                                                                 class="poneglyph-cell-img"
