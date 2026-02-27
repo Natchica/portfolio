@@ -105,8 +105,8 @@ pub fn PoneglyphOverlay(
             on:mouseenter=move |_| set_is_hovered.set(true)
             on:mouseleave=move |_| set_is_hovered.set(false)
             on:click=move |ev| {
-                if is_hovered.get() && !has_started.get() {
-                    if let Some(el) = container_ref.get_untracked() {
+                if is_hovered.get() && !has_started.get()
+                    && let Some(el) = container_ref.get_untracked() {
                         let mouse_ev: &web_sys::MouseEvent = ev.as_ref();
                         let rect = el.get_bounding_client_rect();
                         let x = mouse_ev.client_x() as f64 - rect.left();
@@ -125,7 +125,6 @@ pub fn PoneglyphOverlay(
                             schedule_callback(dur, cb);
                         }
                     }
-                }
             }
             on:keydown=move |ev| {
                 let key = ev.key();

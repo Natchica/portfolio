@@ -117,60 +117,6 @@ body::-webkit-scrollbar {
   position: relative;
 }
 
-/* Stagger animations — triggered by parent .section-entrance.visible */
-.stagger-item,
-.stagger-slide,
-.stagger-scale {
-  opacity: 0;
-}
-
-.content-decoded .stagger-item {
-  animation: staggerFadeUp 0.5s ease-out forwards;
-  animation-delay: calc(var(--item-index, 0) * 0.08s);
-}
-
-.content-decoded .stagger-slide {
-  animation: staggerSlideLeft 0.5s ease-out forwards;
-  animation-delay: calc(var(--item-index, 0) * 0.1s);
-}
-
-.content-decoded .stagger-scale {
-  animation: staggerScaleUp 0.4s ease-out forwards;
-  animation-delay: calc(var(--item-index, 0) * 0.12s);
-}
-
-@keyframes staggerFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes staggerSlideLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes staggerScaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 /* ============================================================
    Content Layer (above overlay)
@@ -355,6 +301,33 @@ body::-webkit-scrollbar {
 .transition-chain-fade {
   mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
   -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
+}
+
+/* Teleport flash overlay */
+@keyframes teleportFlash {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.teleport-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(180, 240, 255, 0.95),
+    rgba(0, 212, 255, 0.85),
+    rgba(7, 89, 133, 0.9)
+  );
+  will-change: opacity;
+}
+
+.teleport-overlay.active {
+  animation: teleportFlash 0.8s ease-in-out forwards;
 }
 
 /* ============================================================

@@ -71,6 +71,7 @@ pub fn App() -> impl IntoView {
     let last_scroll_y = RwSignal::new(0.0f64);
     let section_positions = RwSignal::new(Vec::<SectionPosition>::new());
     let transition_positions = RwSignal::new(TransitionPositions::default());
+    let is_teleporting = RwSignal::new(false);
 
     let recalculate_positions = move || {
         let positions: Vec<SectionPosition> = SECTIONS
@@ -175,11 +176,7 @@ pub fn App() -> impl IntoView {
             if viewport_middle >= current_bottom && viewport_middle <= next_top {
                 let zone_height = next_top - current_bottom;
                 let progress = (viewport_middle - current_bottom) / zone_height;
-                active_dot_index = if progress < 0.5 {
-                    0
-                } else {
-                    -1
-                };
+                active_dot_index = if progress < 0.5 { 0 } else { -1 };
             }
         }
 
@@ -207,10 +204,11 @@ pub fn App() -> impl IntoView {
             && viewport_middle <= bottom2.bottom
         {
             let progress = (viewport_middle - bottom2.top) / bottom2.height;
-            if (0.5..=0.7).contains(&progress)
+            if (0.4..=0.7).contains(&progress)
                 && let Some(ref top1) = transitions.top1
             {
                 is_scrolling.set(true);
+                is_teleporting.set(true);
                 set_loop_count.update(|c| *c += 1);
 
                 let offset = viewport_middle - bottom2.top;
@@ -221,8 +219,22 @@ pub fn App() -> impl IntoView {
                 opts.set_behavior(web_sys::ScrollBehavior::Instant);
                 window.scroll_to_with_scroll_to_options(&opts);
 
+                let window2 = window.clone();
                 let closure = Closure::<dyn FnMut()>::once(move || {
+                    if let Some(w) = web_sys::window() {
+                        last_scroll_y.set(w.scroll_y().unwrap_or(0.0));
+                    }
                     is_scrolling.set(false);
+                    let closure2 = Closure::<dyn FnMut()>::once(move || {
+                        is_teleporting.set(false);
+                    });
+                    window2
+                        .set_timeout_with_callback_and_timeout_and_arguments_0(
+                            closure2.as_ref().unchecked_ref(),
+                            750,
+                        )
+                        .unwrap();
+                    closure2.forget();
                 });
                 window
                     .set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -242,10 +254,11 @@ pub fn App() -> impl IntoView {
             && viewport_middle <= top1.bottom
         {
             let progress = (viewport_middle - top1.top) / top1.height;
-            if (0.3..=0.5).contains(&progress)
+            if (0.3..=0.9).contains(&progress)
                 && let Some(ref bottom2) = transitions.bottom2
             {
                 is_scrolling.set(true);
+                is_teleporting.set(true);
                 set_loop_count.update(|c| *c = c.saturating_sub(1));
 
                 let offset = viewport_middle - top1.top;
@@ -256,8 +269,22 @@ pub fn App() -> impl IntoView {
                 opts.set_behavior(web_sys::ScrollBehavior::Instant);
                 window.scroll_to_with_scroll_to_options(&opts);
 
+                let window2 = window.clone();
                 let closure = Closure::<dyn FnMut()>::once(move || {
+                    if let Some(w) = web_sys::window() {
+                        last_scroll_y.set(w.scroll_y().unwrap_or(0.0));
+                    }
                     is_scrolling.set(false);
+                    let closure2 = Closure::<dyn FnMut()>::once(move || {
+                        is_teleporting.set(false);
+                    });
+                    window2
+                        .set_timeout_with_callback_and_timeout_and_arguments_0(
+                            closure2.as_ref().unchecked_ref(),
+                            750,
+                        )
+                        .unwrap();
+                    closure2.forget();
                 });
                 window
                     .set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -349,6 +376,13 @@ pub fn App() -> impl IntoView {
 
     view! {
         <div class="portfolio-container">
+            <div class=move || {
+                if is_teleporting.get() {
+                    "teleport-overlay active"
+                } else {
+                    "teleport-overlay"
+                }
+            } />
             <Navigation
                 sections=SECTIONS
                 current_section=current_section
