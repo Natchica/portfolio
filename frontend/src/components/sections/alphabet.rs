@@ -160,6 +160,60 @@ const SYMBOLS: &[SymbolData] = &[
 ];
 
 #[component]
+pub fn AlphabetGrid() -> impl IntoView {
+    let letter_views: Vec<_> = SYMBOLS
+        .iter()
+        .filter(|s| s.is_letter)
+        .map(|symbol| {
+            let alt = format!("Poneglyph symbol for {}", symbol.label);
+            view! {
+                <div class="decoder-item">
+                    <img
+                        src={symbol.path}
+                        alt={alt}
+                        loading="lazy"
+                        decoding="async"
+                        width="32"
+                        height="32"
+                        class="alphabet-img"
+                    />
+                    <span class="decoder-label">{symbol.label}</span>
+                </div>
+            }
+        })
+        .collect();
+
+    let number_views: Vec<_> = SYMBOLS
+        .iter()
+        .filter(|s| !s.is_letter)
+        .map(|symbol| {
+            let alt = format!("Poneglyph symbol for {}", symbol.label);
+            view! {
+                <div class="decoder-item">
+                    <img
+                        src={symbol.path}
+                        alt={alt}
+                        loading="lazy"
+                        decoding="async"
+                        width="32"
+                        height="32"
+                        class="alphabet-img"
+                    />
+                    <span class="decoder-label">{symbol.label}</span>
+                </div>
+            }
+        })
+        .collect();
+
+    view! {
+        <div class="decoder-grid-root">
+            <div class="decoder-grid">{letter_views}</div>
+            <div class="decoder-grid decoder-grid-numbers">{number_views}</div>
+        </div>
+    }
+}
+
+#[component]
 pub fn PoneglyphAlphabetSection() -> impl IntoView {
     let letter_views: Vec<_> = SYMBOLS
         .iter()

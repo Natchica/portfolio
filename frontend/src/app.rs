@@ -4,22 +4,16 @@ use wasm_bindgen::prelude::Closure;
 
 use crate::components::navigation::{Navigation, ScrollProgress};
 use crate::components::sections::about::AboutSection;
-use crate::components::sections::alphabet::PoneglyphAlphabetSection;
+use crate::components::sections::alphabet::AlphabetGrid;
 use crate::components::sections::contact::ContactSection;
 use crate::components::sections::experience::ExperienceSection;
 use crate::components::sections::projects::ProjectsSection;
 use crate::components::sections::skills::SkillsSection;
 use crate::components::transition_section::TransitionSection;
+use crate::context::EasterEggState;
 use crate::hooks::use_throttled_scroll::use_throttled_scroll;
 
-const SECTIONS: &[&str] = &[
-    "about",
-    "skills",
-    "experience",
-    "projects",
-    "alphabet",
-    "contact",
-];
+const SECTIONS: &[&str] = &["about", "skills", "experience", "projects", "contact"];
 
 #[derive(Clone, Debug)]
 struct SectionPosition {
@@ -71,7 +65,11 @@ pub fn App() -> impl IntoView {
     let last_scroll_y = RwSignal::new(0.0f64);
     let section_positions = RwSignal::new(Vec::<SectionPosition>::new());
     let transition_positions = RwSignal::new(TransitionPositions::default());
-    let is_teleporting = RwSignal::new(false);
+    let easter_egg = EasterEggState {
+        alphabet_unlocked: RwSignal::new(false),
+        decoder_open: RwSignal::new(false),
+    };
+    provide_context(easter_egg);
 
     let recalculate_positions = move || {
         let positions: Vec<SectionPosition> = SECTIONS
@@ -176,7 +174,11 @@ pub fn App() -> impl IntoView {
             if viewport_middle >= current_bottom && viewport_middle <= next_top {
                 let zone_height = next_top - current_bottom;
                 let progress = (viewport_middle - current_bottom) / zone_height;
-                active_dot_index = if progress < 0.5 { 0 } else { -1 };
+                if progress < 0.5 {
+                    active_dot_index = 0;
+                } else {
+                    active_section_index += 1;
+                }
             }
         }
 
@@ -205,36 +207,24 @@ pub fn App() -> impl IntoView {
         {
             let progress = (viewport_middle - bottom2.top) / bottom2.height;
             if (0.4..=0.7).contains(&progress)
-                && let Some(ref top1) = transitions.top1
+                && let Some(ref top2) = transitions.top2
             {
                 is_scrolling.set(true);
-                is_teleporting.set(true);
                 set_loop_count.update(|c| *c += 1);
 
                 let offset = viewport_middle - bottom2.top;
-                let new_scroll = top1.top + offset;
+                let new_scroll = top2.top + offset;
 
                 let opts = web_sys::ScrollToOptions::new();
                 opts.set_top(new_scroll);
                 opts.set_behavior(web_sys::ScrollBehavior::Instant);
                 window.scroll_to_with_scroll_to_options(&opts);
 
-                let window2 = window.clone();
                 let closure = Closure::<dyn FnMut()>::once(move || {
                     if let Some(w) = web_sys::window() {
                         last_scroll_y.set(w.scroll_y().unwrap_or(0.0));
                     }
                     is_scrolling.set(false);
-                    let closure2 = Closure::<dyn FnMut()>::once(move || {
-                        is_teleporting.set(false);
-                    });
-                    window2
-                        .set_timeout_with_callback_and_timeout_and_arguments_0(
-                            closure2.as_ref().unchecked_ref(),
-                            750,
-                        )
-                        .unwrap();
-                    closure2.forget();
                 });
                 window
                     .set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -249,19 +239,18 @@ pub fn App() -> impl IntoView {
         // Scroll up: top transition teleport to bottom
         if !scroll_down
             && loop_count.get_untracked() > 0
-            && let Some(ref top1) = transitions.top1
-            && viewport_middle >= top1.top
-            && viewport_middle <= top1.bottom
+            && let Some(ref top2) = transitions.top2
+            && viewport_middle >= top2.top
+            && viewport_middle <= top2.bottom
         {
-            let progress = (viewport_middle - top1.top) / top1.height;
+            let progress = (viewport_middle - top2.top) / top2.height;
             if (0.3..=0.9).contains(&progress)
                 && let Some(ref bottom2) = transitions.bottom2
             {
                 is_scrolling.set(true);
-                is_teleporting.set(true);
                 set_loop_count.update(|c| *c = c.saturating_sub(1));
 
-                let offset = viewport_middle - top1.top;
+                let offset = viewport_middle - top2.top;
                 let new_scroll = bottom2.top + offset;
 
                 let opts = web_sys::ScrollToOptions::new();
@@ -269,22 +258,11 @@ pub fn App() -> impl IntoView {
                 opts.set_behavior(web_sys::ScrollBehavior::Instant);
                 window.scroll_to_with_scroll_to_options(&opts);
 
-                let window2 = window.clone();
                 let closure = Closure::<dyn FnMut()>::once(move || {
                     if let Some(w) = web_sys::window() {
                         last_scroll_y.set(w.scroll_y().unwrap_or(0.0));
                     }
                     is_scrolling.set(false);
-                    let closure2 = Closure::<dyn FnMut()>::once(move || {
-                        is_teleporting.set(false);
-                    });
-                    window2
-                        .set_timeout_with_callback_and_timeout_and_arguments_0(
-                            closure2.as_ref().unchecked_ref(),
-                            750,
-                        )
-                        .unwrap();
-                    closure2.forget();
                 });
                 window
                     .set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -376,42 +354,63 @@ pub fn App() -> impl IntoView {
 
     view! {
         <div class="portfolio-container">
-            <div class=move || {
-                if is_teleporting.get() {
-                    "teleport-overlay active"
-                } else {
-                    "teleport-overlay"
+            {move || easter_egg.decoder_open.get().then(|| {
+                let decoder_open = easter_egg.decoder_open;
+                view! {
+                    <div class="decoder-panel">
+                        <button
+                            type="button"
+                            class="decoder-panel-close"
+                            aria-label="Close decoder"
+                            on:click=move |_| decoder_open.set(false)
+                        >
+                            "\u{00d7}"
+                        </button>
+                        <AlphabetGrid />
+                    </div>
                 }
-            } />
+            })}
             <Navigation
                 sections=SECTIONS
                 current_section=current_section
                 scroll_progress=scroll_progress
                 on_navigate=nav_scroll
             />
-
-            {move || {
-                let count = loop_count.get();
-                if count > 0 {
-                    Some(
-                        view! {
-                            <div class="loop-counter">
-                                <div class="loop-counter-badge">
-                                    {format!("\u{1f3f4}\u{200d}\u{2620}\u{fe0f} Loops sailed: {}", count)}
-                                </div>
-                                <button class="loop-counter-btn" on:click=scroll_to_top>
-                                    "\u{2693} Return to origin"
-                                </button>
-                            </div>
-                        },
-                    )
-                } else {
-                    None
+            {move || easter_egg.alphabet_unlocked.get().then(|| {
+                let decoder_open = easter_egg.decoder_open;
+                view! {
+                    <button
+                        type="button"
+                        class={move || if decoder_open.get() {
+                            "decoder-btn-fixed decoder-btn-fixed-active"
+                        } else {
+                            "decoder-btn-fixed"
+                        }}
+                        aria-label="Toggle alphabet decoder"
+                        on:click=move |_| decoder_open.update(|o| *o = !*o)
+                    >
+                        <img src="symbols/ng-logo.svg" alt="Poneglyph alphabet" width="19" height="20" />
+                    </button>
                 }
-            }}
+            })}
 
-            <TransitionSection id="transition-loop-top-1" />
+            <div class=move || {
+                if loop_count.get() > 0 { "loop-counter" } else { "loop-counter loop-counter-hidden" }
+            }>
+                <div class="loop-counter-badge">
+                    "\u{1f3f4}\u{200d}\u{2620}\u{fe0f} Loops sailed: "
+                    <span class="loop-counter-num">
+                        {move || loop_count.get().to_string()}
+                    </span>
+                </div>
+                <button class="loop-counter-btn" on:click=scroll_to_top>
+                    "\u{2693} Return to origin"
+                </button>
+            </div>
+
+            <TransitionSection id="transition-loop-top-1" easter_egg=true />
             <TransitionSection id="transition-loop-top-2" />
+            <TransitionSection />
 
             <div id="about">
                 <AboutSection on_navigate=about_scroll />
@@ -430,11 +429,6 @@ pub fn App() -> impl IntoView {
 
             <div id="projects">
                 <ProjectsSection />
-            </div>
-            <TransitionSection chain=true />
-
-            <div id="alphabet">
-                <PoneglyphAlphabetSection />
             </div>
             <TransitionSection chain=true />
 
