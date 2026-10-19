@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.min.js",
+          "three/addons/": "./vendor/addons/"
+        }
+      }
+    </script>
     <title>Nathan Gaud - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,9 +20,12 @@
     />
     <link data-trunk rel="css" href="style/main.css" />
     <link data-trunk rel="css" href="style/modern.css" />
+    <link data-trunk rel="css" href="style/webgl.css" />
     <link data-trunk rel="icon" href="public/favicon.svg" />
     <link data-trunk rel="copy-dir" href="public/symbols" />
     <link data-trunk rel="copy-file" href="public/Nathan-G.png" />
+    <link data-trunk rel="copy-file" href="public/scene.js" />
+    <link data-trunk rel="copy-dir" href="public/vendor" />
     <link data-trunk rel="rust" data-wasm-opt="z" />
     <!-- Preload ALL Poneglyph symbols for optimal overlay performance -->
     <!-- Letters -->
@@ -49,6 +60,7 @@
     <link rel="preload" href="symbols/svg/numbers/7.svg" as="image" />
     <link rel="preload" href="symbols/svg/numbers/8.svg" as="image" />
     <link rel="preload" href="symbols/svg/numbers/9.svg" as="image" />
+    <script type="module" src="scene.js"></script>
   </head>
   <body></body>
 </html>
