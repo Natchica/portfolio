@@ -175,6 +175,12 @@ components:
     textColor: "{colors.stone-text}"
     typography: "{typography.caption}"
     rounded: "{rounded.xs}"
+  webgl-notice:
+    backgroundColor: "{colors.abyss-900}"
+    textColor: "{colors.glyph-ice}"
+    typography: "{typography.label}"
+    rounded: "{rounded.card}"
+    padding: "0.9rem 1rem"
   decode-hint:
     backgroundColor: "{colors.abyss-900}"
     textColor: "{colors.glyph-ice}"
@@ -191,14 +197,14 @@ components:
 
 A poneglyph rests on the ocean floor: heavy carved stone, lit from above by dim water, with cyan glyphs that glow as if they emit light. The voice is calm. Nothing shouts; surfaces are weighty, edges are lit softly, and the only saturated color is the cyan of the glyphs. Depth comes from light and layered elevation, never from decoration.
 
-The page is a dark ocean field (abyss blues fading to a cyan halo at the top) holding stone slabs and cards. Display type is a warm serif that reads as inscription; body type is a neutral sans. A subtle CSS 3D layer (tilt, settle, helix depth) adds physicality but is always optional.
+The page is a dark ocean field (abyss blues fading to a cyan halo at the top) holding stone slabs and cards. Display type is a warm serif that reads as inscription; body type is a neutral sans. A WebGL layer draws the slabs as lit stone with real thickness, the glyph decode as a ripple of flipping cells, and the helix as luminous 3D glyphs. It is always optional: without hardware WebGL the page keeps a CSS 3D look and says so.
 
 **Key Characteristics:**
 - Ocean/abyss blue field, stone-grey slabs, cyber-cyan accent used for glyphs, glow, active state and headings.
 - Soft layered elevation: lit top edge, dark bottom edge, deep diffuse drop shadow, cyan glow on hover.
 - Carved-stone slabs and cards with an inset inner border.
 - Diamond rune-stone nav pips.
-- 3D is CSS-only and flattens on small screens and under reduced motion.
+- Depth is real: a Three.js layer lights thick stone slabs; pointer effects stay off on touch and under reduced motion, and visitors without hardware WebGL get a CSS 3D fallback plus a notice.
 
 ## Colors
 
@@ -244,7 +250,7 @@ A cold, saturated-at-one-point palette: deep sea blues and weathered stone greys
 
 A vertical scroll of full-height poneglyph sections, each centering one stone slab (max width 800px, 3rem padding) in a 2rem side gutter. Sections are joined by glyph helix chains and 100vh transition spacers for the infinite loop; do not alter them. Wider content (alphabet, projects) uses containers up to 80rem. Spacing runs in half-rem steps: 0.5, 0.75, 1, 1.5, 2, 3rem.
 
-Responsive: breakpoints at 640px, 768px (type steps up, 3D switches on) and 1024px (hover tilt, desktop layout). Under 768px the section gutter drops to 0.75rem, slab padding becomes 2rem 1.25rem, and the nav panel and pips shrink (pips 0.9rem).
+Responsive: breakpoints at 640px, 768px (type steps up) and 1024px (desktop layout, and the CSS hover tilt of the fallback). Under 768px the section gutter drops to 0.75rem, slab padding becomes 2rem 1.25rem, and the nav panel and pips shrink (pips 0.9rem).
 
 ## Elevation & Depth
 
@@ -256,10 +262,19 @@ Hybrid of layered shadow and light. Every raised surface carries three cues: a 1
 - **Cyan Glow** (`box-shadow: 0 0 24px rgba(0,212,255,0.28)`): Added on hover to slabs, cards and buttons.
 
 ### 3D
-CSS 3D only: `perspective` (1600px on sections, 900px on the helix), `translateZ`, `rotateX` and `rotateY`. Slabs tilt about 2 degrees on hover (pointer devices at 1024px and up) and settle in with a scroll-driven rotateX entrance where supported. Helix nodes swing in z by up to 60px and turn up to 28 degrees.
+Rust decides once at startup and publishes it as `data-render` on `<html>`. With hardware accelerated WebGL (`webgl`), `scene.js` loads the vendored Three.js and a fixed full-viewport canvas draws behind the content. The camera is orthographic in CSS pixels, so a mesh sized from a DOM rect lines up with it exactly, and the same rotation is written to the DOM block as `rotateX`, `rotateY` and `scale` with no CSS perspective.
+
+- **Slabs:** rounded boxes 56px deep with a generated stone normal map, leaning back 5 degrees at rest so the lit lower lip shows, and 9 degrees more while entering (mirroring the old scroll-driven settle). The stone starts at the overlay grey (`#4a5568`) so dark glyph ink stays readable, and darkens to `#27333f` during the decode.
+- **Decode:** each glyph cell turns edge-on about its own vertical axis with a cyan flash, starting at the tap point (0.04s per cell of distance, 0.6s per flip), then the content fades in.
+- **Helix:** two instanced strands of 24 luminous glyphs per chain, swinging in depth (scale 0.45 to 1.15, orbit 10s).
+- **Pointer:** a cyan-white point light follows the pointer. The nearest slab leans up to 4 degrees toward it (40px hysteresis between slabs) and cards drift by depth layer.
+
+Without hardware WebGL (`dom`) the page keeps the CSS look: `perspective` 1600px on sections and 900px on the helix, `translateZ`, `rotateX` and `rotateY`, a hover tilt of about 2 degrees on pointer devices at 1024px and up, and a scroll-driven rotateX entrance where supported. `?webgl=off` forces this mode for comparison.
 
 ### Named Rules
-**The Flat Fallback Rule.** Under 768px and under `prefers-reduced-motion`, perspective is removed and all 3D transforms, entrance animation and hover lifts are flattened. Depth is then carried by the shadows alone.
+**The Reduced Motion Rule.** Under `prefers-reduced-motion` the slabs stop tilting and scaling, the helix freezes, the decode fades in place instead of flipping, and the light and parallax are removed. On touch the light and pointer tilt are off but the scroll entrance still runs.
+
+**The One Projection Rule.** In WebGL mode the mesh and its DOM block share one orthographic rotation. Never add CSS `perspective` to a section while the canvas is on, or text and stone drift apart.
 
 **The Lit Edge Rule.** Raised means a light top edge, dark bottom edge and soft deep shadow together; never a single hard offset shadow.
 
@@ -270,7 +285,7 @@ Soft-cornered stone. Slabs and the nav panel use 1.25rem, cards 0.875rem, button
 ## Components
 
 ### Slabs (Poneglyph block)
-Carved stone panel. Stone gradient face, 1px border at 8% white, 1.25rem radius, Elevation 2, inner carved frame, and a faint cyan underglow beneath its lower edge. Hover tilt and glow on pointer devices at 1024px and up.
+Carved stone panel. In WebGL mode the canvas draws it as lit stone with grain and a lower lip, and the DOM block is transparent and holds only content, hidden until decoded. In DOM mode it is a stone gradient face, 1px border at 8% white, 1.25rem radius, Elevation 2, inner carved frame, and a faint cyan underglow beneath its lower edge, with hover tilt and glow on pointer devices at 1024px and up.
 
 ### Cards
 Skill, project and experience cards. Translucent stone gradient, 0.875rem radius, Elevation 1, 1.5rem padding. Hover on skill and project cards lifts 4px, shifts the border to cyan (35% alpha) and adds Elevation 2 plus glow.
@@ -289,7 +304,10 @@ Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skill ba
 Fixed right-side panel: abyss tint at 60% alpha, 14px backdrop blur, cyan 25% border, 1.25rem radius, Elevation 2. Rune-stone diamond pips: inactive pips are grey stone gradients, the active pip is a bright cyan radial. Pips scale by a variable and show a 2px cyan outline on keyboard focus. On mobile the panel hugs the right edge with smaller pips.
 
 ### Glyph helix
-Signature element. Two strands of poneglyph symbols recolored to luminous cyan (strand A) and a lighter blue (strand B) via filter plus layered glow, orbiting in real z depth.
+Signature element. Two strands of poneglyph symbols in luminous cyan (strand A) and a lighter blue (strand B) with a white core and soft glow, orbiting in real z depth. In WebGL mode they are instanced quads sampled from a glow atlas; in DOM mode they are filtered images.
+
+### WebGL notice
+Shown only in the DOM fallback when hardware accelerated WebGL is unavailable, never with `?webgl=off`. A cyan-ringed abyss card fixed above the bottom edge (42rem wide, 12px gutters on phones) that says 3D effects are off and how to turn on hardware acceleration in Chrome, Edge and Firefox, with a dismiss button.
 
 ## Do's and Don'ts
 
@@ -297,12 +315,12 @@ Signature element. Two strands of poneglyph symbols recolored to luminous cyan (
 - **Do** keep display type in Young Serif at weight 400 and body in DM Sans.
 - **Do** build every raised surface from Elevation 1 or 2 and add the cyan glow only on hover or for glyphs.
 - **Do** use cyan as light: headings, glyphs, thin borders and active marks.
-- **Do** use CSS 3D only, and flatten it under 768px and under `prefers-reduced-motion`.
+- **Do** keep 3D optional: still under `prefers-reduced-motion`, pointer effects off on touch, and a CSS fallback with a notice when hardware WebGL is missing.
 - **Do** keep text at WCAG AA contrast over ocean and stone.
 
 ### Don't:
 - **Don't** use a gradient fill on heading text.
-- **Don't** use JavaScript or canvas for depth; 3D stays in CSS transforms.
+- **Don't** let the canvas and the DOM disagree: one orthographic rotation for both, and no CSS `perspective` on sections while the canvas is on.
 - **Don't** replace the poneglyph materials (ocean field, stone blocks, cyan glyphs) with another world.
 - **Don't** add bold to Young Serif headings.
 - **Don't** touch the scroll teleport and overlay behavior when restyling.
