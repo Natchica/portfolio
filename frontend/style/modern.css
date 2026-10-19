@@ -10,6 +10,26 @@
 
   --abyss-900: #04202e;
   --abyss-800: #062e44;
+  --glyph-ice: #d5f8ff;
+  --glyph-glow: #b8f4ff;
+  --ocean-hover: #0376b3;
+  --ink-35: rgba(0, 0, 0, 0.35);
+  --ink-50: rgba(0, 0, 0, 0.5);
+  --radius-pip: 0.4rem;
+  --fs-headline-min: 1.875rem;
+  --fs-display-min: 2.25rem;
+  --fs-lead: 1.5rem;
+  --fs-caption: 0.75rem;
+  --radius-slab: 1.25rem;
+  --radius-xs: 0.25rem;
+  --stone-face-hi: #3b4a5c;
+  --stone-face-mid: #27333f;
+  --status-dev: #854d0e;
+  --status-dev-text: #fef9c3;
+  --status-complete: #166534;
+  --status-complete-text: #dcfce7;
+  --status-planned: #1e40af;
+  --status-planned-text: #dbeafe;
   --relic-hi: rgba(255, 255, 255, 0.14);
   --relic-lo: rgba(0, 0, 0, 0.45);
   --glow-cyan: 0 0 24px rgba(0, 212, 255, 0.28);
@@ -61,15 +81,15 @@ h3,
   background: none;
   -webkit-text-fill-color: currentColor;
   color: var(--cyber-400);
-  font-size: clamp(1.875rem, 3vw + 1rem, 2.75rem);
+  font-size: clamp(var(--fs-headline-min), 3vw + 1rem, 2.75rem);
   filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.25));
 }
 
 .about-title {
   background: none;
   -webkit-text-fill-color: currentColor;
-  color: #d5f8ff;
-  font-size: clamp(2.25rem, 4vw + 1rem, 3.5rem);
+  color: var(--glyph-ice);
+  font-size: clamp(var(--fs-display-min), 4vw + 1rem, 3.5rem);
   line-height: 1.05;
   filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
 }
@@ -106,7 +126,7 @@ h3,
   inset: 0.5rem;
   border-radius: 0.9rem;
   border: 1px solid rgba(0, 212, 255, 0.12);
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0 30px var(--ink-35);
   pointer-events: none;
 }
 
@@ -170,8 +190,8 @@ h3,
 }
 
 .skill-bar {
-  background: rgba(0, 0, 0, 0.35);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  background: var(--ink-35);
+  box-shadow: inset 0 1px 2px var(--ink-50);
 }
 
 .skill-bar-fill {
@@ -203,7 +223,7 @@ h3,
 .btn-primary:hover,
 .btn-cv:hover,
 .btn-coming-soon:hover {
-  background: linear-gradient(to right, var(--ocean-700), #0376b3);
+  background: linear-gradient(to right, var(--ocean-700), var(--ocean-hover));
   transform: translateY(-2px);
   box-shadow: var(--elev-1), var(--glow-cyan);
 }
@@ -227,7 +247,7 @@ h3,
   width: 1.25rem;
   height: 1.25rem;
   border-width: 1px;
-  border-radius: 0.4rem;
+  border-radius: var(--radius-pip);
   transform: rotate(45deg) scale(var(--nav-button-scale));
 }
 
@@ -237,8 +257,8 @@ h3,
 }
 
 .nav-button-active {
-  background: radial-gradient(circle at 35% 30%, #b8f4ff, var(--cyber-400));
-  border-color: #b8f4ff;
+  background: radial-gradient(circle at 35% 30%, var(--glyph-glow), var(--cyber-400));
+  border-color: var(--glyph-glow);
 }
 
 .nav-button:focus-visible {
@@ -260,6 +280,86 @@ h3,
     )
     translateZ(calc(cos(var(--angle)) * 60px)) rotateY(calc(sin(var(--angle)) * 28deg))
     scale(var(--depth-scale));
+}
+
+/* Form fields and social tiles: cool abyss glass instead of warm brown */
+.form-input,
+.form-textarea {
+  font-family: var(--font-body);
+  background: color-mix(in srgb, var(--abyss-900) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyber-400) 22%, transparent);
+  border-radius: 0.75rem;
+}
+
+.social-link {
+  background: color-mix(in srgb, var(--abyss-900) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyber-400) 18%, transparent);
+  border-radius: 0.75rem;
+}
+
+/* Decode gate: visible cue, scaled decode speed, keyboard focus */
+.poneglyph-hint {
+  position: absolute;
+  top: min(50%, 40vh);
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 20;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--cyber-400);
+  background: var(--abyss-900);
+  color: var(--glyph-ice);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: var(--elev-2), var(--glow-cyan);
+  pointer-events: none;
+  animation: hintReveal 0.8s ease-out both, hintPulse 2.4s ease-in-out 0.8s infinite;
+}
+
+@keyframes hintReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hintPulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.06;
+  }
+}
+
+.poneglyph-hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .poneglyph-hint-pointer {
+    display: none;
+  }
+
+  .poneglyph-hint-touch {
+    display: inline;
+  }
+}
+
+.poneglyph-overlay-btn:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: -4px;
+}
+
+.poneglyph-symbol-cell.animating {
+  animation-duration: calc(0.6s * var(--decode-speed, 1));
+  animation-delay: calc(var(--decode-delay, 0) * 0.04s * var(--decode-speed, 1));
 }
 
 /* Luminous glyphs: light-emitting cyan instead of dark ink on dark water */
@@ -338,6 +438,10 @@ h3,
   .project-card:hover,
   .btn-primary:hover {
     transform: none;
+  }
+
+  .poneglyph-hint {
+    animation: none;
   }
 
   .helix-node {

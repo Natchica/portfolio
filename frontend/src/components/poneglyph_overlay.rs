@@ -1,19 +1,27 @@
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
+use crate::hooks::use_intersection_observer::{
+    IntersectionObserverOptions, use_intersection_observer,
+};
 use crate::utils::poneglyph_converter::text_to_centered_symbol_grid;
 
-fn schedule_callback(duration_secs: f64, cb: Callback<()>) {
-    let millis = ((duration_secs * 0.7) * 1000.0) as i32;
-    let closure = Closure::<dyn Fn()>::new(move || {
-        cb.run(());
-    });
+/// How long a visitor looks at an encoded slab before the decode hint appears.
+const HINT_DELAY_MS: i32 = 15_000;
+
+fn run_after_ms(millis: i32, f: impl Fn() + 'static) {
+    let closure = Closure::<dyn Fn()>::new(f);
     let window = web_sys::window().expect("no window");
     let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
         closure.as_ref().unchecked_ref(),
         millis,
     );
     closure.forget();
+}
+
+fn schedule_callback(duration_secs: f64, cb: Callback<()>) {
+    let millis = ((duration_secs * 0.7) * 1000.0) as i32;
+    run_after_ms(millis, move || cb.run(()));
 }
 
 fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> f64 {
@@ -28,6 +36,24 @@ fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> 
         .fold(0.0_f64, f64::max)
 }
 
+/// Phones and reduced-motion users get a decode twice as fast.
+fn decode_speed() -> f64 {
+    let Some(window) = web_sys::window() else {
+        return 1.0;
+    };
+    let narrow = window
+        .inner_width()
+        .ok()
+        .and_then(|w| w.as_f64())
+        .is_some_and(|w| w < 768.0);
+    let reduced_motion = window
+        .match_media("(prefers-reduced-motion: reduce)")
+        .ok()
+        .flatten()
+        .is_some_and(|m| m.matches());
+    if narrow || reduced_motion { 0.5 } else { 1.0 }
+}
+
 #[component]
 pub fn PoneglyphOverlay(
     author: &'static str,
@@ -36,11 +62,11 @@ pub fn PoneglyphOverlay(
     #[prop(optional)] on_decode_complete: Option<Callback<()>>,
 ) -> impl IntoView {
     let (has_started, set_has_started) = signal(false);
-    let (is_hovered, set_is_hovered) = signal(false);
     let (container_width, set_container_width) = signal(0u32);
     let (container_height, set_container_height) = signal(0u32);
     let click_coords: RwSignal<Option<(f64, f64)>> = RwSignal::new(None);
     let decode_duration: RwSignal<f64> = RwSignal::new(0.0);
+    let decode_speed_factor: RwSignal<f64> = RwSignal::new(1.0);
     let container_ref = NodeRef::<leptos::html::Div>::new();
 
     // ResizeObserver to track container size
@@ -86,6 +112,43 @@ pub fn PoneglyphOverlay(
         text_to_centered_symbol_grid(author, quote, responsive_columns.get(), calculated_rows)
     });
 
+    // The hint stays hidden until the slab has been in the middle band of the
+    // viewport for HINT_DELAY_MS, so a visitor can discover the gate first.
+    let (hint_ready, set_hint_ready) = signal(false);
+    let (hint_armed, set_hint_armed) = signal(false);
+    let in_view = use_intersection_observer(
+        container_ref,
+        IntersectionObserverOptions {
+            threshold: 0.0,
+            root_margin: "-30% 0px -30% 0px",
+            once: false,
+        },
+    );
+    Effect::new(move |_| {
+        if in_view.get() && !hint_armed.get_untracked() {
+            set_hint_armed.set(true);
+            run_after_ms(HINT_DELAY_MS, move || set_hint_ready.set(true));
+        }
+    });
+
+    let start_decode = move |x: f64, y: f64| {
+        if has_started.get_untracked() {
+            return;
+        }
+        let speed = decode_speed();
+        let cols = responsive_columns.get_untracked() as f64;
+        let rows = symbol_grid.get_untracked().len() as f64;
+        let max_dist = max_corner_distance(x / 32.0, y / 32.0, cols, rows);
+        let dur = (max_dist * 0.04 + 0.6) * speed;
+        decode_speed_factor.set(speed);
+        decode_duration.set(dur);
+        click_coords.set(Some((x, y)));
+        set_has_started.set(true);
+        if let Some(cb) = on_decode_complete {
+            schedule_callback(dur, cb);
+        }
+    };
+
     view! {
         <button
             type="button"
@@ -94,57 +157,60 @@ pub fn PoneglyphOverlay(
             } else {
                 "poneglyph-overlay poneglyph-overlay-btn"
             }
+            aria-label="Decode the poneglyph"
             style=move || {
                 let dur = decode_duration.get();
                 if dur > 0.0 {
-                    format!("--decode-total: {dur:.2}s;")
+                    format!(
+                        "--decode-total: {dur:.2}s; --decode-speed: {};",
+                        decode_speed_factor.get(),
+                    )
                 } else {
                     String::new()
                 }
             }
-            on:mouseenter=move |_| set_is_hovered.set(true)
-            on:mouseleave=move |_| set_is_hovered.set(false)
             on:click=move |ev| {
-                if is_hovered.get() && !has_started.get()
-                    && let Some(el) = container_ref.get_untracked() {
-                        let mouse_ev: &web_sys::MouseEvent = ev.as_ref();
-                        let rect = el.get_bounding_client_rect();
-                        let x = mouse_ev.client_x() as f64 - rect.left();
-                        let y = mouse_ev.client_y() as f64 - rect.top();
-                        let cell_size = 32.0;
-                        let click_col = x / cell_size;
-                        let click_row = y / cell_size;
-                        let cols = responsive_columns.get_untracked() as f64;
-                        let rows = symbol_grid.get_untracked().len() as f64;
-                        let max_dist = max_corner_distance(click_col, click_row, cols, rows);
-                        let dur = max_dist * 0.04 + 0.6;
-                        decode_duration.set(dur);
-                        click_coords.set(Some((x, y)));
-                        set_has_started.set(true);
-                        if let Some(cb) = on_decode_complete {
-                            schedule_callback(dur, cb);
-                        }
+                // Pointer and touch decode from the tap point. A keyboard-synthesised
+                // click reports (0, 0), so it decodes from the center instead.
+                let mouse_ev: &web_sys::MouseEvent = ev.as_ref();
+                let from_center = mouse_ev.client_x() == 0 && mouse_ev.client_y() == 0;
+                let origin = container_ref.get_untracked().map(|el| {
+                    let rect = el.get_bounding_client_rect();
+                    if from_center {
+                        (rect.width() / 2.0, rect.height() / 2.0)
+                    } else {
+                        (
+                            mouse_ev.client_x() as f64 - rect.left(),
+                            mouse_ev.client_y() as f64 - rect.top(),
+                        )
                     }
+                });
+                if let Some((x, y)) = origin {
+                    start_decode(x, y);
+                }
             }
             on:keydown=move |ev| {
                 let key = ev.key();
-                if (key == "Enter" || key == " ") && !has_started.get() {
+                if key == "Enter" || key == " " {
                     ev.prevent_default();
-                    let cw = container_width.get_untracked() as f64;
-                    let ch = container_height.get_untracked() as f64;
-                    let cols = responsive_columns.get_untracked() as f64;
-                    let rows = symbol_grid.get_untracked().len() as f64;
-                    let max_dist = max_corner_distance(cols / 2.0, rows / 2.0, cols, rows);
-                    let dur = max_dist * 0.04 + 0.6;
-                    decode_duration.set(dur);
-                    click_coords.set(Some((cw / 2.0, ch / 2.0)));
-                    set_has_started.set(true);
-                    if let Some(cb) = on_decode_complete {
-                        schedule_callback(dur, cb);
-                    }
+                    start_decode(
+                        container_width.get_untracked() as f64 / 2.0,
+                        container_height.get_untracked() as f64 / 2.0,
+                    );
                 }
             }
         >
+            {move || {
+                (hint_ready.get() && !has_started.get())
+                    .then(|| {
+                        view! {
+                            <span class="poneglyph-hint" aria-hidden="true">
+                                <span class="poneglyph-hint-pointer">"Click to decode"</span>
+                                <span class="poneglyph-hint-touch">"Tap to decode"</span>
+                            </span>
+                        }
+                    })
+            }}
             <div
                 node_ref=container_ref
                 class="poneglyph-grid poneglyph-grid-full"
