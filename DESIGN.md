@@ -17,6 +17,12 @@ colors:
   glyph-glow: "#b8f4ff"
   ocean-hover: "#0376b3"
   ink: "#000000"
+  status-dev: "#854d0e"
+  status-dev-text: "#fef9c3"
+  status-complete: "#166534"
+  status-complete-text: "#dcfce7"
+  status-planned: "#1e40af"
+  status-planned-text: "#dbeafe"
 typography:
   display:
     fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
@@ -42,6 +48,16 @@ typography:
     fontWeight: 400
     lineHeight: 1.2
     letterSpacing: "-0.01em"
+  lead:
+    fontFamily: "DM Sans, Inter, system-ui, sans-serif"
+    fontSize: "1.5rem"
+    fontWeight: 700
+    lineHeight: 1.3
+  caption:
+    fontFamily: "monospace"
+    fontSize: "0.75rem"
+    fontWeight: 400
+    lineHeight: 1.2
   title:
     fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
     fontSize: "1.25rem"
@@ -66,6 +82,7 @@ rounded:
   sm: "0.5rem"
   md: "0.75rem"
   card: "0.875rem"
+  xs: "0.25rem"
   slab: "1.25rem"
   pip: "0.4rem"
   pill: "9999px"
@@ -132,6 +149,32 @@ components:
   nav-pip-active-highlight:
     backgroundColor: "{colors.glyph-glow}"
     rounded: "{rounded.pill}"
+  status-badge-dev:
+    backgroundColor: "{colors.status-dev}"
+    textColor: "{colors.status-dev-text}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.125rem 0.5rem"
+  status-badge-complete:
+    backgroundColor: "{colors.status-complete}"
+    textColor: "{colors.status-complete-text}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.125rem 0.5rem"
+  status-badge-planned:
+    backgroundColor: "{colors.status-planned}"
+    textColor: "{colors.status-planned-text}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.125rem 0.5rem"
+  contact-heading:
+    textColor: "{colors.white}"
+    typography: "{typography.lead}"
+  decoder-item:
+    backgroundColor: "{colors.abyss-900}"
+    textColor: "{colors.stone-text}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.xs}"
   decode-hint:
     backgroundColor: "{colors.abyss-900}"
     textColor: "{colors.glyph-ice}"
@@ -238,7 +281,7 @@ Skill, project and experience cards. Translucent stone gradient, 0.875rem radius
 - **Outline:** transparent with cyan text and 2px cyan border; hover adds glow and fills solid cyan with ocean-900 text.
 
 ### Tags and skill bars
-The decode hint is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
+The decode hint stays hidden until a slab has been in the middle of the viewport for 15 seconds, so visitors can discover the gate on their own, then fades in. It is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
 
 Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skill bars sit in an inset dark track with a glowing cyan fill.
 
