@@ -5,7 +5,7 @@
    touching scroll or teleport behavior.
    ============================================================ */
 :root {
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-display: "Young Serif", "Iowan Old Style", Georgia, serif;
   --font-body: "DM Sans", "Inter", system-ui, sans-serif;
 
   --abyss-900: #04202e;
@@ -43,15 +43,35 @@ h3,
   letter-spacing: -0.01em;
 }
 
-.section-header {
+/* Young Serif ships a single weight; keep display faces at 400 */
+h1,
+h2,
+h3,
+.section-header,
+.about-title,
+.alphabet-title,
+.experience-title,
+.project-title {
+  font-weight: 400;
+}
+
+/* Solid, luminous heading colors instead of gradient-clipped text */
+.section-header,
+.alphabet-title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--cyber-400);
   font-size: clamp(1.875rem, 3vw + 1rem, 2.75rem);
-  font-weight: 700;
   filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.25));
 }
 
 .about-title {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: #d5f8ff;
   font-size: clamp(2.25rem, 4vw + 1rem, 3.5rem);
   line-height: 1.05;
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
 }
 
 .subtitle,
