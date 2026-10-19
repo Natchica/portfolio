@@ -192,11 +192,18 @@ h3,
   letter-spacing: 0.01em;
 }
 
-.btn-primary {
+/* White label needs 4.5:1; ocean-700/800 clear it, ocean-500/600 do not */
+.btn-primary,
+.btn-cv,
+.btn-coming-soon {
+  background: linear-gradient(to right, var(--ocean-800), var(--ocean-700));
   box-shadow: var(--elev-1);
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-cv:hover,
+.btn-coming-soon:hover {
+  background: linear-gradient(to right, var(--ocean-700), #0376b3);
   transform: translateY(-2px);
   box-shadow: var(--elev-1), var(--glow-cyan);
 }
