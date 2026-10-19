@@ -235,6 +235,17 @@ h3,
     scale(var(--depth-scale));
 }
 
+/* Luminous glyphs: light-emitting cyan instead of dark ink on dark water */
+.strand-a .helix-glyph {
+  filter: invert(1) sepia(1) saturate(6) hue-rotate(155deg) brightness(1.15)
+    drop-shadow(0 0 6px rgba(0, 212, 255, 0.8)) drop-shadow(0 0 16px rgba(0, 212, 255, 0.35));
+}
+
+.strand-b .helix-glyph {
+  filter: invert(1) sepia(1) saturate(4) hue-rotate(170deg) brightness(1.05)
+    drop-shadow(0 0 6px rgba(96, 165, 250, 0.8)) drop-shadow(0 0 16px rgba(96, 165, 250, 0.35));
+}
+
 /* Flat fallbacks: small screens and reduced motion */
 @media (max-width: 767px) {
   .poneglyph-section,
