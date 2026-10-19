@@ -9,6 +9,9 @@
       "ocean-900": { "role": "secondary", "displayName": "Ocean Blue", "canonical": "#0c4a6e", "tonalRamp": ["#083344", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#7dd3fc", "#e0f2fe"] },
       "glyph-ice": { "role": "accent", "displayName": "Glyph Ice", "canonical": "#d5f8ff", "tonalRamp": ["#0099cc", "#00bfff", "#00d4ff", "#5fe3ff", "#a6f0ff", "#b8f4ff", "#d5f8ff", "#e0fbff"] },
       "ocean-hover": { "role": "secondary", "displayName": "Ocean Hover", "canonical": "#0376b3", "tonalRamp": ["#075985", "#0369a1", "#0376b3", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc", "#e0f2fe"] },
+      "status-dev": { "role": "semantic", "displayName": "Status In Development", "canonical": "#854d0e", "tonalRamp": ["#422006", "#713f12", "#854d0e", "#a16207", "#ca8a04", "#eab308", "#fef08a", "#fef9c3"] },
+      "status-complete": { "role": "semantic", "displayName": "Status Complete", "canonical": "#166534", "tonalRamp": ["#052e16", "#14532d", "#166534", "#15803d", "#22c55e", "#86efac", "#bbf7d0", "#dcfce7"] },
+      "status-planned": { "role": "semantic", "displayName": "Status Planned", "canonical": "#1e40af", "tonalRamp": ["#172554", "#1e3a8a", "#1e40af", "#1d4ed8", "#3b82f6", "#93c5fd", "#bfdbfe", "#dbeafe"] },
       "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#000000", "tonalRamp": ["#000000", "#141a21", "#1d2731", "#27333f", "#3b4a5c", "#6b7b8f", "#a3afbd", "#d4dde6"] },
       "stone-face-mid": { "role": "neutral", "displayName": "Carved Stone", "canonical": "#27333f", "tonalRamp": ["#141a21", "#1d2731", "#27333f", "#3b4a5c", "#44546a", "#6b7b8f", "#a3afbd", "#d4dde6"] }
     },
@@ -19,6 +22,8 @@
       "body": { "displayName": "Body", "purpose": "DM Sans descriptions in stone-text." },
       "button": { "displayName": "Button", "purpose": "DM Sans 600 button labels." },
       "label": { "displayName": "Label", "purpose": "Tags, small metadata and the decode hint." },
+      "lead": { "displayName": "Lead", "purpose": "Contact sub-headings, subtitle at 768px and up, and emoji icon size (1.5rem)." },
+      "caption": { "displayName": "Caption", "purpose": "Monospace glyph labels in the decoder panel (0.75rem)." },
       "display-compact": { "displayName": "Display Compact", "purpose": "Small-screen end of the fluid hero title (2.25rem)." },
       "headline-compact": { "displayName": "Headline Compact", "purpose": "Small-screen end of the fluid section header (1.875rem)." }
     },
