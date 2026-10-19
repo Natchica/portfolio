@@ -13,6 +13,10 @@ colors:
   stone-face-mid: "#27333f"
   stone-text: "#d4dde6"
   white: "#ffffff"
+  glyph-ice: "#d5f8ff"
+  glyph-glow: "#b8f4ff"
+  ocean-hover: "#0376b3"
+  ink: "#000000"
 typography:
   display:
     fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
@@ -23,6 +27,18 @@ typography:
   headline:
     fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
     fontSize: "2.75rem"
+    fontWeight: 400
+    lineHeight: 1.2
+    letterSpacing: "-0.01em"
+  display-compact:
+    fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
+    fontSize: "2.25rem"
+    fontWeight: 400
+    lineHeight: 1.05
+    letterSpacing: "-0.01em"
+  headline-compact:
+    fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
+    fontSize: "1.875rem"
     fontWeight: 400
     lineHeight: 1.2
     letterSpacing: "-0.01em"
@@ -51,6 +67,7 @@ rounded:
   md: "0.75rem"
   card: "0.875rem"
   slab: "1.25rem"
+  pip: "0.4rem"
   pill: "9999px"
 spacing:
   xs: "0.5rem"
@@ -78,6 +95,12 @@ components:
     typography: "{typography.button}"
     rounded: "{rounded.md}"
     padding: "0.75rem 2rem"
+  button-primary-hover:
+    backgroundColor: "{colors.ocean-hover}"
+    textColor: "{colors.white}"
+  skill-bar-track:
+    backgroundColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
   button-outline-hover:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.ocean-900}"
@@ -100,12 +123,21 @@ components:
     padding: "1.1rem 0.9rem"
   nav-pip-inactive:
     backgroundColor: "{colors.stone-face-hi}"
-    rounded: "0.4rem"
+    rounded: "{rounded.pip}"
     size: "1.25rem"
   nav-pip-active:
     backgroundColor: "{colors.cyber-400}"
-    rounded: "0.4rem"
+    rounded: "{rounded.pip}"
     size: "1.25rem"
+  nav-pip-active-highlight:
+    backgroundColor: "{colors.glyph-glow}"
+    rounded: "{rounded.pill}"
+  decode-hint:
+    backgroundColor: "{colors.abyss-900}"
+    textColor: "{colors.glyph-ice}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.6rem 1.25rem"
 ---
 
 # Design System: Portfolio
@@ -206,6 +238,8 @@ Skill, project and experience cards. Translucent stone gradient, 0.875rem radius
 - **Outline:** transparent with cyan text and 2px cyan border; hover adds glow and fills solid cyan with ocean-900 text.
 
 ### Tags and skill bars
+The decode hint is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
+
 Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skill bars sit in an inset dark track with a glowing cyan fill.
 
 ### Navigation
