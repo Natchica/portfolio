@@ -7,6 +7,9 @@
       "primary": { "role": "primary", "displayName": "Cyber Cyan", "canonical": "#00d4ff", "tonalRamp": ["#003b47", "#00677d", "#0099cc", "#00bfff", "#00d4ff", "#5fe3ff", "#a6f0ff", "#e0fbff"] },
       "abyss-900": { "role": "secondary", "displayName": "Abyss Blue", "canonical": "#04202e", "tonalRamp": ["#02101a", "#04202e", "#062e44", "#08425f", "#0369a1", "#38bdf8", "#bae6fd", "#f0f9ff"] },
       "ocean-900": { "role": "secondary", "displayName": "Ocean Blue", "canonical": "#0c4a6e", "tonalRamp": ["#083344", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#7dd3fc", "#e0f2fe"] },
+      "glyph-ice": { "role": "accent", "displayName": "Glyph Ice", "canonical": "#d5f8ff", "tonalRamp": ["#0099cc", "#00bfff", "#00d4ff", "#5fe3ff", "#a6f0ff", "#b8f4ff", "#d5f8ff", "#e0fbff"] },
+      "ocean-hover": { "role": "secondary", "displayName": "Ocean Hover", "canonical": "#0376b3", "tonalRamp": ["#075985", "#0369a1", "#0376b3", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc", "#e0f2fe"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#000000", "tonalRamp": ["#000000", "#141a21", "#1d2731", "#27333f", "#3b4a5c", "#6b7b8f", "#a3afbd", "#d4dde6"] },
       "stone-face-mid": { "role": "neutral", "displayName": "Carved Stone", "canonical": "#27333f", "tonalRamp": ["#141a21", "#1d2731", "#27333f", "#3b4a5c", "#44546a", "#6b7b8f", "#a3afbd", "#d4dde6"] }
     },
     "typographyMeta": {
@@ -15,7 +18,9 @@
       "title": { "displayName": "Title", "purpose": "Card, project and experience titles." },
       "body": { "displayName": "Body", "purpose": "DM Sans descriptions in stone-text." },
       "button": { "displayName": "Button", "purpose": "DM Sans 600 button labels." },
-      "label": { "displayName": "Label", "purpose": "Tags and small metadata." }
+      "label": { "displayName": "Label", "purpose": "Tags, small metadata and the decode hint." },
+      "display-compact": { "displayName": "Display Compact", "purpose": "Small-screen end of the fluid hero title (2.25rem)." },
+      "headline-compact": { "displayName": "Headline Compact", "purpose": "Small-screen end of the fluid section header (1.875rem)." }
     },
     "shadows": [
       { "name": "elev-1", "value": "0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 8px 20px rgba(2,16,28,0.35)", "purpose": "Cards and primary button." },
