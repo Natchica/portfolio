@@ -48,20 +48,32 @@ function waitForRenderMode() {
   });
 }
 
+// Reload once in DOM mode with the notice; Rust treats ?webgl=failed as unsupported.
+function fallBackToDom(reason, error) {
+  console.warn(`[webgl] ${reason}, falling back to the DOM look`, error);
+  const url = new URL(location.href);
+  url.searchParams.set('webgl', 'failed');
+  location.replace(url);
+}
+
 async function main() {
-  const THREE = await import('three');
-  const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+  let THREE;
+  let RoundedBoxGeometry;
+  try {
+    THREE = await import('three');
+    ({ RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js'));
+  } catch (error) {
+    // No import map support (older browsers) or a failed module fetch.
+    fallBackToDom('Three.js could not load', error);
+    return;
+  }
 
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   } catch (error) {
     // Rust already tested for a hardware context, so this is rare (context limit, GPU reset).
-    // Reload once in DOM mode with the notice; Rust treats ?webgl=failed as unsupported.
-    console.warn('[webgl] context failed, falling back to the DOM look', error);
-    const url = new URL(location.href);
-    url.searchParams.set('webgl', 'failed');
-    location.replace(url);
+    fallBackToDom('context failed', error);
     return;
   }
 
