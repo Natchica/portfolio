@@ -18,6 +18,18 @@
   --radius-pip: 0.4rem;
   --fs-headline-min: 1.875rem;
   --fs-display-min: 2.25rem;
+  --fs-lead: 1.5rem;
+  --fs-caption: 0.75rem;
+  --radius-slab: 1.25rem;
+  --radius-xs: 0.25rem;
+  --stone-face-hi: #3b4a5c;
+  --stone-face-mid: #27333f;
+  --status-dev: #854d0e;
+  --status-dev-text: #fef9c3;
+  --status-complete: #166534;
+  --status-complete-text: #dcfce7;
+  --status-planned: #1e40af;
+  --status-planned-text: #dbeafe;
   --relic-hi: rgba(255, 255, 255, 0.14);
   --relic-lo: rgba(0, 0, 0, 0.45);
   --glow-cyan: 0 0 24px rgba(0, 212, 255, 0.28);
@@ -270,6 +282,21 @@ h3,
     scale(var(--depth-scale));
 }
 
+/* Form fields and social tiles: cool abyss glass instead of warm brown */
+.form-input,
+.form-textarea {
+  font-family: var(--font-body);
+  background: color-mix(in srgb, var(--abyss-900) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyber-400) 22%, transparent);
+  border-radius: 0.75rem;
+}
+
+.social-link {
+  background: color-mix(in srgb, var(--abyss-900) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyber-400) 18%, transparent);
+  border-radius: 0.75rem;
+}
+
 /* Decode gate: visible cue, scaled decode speed, keyboard focus */
 .poneglyph-hint {
   position: absolute;
@@ -289,7 +316,16 @@ h3,
   white-space: nowrap;
   box-shadow: var(--elev-2), var(--glow-cyan);
   pointer-events: none;
-  animation: hintPulse 2.4s ease-in-out infinite;
+  animation: hintReveal 0.8s ease-out both, hintPulse 2.4s ease-in-out 0.8s infinite;
+}
+
+@keyframes hintReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes hintPulse {
