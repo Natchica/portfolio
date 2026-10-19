@@ -1,0 +1,285 @@
+/* ============================================================
+   Modern layer — deep-sea ancient relic
+   Typography, depth, carved-stone surfaces, subtle CSS 3D.
+   Loaded after main.css so it refines those rules without
+   touching scroll or teleport behavior.
+   ============================================================ */
+:root {
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "DM Sans", "Inter", system-ui, sans-serif;
+
+  --abyss-900: #04202e;
+  --abyss-800: #062e44;
+  --relic-hi: rgba(255, 255, 255, 0.14);
+  --relic-lo: rgba(0, 0, 0, 0.45);
+  --glow-cyan: 0 0 24px rgba(0, 212, 255, 0.28);
+
+  --elev-1: 0 1px 0 var(--relic-hi) inset, 0 -1px 0 var(--relic-lo) inset,
+    0 8px 20px rgba(2, 16, 28, 0.35);
+  --elev-2: 0 1px 0 var(--relic-hi) inset, 0 -1px 0 var(--relic-lo) inset,
+    0 18px 40px rgba(2, 16, 28, 0.5), 0 2px 6px rgba(2, 16, 28, 0.4);
+  --stone-face: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.08), transparent 55%),
+    linear-gradient(160deg, #3b4a5c 0%, #27333f 55%, #1d2731 100%);
+
+  font-family: var(--font-body);
+}
+
+body::before {
+  background:
+    radial-gradient(60% 45% at 50% -5%, rgba(0, 212, 255, 0.22), transparent 70%),
+    radial-gradient(80% 60% at 85% 110%, rgba(3, 105, 161, 0.5), transparent 70%),
+    linear-gradient(180deg, var(--abyss-800) 0%, #08425f 45%, var(--abyss-900) 100%);
+}
+
+h1,
+h2,
+h3,
+.section-header,
+.about-title,
+.alphabet-title,
+.experience-title,
+.project-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.section-header {
+  font-size: clamp(1.875rem, 3vw + 1rem, 2.75rem);
+  font-weight: 700;
+  filter: drop-shadow(0 0 18px rgba(0, 212, 255, 0.25));
+}
+
+.about-title {
+  font-size: clamp(2.25rem, 4vw + 1rem, 3.5rem);
+  line-height: 1.05;
+}
+
+.subtitle,
+.section-subtitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+.description {
+  line-height: 1.7;
+  color: #d4dde6;
+}
+
+/* Poneglyph blocks: carved stone slab with a soft lit edge */
+.poneglyph-section {
+  perspective: 1600px;
+}
+
+.poneglyph-block {
+  position: relative;
+  background: var(--stone-face);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: var(--elev-2);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.2, 1), box-shadow 0.6s ease;
+}
+
+.poneglyph-block::before {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.poneglyph-block::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -14px;
+  height: 18px;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(0, 212, 255, 0.18), transparent 70%);
+  filter: blur(6px);
+  transform: translateZ(-30px);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (min-width: 1024px) {
+  .poneglyph-block:hover {
+    transform: rotateX(2.5deg) rotateY(-2deg) translateZ(14px);
+    box-shadow: var(--elev-2), var(--glow-cyan);
+  }
+}
+
+/* Scroll-driven entrance tilt where supported */
+@supports (animation-timeline: view()) {
+  @keyframes blockSettle {
+    from {
+      transform: rotateX(9deg) translateZ(-60px);
+      opacity: 0.4;
+    }
+    to {
+      transform: rotateX(0deg) translateZ(0);
+      opacity: 1;
+    }
+  }
+
+  .poneglyph-block {
+    animation: blockSettle linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+}
+
+/* Cards */
+.skill-card,
+.project-card,
+.experience-item {
+  background: linear-gradient(160deg, rgba(59, 74, 92, 0.75), rgba(29, 39, 49, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.875rem;
+  box-shadow: var(--elev-1);
+  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.2, 1), box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.skill-card:hover,
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 212, 255, 0.35);
+  box-shadow: var(--elev-2), var(--glow-cyan);
+}
+
+.skill-bar {
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.skill-bar-fill {
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.tech-tag {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: var(--ocean-100);
+}
+
+/* Buttons */
+.btn-primary,
+.btn-outline {
+  border-radius: 0.75rem;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  box-shadow: var(--elev-1);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-1), var(--glow-cyan);
+}
+
+.btn-outline:hover {
+  box-shadow: var(--glow-cyan);
+}
+
+/* Navigation: rune-stone pips instead of grey squares */
+.nav-panel {
+  background: rgba(4, 32, 46, 0.6);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 1.25rem;
+  padding: 1.1rem 0.9rem;
+  box-shadow: var(--elev-2);
+}
+
+.nav-button {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-width: 1px;
+  border-radius: 0.4rem;
+  transform: rotate(45deg) scale(var(--nav-button-scale));
+}
+
+.nav-button-inactive {
+  background: linear-gradient(145deg, #44546a, #27333f);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-button-active {
+  background: radial-gradient(circle at 35% 30%, #b8f4ff, var(--cyber-400));
+  border-color: #b8f4ff;
+}
+
+.nav-button:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 3px;
+}
+
+/* Helix links: real depth, nodes swing in z and turn with the strand */
+.helix-container {
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.helix-node {
+  transform-style: preserve-3d;
+  transform: translate(
+      calc(-50% + var(--helix-x) + var(--repel-x, 0px)),
+      calc(-50% + var(--repel-y, 0px))
+    )
+    translateZ(calc(cos(var(--angle)) * 60px)) rotateY(calc(sin(var(--angle)) * 28deg))
+    scale(var(--depth-scale));
+}
+
+/* Flat fallbacks: small screens and reduced motion */
+@media (max-width: 767px) {
+  .poneglyph-section,
+  .helix-container {
+    perspective: none;
+  }
+
+  .poneglyph-block {
+    animation: none;
+    transform: none;
+  }
+
+  .helix-node {
+    transform: translate(
+        calc(-50% + var(--helix-x) + var(--repel-x, 0px)),
+        calc(-50% + var(--repel-y, 0px))
+      )
+      scale(var(--depth-scale));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poneglyph-section,
+  .helix-container {
+    perspective: none;
+  }
+
+  .poneglyph-block,
+  .poneglyph-block:hover {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+
+  .skill-card:hover,
+  .project-card:hover,
+  .btn-primary:hover {
+    transform: none;
+  }
+
+  .helix-node {
+    transform: translate(
+        calc(-50% + var(--helix-x) + var(--repel-x, 0px)),
+        calc(-50% + var(--repel-y, 0px))
+      )
+      scale(var(--depth-scale));
+  }
+}
