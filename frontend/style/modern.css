@@ -248,6 +248,33 @@ h3,
 
 /* Flat fallbacks: small screens and reduced motion */
 @media (max-width: 767px) {
+  .poneglyph-section {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .poneglyph-block {
+    padding: 2rem 1.25rem;
+  }
+
+  .nav-wrapper {
+    right: 0.25rem;
+  }
+
+  .nav-panel {
+    padding: 0.6rem 0.35rem;
+    border-radius: 0.9rem;
+  }
+
+  .nav-button {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .nav-dots-group {
+    padding: 0.4rem 0;
+  }
+
   .poneglyph-section,
   .helix-container {
     perspective: none;
