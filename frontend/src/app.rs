@@ -168,7 +168,7 @@ pub fn App() -> impl IntoView {
             }
         }
 
-        if active_section_index < cached.len() - 1 {
+        if active_section_index + 1 < cached.len() {
             let current_bottom = cached[active_section_index].bottom;
             let next_top = cached[active_section_index + 1].top;
             if viewport_middle >= current_bottom && viewport_middle <= next_top {

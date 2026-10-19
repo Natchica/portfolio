@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T00:00:00Z",
+  "title": "Design System: Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Cyber Cyan", "canonical": "#00d4ff", "tonalRamp": ["#003b47", "#00677d", "#0099cc", "#00bfff", "#00d4ff", "#5fe3ff", "#a6f0ff", "#e0fbff"] },
+      "abyss-900": { "role": "secondary", "displayName": "Abyss Blue", "canonical": "#04202e", "tonalRamp": ["#02101a", "#04202e", "#062e44", "#08425f", "#0369a1", "#38bdf8", "#bae6fd", "#f0f9ff"] },
+      "ocean-900": { "role": "secondary", "displayName": "Ocean Blue", "canonical": "#0c4a6e", "tonalRamp": ["#083344", "#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#7dd3fc", "#e0f2fe"] },
+      "stone-face-mid": { "role": "neutral", "displayName": "Carved Stone", "canonical": "#27333f", "tonalRamp": ["#141a21", "#1d2731", "#27333f", "#3b4a5c", "#44546a", "#6b7b8f", "#a3afbd", "#d4dde6"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero title in Young Serif 400 with cyan glow." },
+      "headline": { "displayName": "Headline", "purpose": "Section headers in cyber cyan." },
+      "title": { "displayName": "Title", "purpose": "Card, project and experience titles." },
+      "body": { "displayName": "Body", "purpose": "DM Sans descriptions in stone-text." },
+      "button": { "displayName": "Button", "purpose": "DM Sans 600 button labels." },
+      "label": { "displayName": "Label", "purpose": "Tags and small metadata." }
+    },
+    "shadows": [
+      { "name": "elev-1", "value": "0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 8px 20px rgba(2,16,28,0.35)", "purpose": "Cards and primary button." },
+      { "name": "elev-2", "value": "0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 18px 40px rgba(2,16,28,0.5), 0 2px 6px rgba(2,16,28,0.4)", "purpose": "Slabs, nav panel, hovered cards." },
+      { "name": "glow-cyan", "value": "0 0 24px rgba(0,212,255,0.28)", "purpose": "Hover glow." }
+    ],
+    "motion": [
+      { "name": "slab-ease", "value": "cubic-bezier(0.22, 0.8, 0.2, 1)", "purpose": "Slab and card transform transitions (0.6s slab, 0.35s card)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Slab",
+      "kind": "card",
+      "refersTo": "slab",
+      "description": "Carved stone section panel.",
+      "html": "<div class=\"ds-slab\"><h2>About</h2><p>Carved text.</p></div>",
+      "css": ".ds-slab { position: relative; padding: 3rem; color: #fff; background: radial-gradient(120% 90% at 20% 0%, rgba(255,255,255,0.08), transparent 55%), linear-gradient(160deg, #3b4a5c 0%, #27333f 55%, #1d2731 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.25rem; box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 18px 40px rgba(2,16,28,0.5), 0 2px 6px rgba(2,16,28,0.4); transition: box-shadow 0.6s ease; } .ds-slab:hover { box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 18px 40px rgba(2,16,28,0.5), 0 0 24px rgba(0,212,255,0.28); } .ds-slab h2 { margin: 0 0 1rem; font-family: 'Young Serif', Georgia, serif; font-weight: 400; color: #00d4ff; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Skill, project and experience card.",
+      "html": "<div class=\"ds-card\">Project card</div>",
+      "css": ".ds-card { padding: 1.5rem; color: #d4dde6; background: linear-gradient(160deg, rgba(59,74,92,0.75), rgba(29,39,49,0.85)); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 8px 20px rgba(2,16,28,0.35); transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease; } .ds-card:hover { transform: translateY(-4px); border-color: rgba(0,212,255,0.35); box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 18px 40px rgba(2,16,28,0.5), 0 0 24px rgba(0,212,255,0.28); }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ocean-blue gradient call to action.",
+      "html": "<button class=\"ds-btn-primary\">Contact</button>",
+      "css": ".ds-btn-primary { padding: 0.75rem 2rem; font-family: 'DM Sans', system-ui, sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; color: #fff; background: linear-gradient(to right, #075985, #0369a1); border: none; border-radius: 0.75rem; cursor: pointer; box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 -1px 0 rgba(0,0,0,0.45) inset, 0 8px 20px rgba(2,16,28,0.35); transition: transform 0.2s, box-shadow 0.2s; } .ds-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(2,16,28,0.35), 0 0 24px rgba(0,212,255,0.28); } .ds-btn-primary:focus-visible { outline: 2px solid #00d4ff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary cyan outlined button.",
+      "html": "<button class=\"ds-btn-outline\">Download CV</button>",
+      "css": ".ds-btn-outline { padding: 0.75rem 2rem; font-family: 'DM Sans', system-ui, sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.01em; color: #00d4ff; background: transparent; border: 2px solid #00d4ff; border-radius: 0.75rem; cursor: pointer; transition: box-shadow 0.2s; } .ds-btn-outline:hover { background: #00d4ff; color: #0c4a6e; box-shadow: 0 0 24px rgba(0,212,255,0.28); } .ds-btn-outline:focus-visible { outline: 2px solid #00d4ff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Tech Tag",
+      "kind": "chip",
+      "refersTo": "tech-tag",
+      "description": "Cyan tinted pill for technologies.",
+      "html": "<span class=\"ds-tag\">Rust</span>",
+      "css": ".ds-tag { display: inline-block; padding: 0.125rem 0.5rem; font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.875rem; color: #e0f2fe; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 9999px; }"
+    },
+    {
+      "name": "Navigation Panel",
+      "kind": "nav",
+      "refersTo": "nav-panel",
+      "description": "Right-side panel with diamond rune pips.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-pip\"></span><span class=\"ds-pip ds-pip-active\"></span><span class=\"ds-pip\"></span></nav>",
+      "css": ".ds-nav { display: inline-flex; flex-direction: column; gap: 1rem; padding: 1.1rem 0.9rem; background: rgba(4,32,46,0.6); backdrop-filter: blur(14px) saturate(1.3); border: 1px solid rgba(0,212,255,0.25); border-radius: 1.25rem; box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 18px 40px rgba(2,16,28,0.5); } .ds-pip { width: 1.25rem; height: 1.25rem; border-radius: 0.4rem; border: 1px solid rgba(255,255,255,0.2); background: linear-gradient(145deg, #44546a, #27333f); transform: rotate(45deg); } .ds-pip-active { background: radial-gradient(circle at 35% 30%, #b8f4ff, #00d4ff); border-color: #b8f4ff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Deep-sea ancient relic",
+    "overview": "A poneglyph rests on the ocean floor: heavy carved stone, lit from above by dim water, with cyan glyphs that glow as if they emit light. The voice is calm. Nothing shouts; surfaces are weighty, edges are lit softly, and the only saturated color is the cyan of the glyphs. Depth comes from light and layered elevation, never from decoration.",
+    "keyCharacteristics": [
+      "Ocean/abyss blue field, stone-grey slabs, cyber-cyan accent used for glyphs, glow, active state and headings.",
+      "Soft layered elevation: lit top edge, dark bottom edge, deep diffuse drop shadow, cyan glow on hover.",
+      "Carved-stone slabs and cards with an inset inner border.",
+      "Diamond rune-stone nav pips.",
+      "3D is CSS-only and flattens on small screens and under reduced motion."
+    ],
+    "rules": [
+      { "name": "The Light Source Rule", "body": "Cyan is emitted light, never a flat fill for large areas. It appears as text, glow, thin borders (12 to 35% alpha) and small active marks.", "section": "colors" },
+      { "name": "The Solid Heading Rule", "body": "Headings are solid colors with a soft drop-shadow glow. Gradient-clipped text is retired.", "section": "colors" },
+      { "name": "The Single Weight Rule", "body": "Display faces stay at weight 400. Emphasis comes from size, color and glow, not bold.", "section": "typography" },
+      { "name": "The Flat Fallback Rule", "body": "Under 768px and under prefers-reduced-motion, perspective is removed and all 3D transforms, entrance animation and hover lifts are flattened. Depth is then carried by the shadows alone.", "section": "elevation" },
+      { "name": "The Lit Edge Rule", "body": "Raised means a light top edge, dark bottom edge and soft deep shadow together; never a single hard offset shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep display type in Young Serif at weight 400 and body in DM Sans.",
+      "Do build every raised surface from Elevation 1 or 2 and add the cyan glow only on hover or for glyphs.",
+      "Do use cyan as light: headings, glyphs, thin borders and active marks.",
+      "Do use CSS 3D only, and flatten it under 768px and under prefers-reduced-motion.",
+      "Do keep text at WCAG AA contrast over ocean and stone."
+    ],
+    "donts": [
+      "Don't use a gradient fill on heading text.",
+      "Don't use JavaScript or canvas for depth; 3D stays in CSS transforms.",
+      "Don't replace the poneglyph materials (ocean field, stone blocks, cyan glyphs) with another world.",
+      "Don't add bold to Young Serif headings.",
+      "Don't touch the scroll teleport and overlay behavior when restyling."
+    ]
+  }
+}
