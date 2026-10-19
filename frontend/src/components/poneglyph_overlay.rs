@@ -61,6 +61,7 @@ pub fn PoneglyphOverlay(
     #[prop(default = 15)] columns: usize,
     #[prop(optional)] on_decode_complete: Option<Callback<()>>,
 ) -> impl IntoView {
+    let webgl = crate::utils::render::webgl();
     let (has_started, set_has_started) = signal(false);
     let (container_width, set_container_width) = signal(0u32);
     let (container_height, set_container_height) = signal(0u32);
@@ -220,8 +221,17 @@ pub fn PoneglyphOverlay(
                         responsive_columns.get(),
                     )
                 }
+                data-grid=move || webgl.then(|| encode_grid(&symbol_grid.get()))
+                data-cols=move || webgl.then(|| responsive_columns.get().to_string())
+                data-origin=move || {
+                    if webgl {
+                        click_coords.get().map(|(x, y)| format!("{x:.1},{y:.1}"))
+                    } else {
+                        None
+                    }
+                }
             >
-                {move || {
+                {move || (!webgl).then(|| {
                     let grid = symbol_grid.get();
                     let started = has_started.get();
                     let coords = click_coords.get_untracked();
@@ -278,8 +288,46 @@ pub fn PoneglyphOverlay(
                                 .collect::<Vec<_>>()
                         })
                         .collect_view()
-                }}
+                })}
             </div>
         </button>
+    }
+}
+
+/// Serialises the glyph grid for the WebGL layer: file stems, `,` between cells, `;` between rows.
+fn encode_grid(grid: &[Vec<Option<&str>>]) -> String {
+    grid.iter()
+        .map(|row| {
+            row.iter()
+                .map(|cell| {
+                    cell.map(|path| {
+                        path.rsplit('/')
+                            .next()
+                            .and_then(|file| file.strip_suffix(".svg"))
+                            .unwrap_or("")
+                    })
+                    .unwrap_or("")
+                })
+                .collect::<Vec<_>>()
+                .join(",")
+        })
+        .collect::<Vec<_>>()
+        .join(";")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::encode_grid;
+
+    #[test]
+    fn encode_grid_joins_rows_and_cells() {
+        let grid = vec![
+            vec![Some("/symbols/svg/letters/a.svg"), None],
+            vec![
+                Some("/symbols/svg/numbers/7.svg"),
+                Some("/symbols/svg/letters/kqc.svg"),
+            ],
+        ];
+        assert_eq!(encode_grid(&grid), "a,;7,kqc");
     }
 }

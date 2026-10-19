@@ -1,0 +1,120 @@
+/* ============================================================
+   WebGL mode
+   Rust sets <html data-render="webgl"> when hardware accelerated WebGL
+   is available. A Three.js canvas (scene.js) then draws the slabs, the
+   decode glyph grid and the helix; the DOM keeps layout, text and input.
+   Without it the page keeps the DOM look from main.css and modern.css.
+   ============================================================ */
+
+/* The canvas sits behind every positioned box and never takes input */
+#webgl-layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Perspective would break the orthographic alignment between mesh and DOM tilt */
+html[data-render="webgl"] .poneglyph-section {
+  perspective: none;
+}
+
+/* The overlay stays the click target, but the canvas draws the grey stone and glyphs */
+html[data-render="webgl"] .poneglyph-overlay,
+html[data-render="webgl"] .poneglyph-overlay.decoding,
+html[data-render="webgl"] .poneglyph-grid,
+html[data-render="webgl"] .decoding .poneglyph-grid {
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+
+html[data-render="webgl"] .helix-container {
+  animation: none;
+  perspective: none;
+}
+
+html[data-render="webgl"] .poneglyph-block::after {
+  display: none;
+}
+
+/* The canvas draws the stone; the DOM block keeps only content, hidden until decoded */
+html[data-render="webgl"] .poneglyph-block,
+html[data-render="webgl"] .poneglyph-block:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  animation: none;
+  transition: none;
+  transform: none;
+}
+
+html[data-render="webgl"] .poneglyph-block::before,
+html[data-render="webgl"] .poneglyph-block > * {
+  transition: opacity 0.6s ease;
+}
+
+html[data-render="webgl"] .poneglyph-block:not(.content-decoded)::before,
+html[data-render="webgl"] .poneglyph-block:not(.content-decoded) > * {
+  opacity: 0;
+}
+
+/* Parallax: cards sit on different depth layers and drift with the pointer (the individual translate property composes with hover transforms) */
+html[data-render="webgl"] .poneglyph-block :is(.section-header, .stagger-item, .stagger-slide, .stagger-scale) {
+  --layer-depth: calc(6 + var(--item-index, 0) * 1.5);
+  translate: calc(var(--px, 0) * var(--layer-depth) * 1px) calc(var(--py, 0) * var(--layer-depth) * 1px);
+}
+
+html[data-render="webgl"] .poneglyph-block .section-header {
+  --layer-depth: 3;
+}
+
+/* Notice shown when the DOM fallback runs because WebGL is unusable */
+.webgl-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  translate: -50% 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: min(42rem, calc(100% - 1.5rem));
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--cyber-400);
+  border-radius: 0.875rem;
+  background: var(--abyss-900);
+  color: var(--glyph-ice);
+  box-shadow: var(--elev-2), var(--glow-cyan);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.webgl-notice-text {
+  margin: 0;
+}
+
+.webgl-notice-close {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--cyber-400) 35%, transparent);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--glyph-ice);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.webgl-notice-close:hover {
+  background: color-mix(in srgb, var(--cyber-400) 15%, transparent);
+}
+
+.webgl-notice-close:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 2px;
+}

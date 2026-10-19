@@ -20,15 +20,15 @@ Poneglyph stone blocks, glyph helix chains linking them, and a scroll that never
 
 ## Operating Context
 
-Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/main.css`, Axum backend on port 3000 for `/api/health`. Dev server at `http://localhost:8080`.
+Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/`, Axum backend on port 3000 for `/api/health`. A WebGL layer (`frontend/public/scene.js` with Three.js 0.170.0 vendored in `frontend/public/vendor/`) draws slabs, glyphs and helix when the browser has hardware accelerated WebGL. Dev server at `http://localhost:8080`.
 
 ## Capabilities and Constraints
 
 - Infinite-scroll teleport and overlay logic from PRs #8 to #10 stays untouched.
 - `poneglyph_converter.rs` and the symbol assets stay as they are.
 - Backend stays untouched.
-- No Tailwind, no JavaScript runtime. Release WASM stays near the current ~212K.
-- 3D depth is delivered with CSS 3D transforms only. Open decision: none.
+- No Tailwind. Release WASM stays near the current ~212K; the 692KB Three.js module loads only when the page runs in WebGL mode.
+- Rust decides WebGL or DOM rendering once at startup (`data-render` on `<html>`). Visitors without hardware WebGL get the CSS look plus a notice on how to enable hardware acceleration. `?webgl=off` forces the DOM look, `?debug` exposes the WebGL test surface.
 
 ## Brand Commitments
 
@@ -48,4 +48,4 @@ Written content is current and stays verbatim. Assets: `frontend/public/Nathan-G
 
 ## Accessibility & Inclusion
 
-Keep text contrast at WCAG AA over the ocean and stone surfaces. Honor `prefers-reduced-motion` by flattening 3D tilt and parallax. Mobile falls back to flat surfaces.
+Keep text contrast at WCAG AA over the ocean and stone surfaces. Honor `prefers-reduced-motion` by removing tilt, parallax, the pointer light and the helix rotation, and by fading the decode instead of flipping it. On touch, the pointer light and pointer tilt are off.

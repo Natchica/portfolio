@@ -105,19 +105,20 @@
       { "name": "The Light Source Rule", "body": "Cyan is emitted light, never a flat fill for large areas. It appears as text, glow, thin borders (12 to 35% alpha) and small active marks.", "section": "colors" },
       { "name": "The Solid Heading Rule", "body": "Headings are solid colors with a soft drop-shadow glow. Gradient-clipped text is retired.", "section": "colors" },
       { "name": "The Single Weight Rule", "body": "Display faces stay at weight 400. Emphasis comes from size, color and glow, not bold.", "section": "typography" },
-      { "name": "The Flat Fallback Rule", "body": "Under 768px and under prefers-reduced-motion, perspective is removed and all 3D transforms, entrance animation and hover lifts are flattened. Depth is then carried by the shadows alone.", "section": "elevation" },
+      { "name": "The Reduced Motion Rule", "body": "Under prefers-reduced-motion the slabs stop tilting and scaling, the helix freezes, the decode fades in place instead of flipping, and the light and parallax are removed. On touch the light and pointer tilt are off but the scroll entrance still runs.", "section": "elevation" },
+      { "name": "The One Projection Rule", "body": "In WebGL mode the mesh and its DOM block share one orthographic rotation. Never add CSS perspective to a section while the canvas is on, or text and stone drift apart.", "section": "elevation" },
       { "name": "The Lit Edge Rule", "body": "Raised means a light top edge, dark bottom edge and soft deep shadow together; never a single hard offset shadow.", "section": "elevation" }
     ],
     "dos": [
       "Do keep display type in Young Serif at weight 400 and body in DM Sans.",
       "Do build every raised surface from Elevation 1 or 2 and add the cyan glow only on hover or for glyphs.",
       "Do use cyan as light: headings, glyphs, thin borders and active marks.",
-      "Do use CSS 3D only, and flatten it under 768px and under prefers-reduced-motion.",
+      "Do keep 3D optional: still under prefers-reduced-motion, pointer effects off on touch, and a CSS fallback with a notice when hardware WebGL is missing.",
       "Do keep text at WCAG AA contrast over ocean and stone."
     ],
     "donts": [
       "Don't use a gradient fill on heading text.",
-      "Don't use JavaScript or canvas for depth; 3D stays in CSS transforms.",
+      "Don't let the canvas and the DOM disagree: one orthographic rotation for both, and no CSS perspective on sections while the canvas is on.",
       "Don't replace the poneglyph materials (ocean field, stone blocks, cyan glyphs) with another world.",
       "Don't add bold to Young Serif headings.",
       "Don't touch the scroll teleport and overlay behavior when restyling."

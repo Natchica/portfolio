@@ -192,7 +192,12 @@ pub fn TransitionSection(
 
     if is_chain {
         let is_fade = fade.unwrap_or(false);
-        let nodes = generate_helix_nodes(is_fade);
+        let webgl = crate::utils::render::webgl();
+        let nodes = if webgl {
+            Vec::new()
+        } else {
+            generate_helix_nodes(is_fade)
+        };
 
         let node_views: Vec<_> = nodes
             .iter()
@@ -234,7 +239,11 @@ pub fn TransitionSection(
                     cls
                 }
             >
-                <div class="helix-container">
+                <div
+                    class="helix-container"
+                    data-helix=webgl.then_some("1")
+                    data-fade=webgl.then_some(if is_fade { "1" } else { "0" })
+                >
                     {node_views}
                 </div>
             </div>
