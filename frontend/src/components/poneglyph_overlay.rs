@@ -1,19 +1,27 @@
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
+use crate::hooks::use_intersection_observer::{
+    IntersectionObserverOptions, use_intersection_observer,
+};
 use crate::utils::poneglyph_converter::text_to_centered_symbol_grid;
 
-fn schedule_callback(duration_secs: f64, cb: Callback<()>) {
-    let millis = ((duration_secs * 0.7) * 1000.0) as i32;
-    let closure = Closure::<dyn Fn()>::new(move || {
-        cb.run(());
-    });
+/// How long a visitor looks at an encoded slab before the decode hint appears.
+const HINT_DELAY_MS: i32 = 15_000;
+
+fn run_after_ms(millis: i32, f: impl Fn() + 'static) {
+    let closure = Closure::<dyn Fn()>::new(f);
     let window = web_sys::window().expect("no window");
     let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
         closure.as_ref().unchecked_ref(),
         millis,
     );
     closure.forget();
+}
+
+fn schedule_callback(duration_secs: f64, cb: Callback<()>) {
+    let millis = ((duration_secs * 0.7) * 1000.0) as i32;
+    run_after_ms(millis, move || cb.run(()));
 }
 
 fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> f64 {
@@ -104,6 +112,25 @@ pub fn PoneglyphOverlay(
         text_to_centered_symbol_grid(author, quote, responsive_columns.get(), calculated_rows)
     });
 
+    // The hint stays hidden until the slab has been in the middle band of the
+    // viewport for HINT_DELAY_MS, so a visitor can discover the gate first.
+    let (hint_ready, set_hint_ready) = signal(false);
+    let (hint_armed, set_hint_armed) = signal(false);
+    let in_view = use_intersection_observer(
+        container_ref,
+        IntersectionObserverOptions {
+            threshold: 0.0,
+            root_margin: "-30% 0px -30% 0px",
+            once: false,
+        },
+    );
+    Effect::new(move |_| {
+        if in_view.get() && !hint_armed.get_untracked() {
+            set_hint_armed.set(true);
+            run_after_ms(HINT_DELAY_MS, move || set_hint_ready.set(true));
+        }
+    });
+
     let start_decode = move |x: f64, y: f64| {
         if has_started.get_untracked() {
             return;
@@ -174,7 +201,7 @@ pub fn PoneglyphOverlay(
             }
         >
             {move || {
-                (!has_started.get())
+                (hint_ready.get() && !has_started.get())
                     .then(|| {
                         view! {
                             <span class="poneglyph-hint" aria-hidden="true">
