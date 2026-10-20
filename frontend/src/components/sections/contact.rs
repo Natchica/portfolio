@@ -2,6 +2,7 @@ use leptos::prelude::*;
 
 use crate::components::poneglyph_overlay::PoneglyphOverlay;
 use crate::components::poneglyph_section::PoneglyphSection;
+use crate::context::{ContactDecodeRequest, contact_decode_requested};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -25,6 +26,45 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
 
     let nav_about = on_navigate.clone();
 
+    // "Get in Touch" asks the stone to decode itself once the smooth scroll has brought it
+    // into the middle of the viewport, so the visitor sees the glyphs flip and needs no tap.
+    let request = expect_context::<ContactDecodeRequest>();
+    let shared_start: RwSignal<Option<(f64, f64)>> = RwSignal::new(None);
+    let in_middle = use_intersection_observer(
+        node_ref,
+        IntersectionObserverOptions {
+            threshold: 0.0,
+            root_margin: "-30% 0px -30% 0px",
+            once: false,
+        },
+    );
+    Effect::new(move |_| {
+        if !in_middle.get() {
+            return;
+        }
+        let Some(requested_at) = request.requested_at.get() else {
+            return;
+        };
+        request.requested_at.set(None);
+        if !contact_decode_requested(Some(requested_at), js_sys::Date::now())
+            || decoded.get_untracked()
+            || shared_start.get_untracked().is_some()
+        {
+            return;
+        }
+        let Some(el) = node_ref.get_untracked() else {
+            return;
+        };
+        let rect = el.get_bounding_client_rect();
+        let (scroll_x, scroll_y) = web_sys::window()
+            .map(|w| (w.scroll_x().unwrap_or(0.0), w.scroll_y().unwrap_or(0.0)))
+            .unwrap_or((0.0, 0.0));
+        shared_start.set(Some((
+            rect.left() + rect.width() / 2.0 + scroll_x,
+            rect.top() + rect.height() / 2.0 + scroll_y,
+        )));
+    });
+
     view! {
         <PoneglyphSection id="contact-inner" show_connection_line=false>
             <div
@@ -41,6 +81,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                     author=QUOTE_AUTHOR
                     quote=PONEGLYPH_QUOTE
                     columns=15
+                    shared_start=shared_start
                     on_decode_complete=Callback::new(move |_| set_decoded.set(true))
                 />
                 <div class=move || if decoded.get() {
