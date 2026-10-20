@@ -72,7 +72,20 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                                         <span class="contact-info-icon">"\u{1f5e3}\u{fe0f}"</span>
                                         <div>
                                             <p class="contact-info-label">"Languages"</p>
-                                            <p class="contact-info-value">"French (native), English (C2), German (B1)"</p>
+                                            <ul class="language-list">
+                                                <li>
+                                                    <span class="language-flag" aria-hidden="true">"\u{1f1eb}\u{1f1f7}"</span>
+                                                    "French (native)"
+                                                </li>
+                                                <li>
+                                                    <span class="language-flag" aria-hidden="true">"\u{1f1ec}\u{1f1e7}"</span>
+                                                    "English (C2)"
+                                                </li>
+                                                <li>
+                                                    <span class="language-flag" aria-hidden="true">"\u{1f1e9}\u{1f1ea}"</span>
+                                                    "German (B1)"
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
