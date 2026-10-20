@@ -114,6 +114,25 @@ const EXPERIENCES: &[ExperienceItem] = &[
         icon: "\u{1f393}",
     },
     ExperienceItem {
+        kind: "Education",
+        title: "Preparatory Classes - La Prépa des INP, Nancy",
+        period: "2019 to 2021",
+        bullets: &[
+            "Two-year integrated preparatory cycle of the Groupe INP engineering schools, assessed by continuous assessment with no competitive exam, leading to INP-ENSEEIHT.",
+        ],
+        icon: "\u{1f4d0}",
+    },
+    ExperienceItem {
+        kind: "Education",
+        title: "Baccalauréat S - Lycée Scheurer-Kestner, Thann",
+        period: "2019",
+        bullets: &[
+            "French scientific baccalaureate with the mathematics specialty, passed with highest honours (mention Très Bien).",
+            "German European section: extra German classes and physics and chemistry taught in German, with the European section mention on the diploma.",
+        ],
+        icon: "\u{1f3eb}",
+    },
+    ExperienceItem {
         kind: "Training",
         title: "Blockchain Certificate - University of Nicosia",
         period: "Sep 2023 to Dec 2023",
