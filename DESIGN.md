@@ -296,7 +296,7 @@ Skill, project and experience cards. Translucent stone gradient, 0.875rem radius
 - **Outline:** transparent with cyan text and 2px cyan border; hover adds glow and fills solid cyan with ocean-900 text.
 
 ### Contact links
-GitHub and LinkedIn are anchor tiles in abyss glass (18% cyan border, 0.75rem radius) and the CV link is a full-width primary button to LinkedIn. All open in a new tab with `rel="noopener noreferrer"` and show a 2px cyan focus outline. There is no contact form.
+GitHub and LinkedIn are anchor tiles in abyss glass (18% cyan border, 0.75rem radius). There is no CV button, because LinkedIn is the CV. Both open in a new tab with `rel="noopener noreferrer"` and show a 2px cyan focus outline. There is no contact form.
 
 ### Tags and decode hint
 The decode hint stays hidden until a slab has been in the middle of the viewport for 15 seconds, so visitors can discover the gate on their own, then fades in. It is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
