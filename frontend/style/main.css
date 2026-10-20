@@ -1456,18 +1456,7 @@ a.btn-cv {
 
 @media (min-width: 1024px) {
   .skill-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-
-  .skill-card,
-  .skill-card:last-child:nth-child(odd) {
-    grid-column: span 2;
-  }
-
-  /* A last row of two cards shares the full width */
-  .skill-card:last-child:nth-child(3n + 2),
-  .skill-card:nth-last-child(2):nth-child(3n + 1) {
-    grid-column: span 3;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .contact-grid {
