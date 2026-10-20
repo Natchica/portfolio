@@ -206,7 +206,7 @@ body::before {
     grid-column: 7 / 11;
   }
 
-  /* Historical Records: 20 tracks, so the pair splits into two equal halves that end under the top slab */
+  /* Historical Records: 20 tracks, Trainings takes 9 and Studies 10, so Studies steps out past the top slab's right edge */
   #experience-inner .slab-cluster-grid {
     grid-template-columns: repeat(20, minmax(0, 1fr));
   }
@@ -220,7 +220,7 @@ body::before {
   }
 
   #experience-inner .cluster-slab-3 {
-    grid-column: 10 / 19;
+    grid-column: 10 / 20;
   }
 }
 
