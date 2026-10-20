@@ -6,50 +6,60 @@ use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
 
-const PONEGLYPH_QUOTE: &str = "Bitcoin is the apex property of the human race";
-const QUOTE_AUTHOR: &str = "Michael Saylor";
+pub(super) const PONEGLYPH_QUOTE: &str = "Talk is cheap show me the code";
+pub(super) const QUOTE_AUTHOR: &str = "Linus Torvalds";
 
-struct Skill {
+struct SkillGroup {
     name: &'static str,
-    level: u32,
     icon: &'static str,
+    tags: &'static [&'static str],
 }
 
-const SKILLS: &[Skill] = &[
-    Skill {
-        name: "Rust",
-        level: 90,
-        icon: "\u{1f980}",
-    },
-    Skill {
-        name: "Java",
-        level: 90,
-        icon: "\u{2615}",
-    },
-    Skill {
-        name: "TypeScript",
-        level: 70,
-        icon: "\u{26a1}",
-    },
-    Skill {
-        name: "Solidity",
-        level: 65,
+const SKILL_GROUPS: &[SkillGroup] = &[
+    SkillGroup {
+        name: "Languages",
         icon: "\u{1f4dc}",
+        tags: &[
+            "Rust",
+            "Java",
+            "TypeScript",
+            "Solidity",
+            "Python",
+            "JavaScript",
+        ],
     },
-    Skill {
-        name: "Backend Development",
-        level: 85,
+    SkillGroup {
+        name: "Backend",
         icon: "\u{2699}\u{fe0f}",
+        tags: &[
+            "Spring",
+            "NATS JetStream",
+            "Event-driven services",
+            "H2",
+            "Web3j",
+            "Ethereum",
+        ],
     },
-    Skill {
-        name: "Web3/Blockchain",
-        level: 75,
-        icon: "\u{1f517}",
+    SkillGroup {
+        name: "Infrastructure",
+        icon: "\u{1f433}",
+        tags: &["Docker", "OCI images", "GitHub Actions", "Jenkins", "CI/CD"],
     },
-    Skill {
-        name: "DevOps/CI-CD",
-        level: 70,
-        icon: "\u{1f504}",
+    SkillGroup {
+        name: "Security and TEE",
+        icon: "\u{1f510}",
+        tags: &[
+            "Intel TDX",
+            "Intel SGX",
+            "AES encryption",
+            "TEE authorization",
+            "Secret migration",
+        ],
+    },
+    SkillGroup {
+        name: "Tooling",
+        icon: "\u{1f6e0}\u{fe0f}",
+        tags: &["Git", "GitHub", "Gradle", "Claude Code", "Test automation"],
     },
 ];
 
@@ -91,24 +101,24 @@ pub fn SkillsSection() -> impl IntoView {
                 }>
                     <h2 class="section-header">"Technical Glyphs"</h2>
                     <div class="skill-grid">
-                        {SKILLS
+                        {SKILL_GROUPS
                             .iter()
                             .enumerate()
-                            .map(|(index, skill)| {
-                                let width_style = format!("width: {}%;", skill.level);
+                            .map(|(index, group)| {
                                 let stagger = format!("--item-index: {index};");
                                 view! {
                                     <div class="skill-card stagger-item" style={stagger}>
                                         <div class="skill-card-header">
-                                            <span class="skill-icon">{skill.icon}</span>
-                                            <h3 class="skill-name">{skill.name}</h3>
+                                            <span class="skill-icon">{group.icon}</span>
+                                            <h3 class="skill-name">{group.name}</h3>
                                         </div>
-                                        <div class="skill-bar">
-                                            <div class="skill-bar-fill" style={width_style} />
+                                        <div class="tech-tags">
+                                            {group
+                                                .tags
+                                                .iter()
+                                                .map(|t| view! { <span class="tech-tag">{*t}</span> })
+                                                .collect_view()}
                                         </div>
-                                        <p class="skill-proficiency">
-                                            {format!("{}% Proficiency", skill.level)}
-                                        </p>
                                     </div>
                                 }
                             })
