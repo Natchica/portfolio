@@ -90,8 +90,7 @@ const EXPERIENCES: &[ExperienceItem] = &[
         title: "Claude Code Training - Selina",
         period: "Jun 2026",
         bullets: &[
-            "10.5-hour in-house training on context engineering and fitting Claude Code into a shared software development lifecycle.",
-            "Delivered a project CLAUDE.md, SDLC skills, commands, pre- and post-tool hooks, a specialized agent and a plugin published on iExec's shared repository.",
+            "10.5-hour in-house training on fitting Claude Code into a shared software development lifecycle: context engineering, skills, commands, hooks, agents and plugins.",
         ],
         icon: "\u{1f9f0}",
     },
