@@ -813,6 +813,19 @@ body::before {
   margin: 0;
 }
 
+.experience-bullets {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--stone-300);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.experience-bullets li::marker {
+  color: var(--cyber-400);
+}
+
 /* ============================================================
    Projects Section
    ============================================================ */
@@ -850,6 +863,37 @@ body::before {
   font-weight: 700;
   color: white;
   margin: 0 0 0.25rem 0;
+}
+
+.project-group-title {
+  font-family: var(--font-body);
+  font-size: var(--fs-lead);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cyber-400);
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyber-400) 25%, transparent);
+}
+
+.project-grid + .project-group-title {
+  margin-top: 3rem;
+}
+
+.project-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--cyber-400) 45%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.project-link:hover {
+  text-decoration-color: var(--cyber-400);
+}
+
+.project-link:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 3px;
 }
 
 .status-badge {
@@ -1169,6 +1213,22 @@ body::before {
 
 .social-name {
   font-weight: 600;
+}
+
+a.social-link,
+a.btn-cv {
+  text-decoration: none;
+}
+
+a.btn-cv {
+  display: block;
+  text-align: center;
+}
+
+.social-link:focus-visible,
+.btn-cv:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 3px;
 }
 
 .cv-download-wrapper {
