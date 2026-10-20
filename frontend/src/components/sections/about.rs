@@ -6,9 +6,9 @@ use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
 
-const PONEGLYPH_QUOTE: &str =
-    "The root problem with conventional currency is all the trust that is required to make it work";
-const QUOTE_AUTHOR: &str = "Satoshi Nakamoto";
+pub(super) const PONEGLYPH_QUOTE: &str =
+    "Programs must be written for people to read and only incidentally for machines to execute";
+pub(super) const QUOTE_AUTHOR: &str = "Abelson and Sussman";
 
 #[component]
 pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> impl IntoView {
@@ -62,24 +62,26 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                             />
                         </div>
                         <h1 class="section-header about-title stagger-item" style="--item-index: 1;">"Nathan GAUD"</h1>
-                        <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Web3 Software Engineer"</p>
-                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Genesis Block - The Origin Story"</p>
+                        <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Software Engineer"</p>
+                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Java and Rust backends. AI-assisted developer tooling."</p>
                         <div class="description stagger-item" style="--item-index: 3;">
                             <p>
-                                "Welcome to my digital Poneglyph. As a Backend Web3 Software \
-                                 Engineer at iExec, I develop decentralized applications and \
-                                 blockchain infrastructure that power the future of distributed \
-                                 computing. My work focuses on building secure, scalable backend \
-                                 systems using Rust and Java."
+                                "Welcome to my digital Poneglyph. I am a backend software engineer \
+                                 who builds and optimizes services in Java and Rust. At iExec, from \
+                                 2024 to 2026, I led three event-driven Rust services in the Nox \
+                                 protocol, rewrote two middleware components from Java to Rust for a \
+                                 75% gain in core performance, and led iexec-stork, the tool that \
+                                 migrates secrets from Intel SGX to Intel TDX."
                             </p>
                             <p>
-                                "What drives me in Web3 is the immutability and transparency of \
-                                 blockchain technology - you can\u{2019}t lie with the blockchain. For \
-                                 me, Web3 represents freedom and the power to build systems where \
-                                 truth is verifiable and trust is built into the code itself."
+                                "Web3 is the domain I shipped in: decentralized cloud computing, \
+                                 trusted execution environments and blockchain middleware. \
+                                 AI-assisted developer tooling is where I am growing next, starting \
+                                 with my own Claude Code plugins and automation. I work in French \
+                                 (native), English (C2) and German (B1)."
                             </p>
                             <p class="highlight-text">
-                                "\u{1f980} Rust & Java Developer \u{2022} \u{1f517} Blockchain Enthusiast \u{2022} \u{1f30a} Building the Decentralized Future"
+                                "\u{1f980} Rust Services \u{2022} \u{2615} Java and Spring \u{2022} \u{1f512} Confidential Computing"
                             </p>
                         </div>
                         <div class="cta-buttons stagger-item" style="--item-index: 4;">
