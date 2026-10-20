@@ -205,6 +205,23 @@ body::before {
   .cluster-slab-3 {
     grid-column: 7 / 11;
   }
+
+  /* Historical Records: 20 tracks, Trainings takes 9 and Studies 10, so Studies steps out past the top slab's right edge */
+  #experience-inner .slab-cluster-grid {
+    grid-template-columns: repeat(20, minmax(0, 1fr));
+  }
+
+  #experience-inner .cluster-slab-1 {
+    grid-column: 3 / 19;
+  }
+
+  #experience-inner .cluster-slab-2 {
+    grid-column: 1 / 10;
+  }
+
+  #experience-inner .cluster-slab-3 {
+    grid-column: 10 / 20;
+  }
 }
 
 /* ============================================================
@@ -843,6 +860,11 @@ body::before {
 
 .experience-bullets li::marker {
   color: var(--cyber-400);
+}
+
+.experience-description {
+  margin: 0;
+  color: var(--stone-300);
 }
 
 /* ============================================================

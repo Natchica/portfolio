@@ -1,3 +1,4 @@
+use leptos::either::Either;
 use leptos::prelude::*;
 
 use crate::components::slab_cluster::{ClusterSlab, SlabCluster};
@@ -32,6 +33,11 @@ const GROUPS: &[ExperienceGroup] = &[
         kinds: &["Education"],
     },
 ];
+
+/// Trainings and studies read as one or two plain sentences, with no kind label and no bullets.
+fn is_summary(kind: &str) -> bool {
+    matches!(kind, "Training" | "Education")
+}
 
 const EXPERIENCES: &[ExperienceItem] = &[
     ExperienceItem {
@@ -81,11 +87,10 @@ const EXPERIENCES: &[ExperienceItem] = &[
     },
     ExperienceItem {
         kind: "Training",
-        title: "Claude Code Training - Selina, at iExec",
+        title: "Claude Code Training - Selina",
         period: "Jun 2026",
         bullets: &[
-            "10.5-hour in-house training on fitting Claude Code into a shared software development lifecycle: context engineering, SDLC skills, commands, hooks, agents and plugins.",
-            "Delivered a project CLAUDE.md, a library of SDLC skills, commands, pre- and post-tool hooks, a specialized agent and a plugin published on iExec's shared repository.",
+            "10.5-hour in-house training on fitting Claude Code into a shared software development lifecycle: context engineering, skills, commands, hooks, agents and plugins.",
         ],
         icon: "\u{1f9f0}",
     },
@@ -105,13 +110,32 @@ const EXPERIENCES: &[ExperienceItem] = &[
     },
     ExperienceItem {
         kind: "Education",
-        title: "Engineering Degree - INP-ENSEEIHT",
+        title: "Engineering Degree - INP-ENSEEIHT, Toulouse",
         period: "Sep 2021 to Sep 2024",
         bullets: &[
             "Computer Science, specialized in Software Systems and Engineering.",
             "Erasmus semester at UPM (ETSIINF), Madrid, Sep 2023 to Jan 2024: Data Sciences, Intelligent Systems, eHealth and Software.",
         ],
         icon: "\u{1f393}",
+    },
+    ExperienceItem {
+        kind: "Education",
+        title: "Preparatory Classes - La Prépa des INP, Nancy",
+        period: "2019 to 2021",
+        bullets: &[
+            "Two-year integrated preparatory cycle of the Groupe INP engineering schools, assessed by continuous assessment with no competitive exam, leading to INP-ENSEEIHT.",
+        ],
+        icon: "\u{1f4d0}",
+    },
+    ExperienceItem {
+        kind: "Education",
+        title: "Baccalauréat S - Lycée Scheurer-Kestner, Thann",
+        period: "2019",
+        bullets: &[
+            "French scientific baccalaureate with the mathematics specialty, passed with highest honours (mention Très Bien).",
+            "German European section: extra German classes and physics and chemistry taught in German, with the European section mention on the diploma.",
+        ],
+        icon: "\u{1f3eb}",
     },
     ExperienceItem {
         kind: "Training",
@@ -154,14 +178,26 @@ pub fn ExperienceSection() -> impl IntoView {
                                                         <h4 class="experience-title">{item.title}</h4>
                                                         <span class="experience-period">{item.period}</span>
                                                     </div>
-                                                    <p class="experience-type">{item.kind}</p>
-                                                    <ul class="experience-bullets">
-                                                        {item
-                                                            .bullets
-                                                            .iter()
-                                                            .map(|b| view! { <li>{*b}</li> })
-                                                            .collect_view()}
-                                                    </ul>
+                                                    {if is_summary(item.kind) {
+                                                        Either::Left(
+                                                            view! {
+                                                                <p class="experience-description">{item.bullets.join(" ")}</p>
+                                                            },
+                                                        )
+                                                    } else {
+                                                        Either::Right(
+                                                            view! {
+                                                                <p class="experience-type">{item.kind}</p>
+                                                                <ul class="experience-bullets">
+                                                                    {item
+                                                                        .bullets
+                                                                        .iter()
+                                                                        .map(|b| view! { <li>{*b}</li> })
+                                                                        .collect_view()}
+                                                                </ul>
+                                                            },
+                                                        )
+                                                    }}
                                                 </div>
                                             </div>
                                         }
@@ -178,8 +214,26 @@ pub fn ExperienceSection() -> impl IntoView {
 
 #[cfg(test)]
 mod tests {
-    use super::{EXPERIENCES, GROUPS};
+    use super::{EXPERIENCES, GROUPS, is_summary};
     use crate::utils::quote_split::CLUSTER_SLABS;
+
+    #[test]
+    fn summary_entries_have_at_most_two_sentences() {
+        for item in EXPERIENCES.iter().filter(|item| is_summary(item.kind)) {
+            assert!(
+                (1..=2).contains(&item.bullets.len()),
+                "{} has {} sentences",
+                item.title,
+                item.bullets.len()
+            );
+        }
+    }
+
+    #[test]
+    fn professional_entries_keep_their_bullets() {
+        assert!(!is_summary("Work"));
+        assert!(!is_summary("Internship"));
+    }
 
     #[test]
     fn groups_fill_one_cluster() {
