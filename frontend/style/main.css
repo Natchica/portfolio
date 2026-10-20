@@ -667,18 +667,6 @@ body::before {
   color: var(--ocean-900);
 }
 
-.btn-full {
-  width: 100%;
-}
-
-.btn-cv {
-  background: linear-gradient(to right, var(--cyber-600), var(--cyber-500));
-}
-
-.btn-cv:hover {
-  background: linear-gradient(to right, var(--cyber-500), var(--cyber-400));
-}
-
 .btn-genesis {
   border-color: var(--ocean-400);
   color: var(--ocean-400);
@@ -1150,25 +1138,13 @@ body::before {
   font-weight: 600;
 }
 
-a.social-link,
-a.btn-cv {
+a.social-link {
   text-decoration: none;
 }
 
-a.btn-cv {
-  display: block;
-  text-align: center;
-}
-
-.social-link:focus-visible,
-.btn-cv:focus-visible {
+.social-link:focus-visible {
   outline: 2px solid var(--cyber-400);
   outline-offset: 3px;
-}
-
-.cv-download-wrapper {
-  padding-top: 1rem;
-  border-top: 1px solid var(--stone-600);
 }
 
 .loop-back-section {
