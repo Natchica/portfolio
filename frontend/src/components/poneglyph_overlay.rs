@@ -1,3 +1,4 @@
+use leptos::portal::Portal;
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
@@ -202,13 +203,17 @@ pub fn PoneglyphOverlay(
             }
         >
             {move || {
-                (hint_ready.get() && !has_started.get())
+                // The popup lives in the body, fixed to the viewport, so it is visible wherever
+                // the slab sits on a tall page. It shows only while this slab is in view.
+                (hint_ready.get() && in_view.get() && !has_started.get())
                     .then(|| {
                         view! {
-                            <span class="poneglyph-hint" aria-hidden="true">
-                                <span class="poneglyph-hint-pointer">"Click to decode"</span>
-                                <span class="poneglyph-hint-touch">"Tap to decode"</span>
-                            </span>
+                            <Portal>
+                                <div class="poneglyph-hint" aria-hidden="true">
+                                    <span class="poneglyph-hint-pointer">"Click the stone to decode it"</span>
+                                    <span class="poneglyph-hint-touch">"Tap the stone to decode it"</span>
+                                </div>
+                            </Portal>
                         }
                     })
             }}
