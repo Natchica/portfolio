@@ -84,7 +84,7 @@ cval portfolio-frontend
 cval portfolio-backend
 ```
 
-Native unit tests cover the render-mode decision (`utils/render.rs`), the glyph grid encoder (`components/poneglyph_overlay.rs`) and the section quotes, whose every non-space character must map through `char_to_symbol` (`components/sections/mod.rs`). Everything that touches the browser is checked by hand or with Playwright against a running `trunk serve`.
+Native unit tests cover the render-mode decision (`utils/render.rs`), the glyph grid encoder (`components/poneglyph_overlay.rs`) the section quotes, whose every non-space character must map through `char_to_symbol` (`components/sections/mod.rs`), the quote split (`utils/quote_split.rs`) and the cluster group counts (`components/sections/experience.rs`, `projects.rs`). Everything that touches the browser is checked by hand or with Playwright against a running `trunk serve`.
 
 ### Linting / Formatting
 
@@ -122,7 +122,7 @@ make build-backend
 9. **Render mode**: `utils::render::apply()` runs before mount and sets `data-render="webgl"` or `"dom"` (plus `data-render-reason`) on `<html>`. Gate component output with `utils::render::webgl()`, never with your own feature test. WebGL mode needs a hardware accelerated context (`failIfMajorPerformanceCaveat`), so software rendering counts as unsupported
 10. **WebGL layer**: `scene.js` loads only in WebGL mode (the module waits for `data-render`), uses the import map in `index.html` (`three` maps to `vendor/three.module.min.js`), and draws slabs, the decode glyph grid and the helix on a fixed canvas behind the content. The DOM keeps layout, text and input
 11. **One projection**: the camera is orthographic in CSS pixels and the same rotation is written to the DOM block (`rotateX`, `rotateY`, `scale`). Never add CSS `perspective` to a section while the canvas is on (`webgl.css` resets it). Read slab rects from the untransformed `.section-entrance-wrapper`, never from the block itself. `scene.js` caps tilt and entry scale (`MAX_EDGE_SHIFT`, 6px) so a tall slab keeps its edges on the flat page content; without the cap a 2700px slab slid about 55px and showed a ghost frame above the stone
-12. **Rust and JS contract**: in WebGL mode the overlay renders no glyph cells and the helix renders no nodes. `scene.js` reads `data-grid`, `data-cols` and `data-origin` on `.poneglyph-grid-full`, the `decoding` class and `--decode-speed` / `--decode-total` on `.poneglyph-overlay`, and `data-helix` / `data-fade` on `.helix-container`. Change both sides together
+12. **Rust and JS contract**: in WebGL mode the overlay renders no glyph cells and the helix renders no nodes. `scene.js` reads `data-grid`, `data-cols` and `data-origin` on `.poneglyph-grid-full`, the `decoding` class and `--decode-speed` / `--decode-total` on `.poneglyph-overlay`, and `data-helix` / `data-fade` on `.helix-container`. `scene.js` reads the `.slab-cluster` ancestor to share one decode start time, and every cluster slab keeps its own overlay, grid and `data-origin` in its own coordinates. Change both sides together
 13. **Frozen behavior**: the infinite-scroll teleport and the overlay logic are tuned; do not change them while restyling. One CSS rule releases clicks to the content after a decode (`.poneglyph-overlay:has(+ .content-decoded)` in `main.css`); without it the transparent overlay swallows every button and link in the section, so keep it
 14. **Accessibility**: honor `prefers-reduced-motion` in CSS and in `scene.js` (no tilt, frozen helix, fade-only decode). On touch, no pointer light or pointer tilt. Keep text at WCAG AA
 15. **Section quotes**: `PONEGLYPH_QUOTE` and `QUOTE_AUTHOR` in each section are `pub(super)` and use letters, digits and spaces only (no punctuation, apostrophes or accents).
@@ -169,6 +169,7 @@ portfolio/
 │       │   ├── navigation.rs         # Fixed right-side nav + progress dots
 │       │   ├── poneglyph_overlay.rs  # Decode gate: tap anywhere, delayed hint, data attrs for WebGL
 │       │   ├── poneglyph_section.rs  # Section wrapper with IntersectionObserver
+│       │   ├── slab_cluster.rs       # 3-slab cluster with one shared decode (Historical Records, Log Pose)
 │       │   ├── transition_section.rs # Helix chain spacers (no nodes in WebGL mode)
 │       │   ├── webgl_notice.rs       # Notice when hardware WebGL is unavailable
 │       │   └── sections/             # about, skills, experience, projects, alphabet, contact
@@ -177,6 +178,7 @@ portfolio/
 │       │   └── use_throttled_scroll.rs       # RAF-throttled scroll listener
 │       └── utils/
 │           ├── poneglyph_converter.rs  # char_to_symbol, text_to_symbols, grid generation
+│           ├── quote_split.rs          # Word-balanced quote split (pure fn + tests)
 │           └── render.rs               # WebGL vs DOM decision (pure fn + tests)
 └── .gitignore
 ```
