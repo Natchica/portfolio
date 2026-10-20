@@ -115,16 +115,6 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                                     </a>
                                 </div>
                             </div>
-                            <div class="cv-download-wrapper">
-                                <a
-                                    class="btn-primary btn-full btn-cv"
-                                    href="https://www.linkedin.com/in/nathan-gaud"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    "View CV on LinkedIn"
-                                </a>
-                            </div>
                         </div>
                     </div>
                     <div class="loop-back-section stagger-item" style="--item-index: 2;">
