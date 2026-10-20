@@ -16,7 +16,6 @@ colors:
   glyph-ice: "#d5f8ff"
   glyph-glow: "#b8f4ff"
   ocean-hover: "#0376b3"
-  ink: "#000000"
   status-dev: "#854d0e"
   status-dev-text: "#fef9c3"
   status-complete: "#166534"
@@ -115,9 +114,6 @@ components:
   button-primary-hover:
     backgroundColor: "{colors.ocean-hover}"
     textColor: "{colors.white}"
-  skill-bar-track:
-    backgroundColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
   button-outline-hover:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.ocean-900}"
@@ -167,6 +163,9 @@ components:
     typography: "{typography.label}"
     rounded: "{rounded.pill}"
     padding: "0.125rem 0.5rem"
+  project-group-title:
+    textColor: "{colors.primary}"
+    typography: "{typography.lead}"
   contact-heading:
     textColor: "{colors.white}"
     typography: "{typography.lead}"
@@ -211,7 +210,7 @@ The page is a dark ocean field (abyss blues fading to a cyan halo at the top) ho
 A cold, saturated-at-one-point palette: deep sea blues and weathered stone greys carry the surface, one electric cyan carries the light.
 
 ### Primary
-- **Cyber Cyan** (primary, cyber-400): The light source. Section headings, active nav pip, glyph glow, skill-bar glow, hover glow and focus outline.
+- **Cyber Cyan** (primary, cyber-400): The light source. Section headings, active nav pip, glyph glow, project group titles, hover glow and focus outline.
 - **Glyph Halo** (#d5f8ff): Near-white cyan for the hero title only, so the first heading glows brighter than section headings.
 
 ### Secondary
@@ -239,9 +238,10 @@ A cold, saturated-at-one-point palette: deep sea blues and weathered stone greys
 - **Display** (400, clamp(2.25rem, 4vw + 1rem, 3.5rem), 1.05; token holds the maximum): Hero title in glyph-halo with 20px cyan glow.
 - **Headline** (400, clamp(1.875rem, 3vw + 1rem, 2.75rem), 1.2; token holds the maximum): Section headers and the alphabet title in Cyber Cyan with 18px glow.
 - **Title** (400, 1.25rem): Project, experience and card titles in Young Serif.
+- **Group title** (DM Sans 700, 1.5rem, 1.3; the `lead` token): Project group labels `Professional`, `Built with AI` and `Personal` in Cyber Cyan over a 1px cyan rule at 25% alpha.
 - **Body** (400, 1.125rem, 1.7): Descriptions in stone-text. Intro copy is capped near 42rem.
 - **Button** (600, 1rem, 0.01em): Buttons in DM Sans.
-- **Label** (400, 0.875rem): Tech tags, metadata, small form text.
+- **Label** (400, 0.875rem): Tech tags, skill tags and metadata.
 
 ### Named Rules
 **The Single Weight Rule.** Display faces stay at weight 400. Emphasis comes from size, color and glow, not bold.
@@ -288,17 +288,20 @@ Soft-cornered stone. Slabs and the nav panel use 1.25rem, cards 0.875rem, button
 Carved stone panel. In WebGL mode the canvas draws it as lit stone with grain and a lower lip, and the DOM block is transparent and holds only content, hidden until decoded. In DOM mode it is a stone gradient face, 1px border at 8% white, 1.25rem radius, Elevation 2, inner carved frame, and a faint cyan underglow beneath its lower edge, with hover tilt and glow on pointer devices at 1024px and up.
 
 ### Cards
-Skill, project and experience cards. Translucent stone gradient, 0.875rem radius, Elevation 1, 1.5rem padding. Hover on skill and project cards lifts 4px, shifts the border to cyan (35% alpha) and adds Elevation 2 plus glow.
+Skill, project and experience cards. Translucent stone gradient, 0.875rem radius, Elevation 1, 1.5rem padding. Hover on skill and project cards lifts 4px, shifts the border to cyan (35% alpha) and adds Elevation 2 plus glow. Skill cards hold a group name and its tech tags, with no bars or percentages. Experience items list their facts as bullets with cyan markers. Project cards sit in a grid under each group title; a card for a public repo links its title (inherited color, cyan underline at 45% alpha, opens in a new tab).
 
 ### Buttons
 - **Shape:** 0.75rem radius, 0.75rem by 2rem padding, DM Sans 1rem.
 - **Primary:** ocean-blue gradient (ocean-800 to ocean-700) with white text and Elevation 1; hover lifts 2px and adds the cyan glow.
 - **Outline:** transparent with cyan text and 2px cyan border; hover adds glow and fills solid cyan with ocean-900 text.
 
-### Tags and skill bars
+### Contact links
+GitHub and LinkedIn are anchor tiles in abyss glass (18% cyan border, 0.75rem radius) and the CV link is a full-width primary button to LinkedIn. All open in a new tab with `rel="noopener noreferrer"` and show a 2px cyan focus outline. There is no contact form.
+
+### Tags and decode hint
 The decode hint stays hidden until a slab has been in the middle of the viewport for 15 seconds, so visitors can discover the gate on their own, then fades in. It is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
 
-Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skill bars sit in an inset dark track with a glowing cyan fill.
+Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skills render as groups of tech tags; there are no skill bars.
 
 ### Navigation
 Fixed right-side panel: abyss tint at 60% alpha, 14px backdrop blur, cyan 25% border, 1.25rem radius, Elevation 2. Rune-stone diamond pips: inactive pips are grey stone gradients, the active pip is a bright cyan radial. Pips scale by a variable and show a 2px cyan outline on keyboard focus. On mobile the panel hugs the right edge with smaller pips.
@@ -317,6 +320,7 @@ Shown only in the DOM fallback when hardware accelerated WebGL is unavailable, n
 - **Do** use cyan as light: headings, glyphs, thin borders and active marks.
 - **Do** keep 3D optional: still under `prefers-reduced-motion`, pointer effects off on touch, and a CSS fallback with a notice when hardware WebGL is missing.
 - **Do** keep text at WCAG AA contrast over ocean and stone.
+- **Do** link only to public repos and give every external link `rel="noopener noreferrer"`.
 
 ### Don't:
 - **Don't** use a gradient fill on heading text.
