@@ -274,12 +274,13 @@ h3,
 }
 
 /* Decode gate: visible cue, scaled decode speed, keyboard focus */
+/* Fixed to the viewport (rendered into the body): visible wherever the slab sits on the page */
 .poneglyph-hint {
-  position: absolute;
-  top: min(50%, 40vh);
+  position: fixed;
+  bottom: 1.5rem;
   left: 50%;
-  translate: -50% -50%;
-  z-index: 20;
+  translate: -50% 0;
+  z-index: 55;
   padding: 0.6rem 1.25rem;
   border-radius: 9999px;
   border: 1px solid var(--cyber-400);
@@ -293,6 +294,11 @@ h3,
   box-shadow: var(--elev-2), var(--glow-cyan);
   pointer-events: none;
   animation: hintReveal 0.8s ease-out both, hintPulse 2.4s ease-in-out 0.8s infinite;
+}
+
+/* The WebGL fallback notice owns the bottom edge: sit above it */
+body:has(.webgl-notice) .poneglyph-hint {
+  bottom: 10rem;
 }
 
 @keyframes hintReveal {
