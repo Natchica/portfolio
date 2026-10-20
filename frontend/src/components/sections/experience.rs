@@ -111,7 +111,7 @@ const EXPERIENCES: &[ExperienceItem] = &[
     },
     ExperienceItem {
         kind: "Education",
-        title: "Engineering Degree - INP-ENSEEIHT",
+        title: "Engineering Degree - INP-ENSEEIHT, Toulouse",
         period: "Sep 2021 to Sep 2024",
         bullets: &[
             "Computer Science, specialized in Software Systems and Engineering.",
