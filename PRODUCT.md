@@ -18,7 +18,7 @@ A One Piece poneglyph-themed personal portfolio: about, skills, experience, proj
 
 Poneglyph stone blocks, glyph helix chains linking them, and a scroll that never ends. No neighboring portfolio shares this world.
 
-Professionally the site presents a Backend Software Engineer working in Java and Rust, with AI-assisted developer tooling as the growth theme. Web3 is a domain the owner shipped in (decentralized computing, trusted execution in Intel TDX), not the identity, so copy and section quotes stay off crypto slogans.
+Professionally the site presents a Backend Software Engineer working in Java and Rust, open to any field. The owner does not want to be typecast by iExec's topics, so Web3 and confidential computing are never headlines, taglines or skill groups; they appear only as plain facts in the experience history. The owner uses AI as a personal assistant and never presents it as a way of shipping production code, so copy never claims AI-assisted engineering, and personal tooling is labelled as such. Section quotes stay off crypto slogans.
 
 ## Operating Context
 
