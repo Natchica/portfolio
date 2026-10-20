@@ -150,6 +150,64 @@ body::before {
 }
 
 /* ============================================================
+   Slab Cluster
+   ============================================================ */
+.slab-cluster {
+  width: 100%;
+  max-width: 1120px;
+  padding: 4rem 0;
+}
+
+.slab-cluster-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem 2rem;
+  align-items: start;
+}
+
+.slab-cluster .poneglyph-block {
+  max-width: none;
+}
+
+.cluster-slab-2 .project-grid,
+.cluster-slab-3 .project-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) and (max-width: 767.98px) {
+  .cluster-slab-2 {
+    margin-right: 1.25rem;
+  }
+
+  .cluster-slab-3 {
+    margin-left: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .slab-cluster .poneglyph-block {
+    padding: 2rem;
+  }
+
+  .slab-cluster-grid {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+
+  .cluster-slab-1 {
+    grid-column: 2 / 10;
+  }
+
+  .cluster-slab-2 {
+    grid-column: 1 / 7;
+    margin-top: 6rem;
+  }
+
+  .cluster-slab-3 {
+    grid-column: 7 / 11;
+  }
+}
+
+/* ============================================================
    Connection Line / Dot
    ============================================================ */
 .connection-line-wrapper {
@@ -430,7 +488,8 @@ body::before {
   animation: fadeBackground var(--decode-total, 3s) ease-in forwards;
 }
 
-/* Once the block is decoded the overlay is transparent but still sits above it: let clicks reach the content */
+/* Once the block is decoded the overlay is transparent but still sits above it: let clicks reach the content.
+   Serves every slab, each slab of a cluster included, so the overlay must stay right before its block. */
 .poneglyph-overlay:has(+ .content-decoded) {
   pointer-events: none;
 }

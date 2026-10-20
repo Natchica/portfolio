@@ -1,10 +1,6 @@
 use leptos::prelude::*;
 
-use crate::components::poneglyph_overlay::PoneglyphOverlay;
-use crate::components::poneglyph_section::PoneglyphSection;
-use crate::hooks::use_intersection_observer::{
-    IntersectionObserverOptions, use_intersection_observer,
-};
+use crate::components::slab_cluster::{ClusterSlab, SlabCluster};
 
 pub(super) const PONEGLYPH_QUOTE: &str = "I left everything I own in that place";
 pub(super) const QUOTE_AUTHOR: &str = "Gol D Roger";
@@ -130,80 +126,74 @@ const EXPERIENCES: &[ExperienceItem] = &[
 
 #[component]
 pub fn ExperienceSection() -> impl IntoView {
-    let node_ref = NodeRef::<leptos::html::Div>::new();
-    let is_visible = use_intersection_observer(
-        node_ref,
-        IntersectionObserverOptions {
-            once: true,
-            root_margin: "-10%",
-            ..Default::default()
-        },
-    );
-    let (decoded, set_decoded) = signal(false);
-
     view! {
-        <PoneglyphSection id="experience-inner">
-            <div
-                node_ref=node_ref
-                class={move || {
-                    if is_visible.get() {
-                        "section-entrance-wrapper section-entrance visible"
-                    } else {
-                        "section-entrance-wrapper section-entrance"
-                    }
-                }}
-            >
-                <PoneglyphOverlay
-                    author=QUOTE_AUTHOR
-                    quote=PONEGLYPH_QUOTE
-                    columns=15
-                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
-                />
-                <div class=move || if decoded.get() {
-                    "poneglyph-block content-layer content-decoded"
-                } else {
-                    "poneglyph-block content-layer"
-                }>
-                    <h2 class="section-header">"Historical Records"</h2>
-                    {GROUPS
-                        .iter()
-                        .map(|group| {
-                            view! {
-                                <h3 class="project-group-title">{group.label}</h3>
-                                <div class="experience-list">
-                                    {EXPERIENCES
-                                        .iter()
-                                        .enumerate()
-                                        .filter(|(_, item)| group.kinds.contains(&item.kind))
-                                        .map(|(index, item)| {
-                                            let stagger = format!("--item-index: {index};");
-                                            view! {
-                                                <div class="experience-item stagger-slide" style={stagger}>
-                                                    <div class="experience-icon">{item.icon}</div>
-                                                    <div class="experience-content">
-                                                        <div class="experience-header">
-                                                            <h4 class="experience-title">{item.title}</h4>
-                                                            <span class="experience-period">{item.period}</span>
-                                                        </div>
-                                                        <p class="experience-type">{item.kind}</p>
-                                                        <ul class="experience-bullets">
-                                                            {item
-                                                                .bullets
-                                                                .iter()
-                                                                .map(|b| view! { <li>{*b}</li> })
-                                                                .collect_view()}
-                                                        </ul>
+        <SlabCluster
+            id="experience-inner"
+            title="Historical Records"
+            author=QUOTE_AUTHOR
+            quote=PONEGLYPH_QUOTE
+        >
+            {GROUPS
+                .iter()
+                .enumerate()
+                .map(|(group_index, group)| {
+                    view! {
+                        <ClusterSlab index=group_index label=group.label>
+                            <div class="experience-list">
+                                {EXPERIENCES
+                                    .iter()
+                                    .enumerate()
+                                    .filter(|(_, item)| group.kinds.contains(&item.kind))
+                                    .map(|(index, item)| {
+                                        let stagger = format!("--item-index: {index};");
+                                        view! {
+                                            <div class="experience-item stagger-slide" style={stagger}>
+                                                <div class="experience-icon">{item.icon}</div>
+                                                <div class="experience-content">
+                                                    <div class="experience-header">
+                                                        <h4 class="experience-title">{item.title}</h4>
+                                                        <span class="experience-period">{item.period}</span>
                                                     </div>
+                                                    <p class="experience-type">{item.kind}</p>
+                                                    <ul class="experience-bullets">
+                                                        {item
+                                                            .bullets
+                                                            .iter()
+                                                            .map(|b| view! { <li>{*b}</li> })
+                                                            .collect_view()}
+                                                    </ul>
                                                 </div>
-                                            }
-                                        })
-                                        .collect_view()}
-                                </div>
-                            }
-                        })
-                        .collect_view()}
-                </div>
-            </div>
-        </PoneglyphSection>
+                                            </div>
+                                        }
+                                    })
+                                    .collect_view()}
+                            </div>
+                        </ClusterSlab>
+                    }
+                })
+                .collect_view()}
+        </SlabCluster>
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{EXPERIENCES, GROUPS};
+    use crate::utils::quote_split::CLUSTER_SLABS;
+
+    #[test]
+    fn groups_fill_one_cluster() {
+        assert_eq!(GROUPS.len(), CLUSTER_SLABS);
+    }
+
+    #[test]
+    fn every_experience_lands_in_exactly_one_slab() {
+        for item in EXPERIENCES {
+            let slabs = GROUPS
+                .iter()
+                .filter(|group| group.kinds.contains(&item.kind))
+                .count();
+            assert_eq!(slabs, 1, "{} belongs to {slabs} slabs", item.title);
+        }
     }
 }

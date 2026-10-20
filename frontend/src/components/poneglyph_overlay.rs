@@ -55,12 +55,24 @@ fn decode_speed() -> f64 {
     if narrow || reduced_motion { 0.5 } else { 1.0 }
 }
 
+fn page_scroll() -> (f64, f64) {
+    web_sys::window()
+        .map(|w| (w.scroll_x().unwrap_or(0.0), w.scroll_y().unwrap_or(0.0)))
+        .unwrap_or((0.0, 0.0))
+}
+
 #[component]
 pub fn PoneglyphOverlay(
     author: &'static str,
     quote: &'static str,
     #[prop(default = 15)] columns: usize,
     #[prop(optional)] on_decode_complete: Option<Callback<()>>,
+    /// Cluster mode: the tap shared by the slabs of one cluster, in page coordinates.
+    #[prop(optional)]
+    shared_start: Option<RwSignal<Option<(f64, f64)>>>,
+    /// Only the first slab of a cluster shows the decode hint.
+    #[prop(default = true)]
+    show_hint: bool,
 ) -> impl IntoView {
     let webgl = crate::utils::render::webgl();
     let (has_started, set_has_started) = signal(false);
@@ -127,7 +139,7 @@ pub fn PoneglyphOverlay(
         },
     );
     Effect::new(move |_| {
-        if in_view.get() && !hint_armed.get_untracked() {
+        if show_hint && in_view.get() && !hint_armed.get_untracked() {
             set_hint_armed.set(true);
             run_after_ms(HINT_DELAY_MS, move || set_hint_ready.set(true));
         }
@@ -150,6 +162,21 @@ pub fn PoneglyphOverlay(
             schedule_callback(dur, cb);
         }
     };
+
+    if let Some(start) = shared_start {
+        // Every slab of the cluster decodes from the same page point, translated into its own grid.
+        Effect::new(move |_| {
+            let Some((page_x, page_y)) = start.get() else {
+                return;
+            };
+            let Some(el) = container_ref.get_untracked() else {
+                return;
+            };
+            let rect = el.get_bounding_client_rect();
+            let (sx, sy) = page_scroll();
+            start_decode(page_x - sx - rect.left(), page_y - sy - rect.top());
+        });
+    }
 
     view! {
         <button
@@ -188,24 +215,47 @@ pub fn PoneglyphOverlay(
                     }
                 });
                 if let Some((x, y)) = origin {
-                    start_decode(x, y);
+                    match shared_start {
+                        None => start_decode(x, y),
+                        Some(start) => {
+                            if start.get_untracked().is_none()
+                                && let Some(el) = container_ref.get_untracked()
+                            {
+                                let rect = el.get_bounding_client_rect();
+                                let (sx, sy) = page_scroll();
+                                start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
+                            }
+                        }
+                    }
                 }
             }
             on:keydown=move |ev| {
                 let key = ev.key();
                 if key == "Enter" || key == " " {
                     ev.prevent_default();
-                    start_decode(
+                    let (x, y) = (
                         container_width.get_untracked() as f64 / 2.0,
                         container_height.get_untracked() as f64 / 2.0,
                     );
+                    match shared_start {
+                        None => start_decode(x, y),
+                        Some(start) => {
+                            if start.get_untracked().is_none()
+                                && let Some(el) = container_ref.get_untracked()
+                            {
+                                let rect = el.get_bounding_client_rect();
+                                let (sx, sy) = page_scroll();
+                                start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
+                            }
+                        }
+                    }
                 }
             }
         >
             {move || {
                 // The popup lives in the body, fixed to the viewport, so it is visible wherever
                 // the slab sits on a tall page. It shows only while this slab is in view.
-                (hint_ready.get() && in_view.get() && !has_started.get())
+                (show_hint && hint_ready.get() && in_view.get() && !has_started.get())
                     .then(|| {
                         view! {
                             <Portal>

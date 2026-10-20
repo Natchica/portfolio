@@ -240,7 +240,9 @@ A cold, saturated-at-one-point palette: deep sea blues and weathered stone greys
 
 ## Layout
 
-A vertical scroll of full-height poneglyph sections, each centering one stone slab (max width 800px, 3rem padding) in a 2rem side gutter. Sections are joined by glyph helix chains and 100vh transition spacers for the infinite loop; do not alter them. Wider content (alphabet, projects) uses containers up to 80rem. Spacing runs in half-rem steps: 0.5, 0.75, 1, 1.5, 2, 3rem.
+A vertical scroll of full-height poneglyph sections, each centering one stone slab (max width 800px, 3rem padding) in a 2rem side gutter. The exception is Historical Records and Log Pose, which each hold a cluster of 3 slabs. Sections are joined by glyph helix chains and 100vh transition spacers for the infinite loop; do not alter them. Wider content (alphabet, projects) uses containers up to 80rem. Spacing runs in half-rem steps: 0.5, 0.75, 1, 1.5, 2, 3rem.
+
+A cluster is up to 1120px wide on a 10-column grid. The top slab spans columns 2 to 9 (8/10, centred) and the pair below spans 6 and 4 columns (3:2), with the left slab 6rem lower. Gaps are 3rem between rows and 2rem between columns, and slab padding is 2rem from 768px. Below 768px the cluster is one column with the standard slab padding, and from 480px slab 2 is inset 1.25rem on its right and slab 3 on its left. The section heading sits inside slab 1 and each slab carries its own group title.
 
 Responsive: breakpoints at 640px, 768px (type steps up) and 1024px (desktop layout, and the CSS hover tilt of the fallback). Under 768px the section gutter drops to 0.75rem, slab padding becomes 2rem 1.25rem, and the nav panel and pips shrink (pips 0.9rem).
 
@@ -257,9 +259,9 @@ Hybrid of layered shadow and light. Every raised surface carries three cues: a 1
 Rust decides once at startup and publishes it as `data-render` on `<html>`. With hardware accelerated WebGL (`webgl`), `scene.js` loads the vendored Three.js and a fixed full-viewport canvas draws behind the content. The camera is orthographic in CSS pixels, so a mesh sized from a DOM rect lines up with it exactly, and the same rotation is written to the DOM block as `rotateX`, `rotateY` and `scale` with no CSS perspective.
 
 - **Slabs:** rounded boxes 56px deep with a generated stone normal map, leaning back 5 degrees at rest so the lit lower lip shows, and 9 degrees more while entering (mirroring the old scroll-driven settle). The stone starts at the overlay grey (`#4a5568`) so dark glyph ink stays readable, and darkens to `#27333f` during the decode.
-- **Decode:** each glyph cell turns edge-on about its own vertical axis with a cyan flash, starting at the tap point (0.04s per cell of distance, 0.6s per flip), then the content fades in.
+- **Decode:** each glyph cell turns edge-on about its own vertical axis with a cyan flash, starting at the tap point (0.04s per cell of distance, 0.6s per flip), then the content fades in. In a cluster one tap starts the 3 slabs at once from the tap point in page coordinates, so the wave crosses from stone to stone. The quote is split by words across the 3 grids with the author on the last, and the content of all 3 slabs fades in together when the last slab finishes.
 - **Helix:** two instanced strands of 24 luminous glyphs per chain, swinging in depth (scale 0.45 to 1.15, orbit 10s).
-- **Pointer:** a cyan-white point light follows the pointer. The nearest slab leans up to 4 degrees toward it (40px hysteresis between slabs) and cards drift by depth layer.
+- **Pointer:** a cyan-white point light follows the pointer. The nearest slab, measured to its edge, leans up to 4 degrees toward it (40px hysteresis between slabs) and cards drift by depth layer.
 
 Without hardware WebGL (`dom`) the page keeps the CSS look: `perspective` 1600px on sections and 900px on the helix, `translateZ`, `rotateX` and `rotateY`, a hover tilt of about 2 degrees on pointer devices at 1024px and up, and a scroll-driven rotateX entrance where supported. `?webgl=off` forces this mode for comparison.
 
@@ -277,7 +279,7 @@ Soft-cornered stone. Slabs and the nav panel use 1.25rem, cards 0.875rem, button
 ## Components
 
 ### Slabs (Poneglyph block)
-Carved stone panel. In WebGL mode the canvas draws it as lit stone with grain and a lower lip, and the DOM block is transparent and holds only content, hidden until decoded. In DOM mode it is a stone gradient face, 1px border at 8% white, 1.25rem radius, Elevation 2, inner carved frame, and a faint cyan underglow beneath its lower edge, with hover tilt and glow on pointer devices at 1024px and up.
+Carved stone panel. In WebGL mode the canvas draws it as lit stone with grain and a lower lip, and the DOM block is transparent and holds only content, hidden until decoded. In DOM mode it is a stone gradient face, 1px border at 8% white, 1.25rem radius, Elevation 2, inner carved frame, and a faint cyan underglow beneath its lower edge, with hover tilt and glow on pointer devices at 1024px and up. A cluster holds 3 such slabs, each with its own overlay and decode, released together.
 
 ### Cards
 Skill, project and experience cards. Translucent stone gradient, 0.875rem radius, Elevation 1, 1.5rem padding. Hover on skill and project cards lifts 4px, shifts the border to cyan (35% alpha) and adds Elevation 2 plus glow. Skill cards hold a group name and its tech tags, with no bars or percentages. The four skill cards form a 2x2 grid at tablet and desktop widths and stack in one column on phones. A lone last skill or project card spans its row so no slot stays empty. Experience items list their facts as bullets with cyan markers. Project cards sit in a grid under each group title; a card for a public repo links its title (inherited color, cyan underline at 45% alpha, opens in a new tab).
@@ -291,7 +293,7 @@ Skill, project and experience cards. Translucent stone gradient, 0.875rem radius
 GitHub and LinkedIn are anchor tiles in abyss glass (18% cyan border, 0.75rem radius). There is no CV button, because LinkedIn is the CV. Both open in a new tab with `rel="noopener noreferrer"` and show a 2px cyan focus outline. There is no contact form.
 
 ### Tags and decode hint
-The decode hint stays hidden until a slab has been in the middle of the viewport for 15 seconds, so visitors can discover the gate on their own, then fades in. It is a cyan-ringed abyss pill centered on the encoded slab (never lower than 40vh, so it stays on screen on tall mobile slabs), reading "Click to decode" with a pointer and "Tap to decode" on touch. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
+The decode hint stays hidden until a slab has been in the middle of the viewport for 15 seconds, so visitors can discover the gate on their own, then fades in. It is a cyan-ringed abyss pill fixed near the bottom of the viewport (raised above the WebGL notice when that is shown), reading "Click the stone to decode it" with a pointer and "Tap the stone to decode it" on touch. In a cluster only slab 1 shows it. It pulses gently and stops pulsing under `prefers-reduced-motion`. Decoding itself runs at half duration under 768px and under reduced motion.
 
 Tech tags are cyan-tinted pills (10% fill, 25% border, ocean-100 text). Skills render as groups of tech tags; there are no skill bars.
 
