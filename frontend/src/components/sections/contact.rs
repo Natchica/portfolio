@@ -68,6 +68,13 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                                             <p class="contact-info-value">"Available now"</p>
                                         </div>
                                     </div>
+                                    <div class="contact-info-item">
+                                        <span class="contact-info-icon">"\u{1f5e3}\u{fe0f}"</span>
+                                        <div>
+                                            <p class="contact-info-label">"Languages"</p>
+                                            <p class="contact-info-value">"French (native), English (C2), German (B1)"</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
