@@ -6,9 +6,9 @@ use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
 
-const PONEGLYPH_QUOTE: &str =
+pub(super) const PONEGLYPH_QUOTE: &str =
     "If there is a problem there is a solution If there is no solution there is no problem";
-const QUOTE_AUTHOR: &str = "Bob Marley";
+pub(super) const QUOTE_AUTHOR: &str = "Bob Marley";
 
 #[component]
 pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> impl IntoView {
@@ -50,48 +50,10 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                 }>
                     <h2 class="section-header">"Final Poneglyph"</h2>
                     <div class="contact-grid">
-                        // Contact Form
-                        <div class="stagger-item" style="--item-index: 0;">
-                            <h3 class="contact-subtitle">"Send a Message"</h3>
-                            <form class="contact-form">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Your Name"
-                                        class="form-input"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="email"
-                                        placeholder="Your Email"
-                                        class="form-input"
-                                    />
-                                </div>
-                                <div>
-                                    <textarea
-                                        rows="5"
-                                        placeholder="Your Message"
-                                        class="form-textarea"
-                                    />
-                                </div>
-                                <button type="submit" class="btn-primary btn-full">
-                                    "Send Message"
-                                </button>
-                            </form>
-                        </div>
-                        // Contact Info
-                        <div class="contact-info-panel stagger-item" style="--item-index: 1;">
+                        <div class="contact-info-panel stagger-item" style="--item-index: 0;">
                             <div>
                                 <h3 class="contact-subtitle">"Connect With Me"</h3>
                                 <div class="contact-info-list">
-                                    <div class="contact-info-item">
-                                        <span class="contact-info-icon">"\u{1f4e7}"</span>
-                                        <div>
-                                            <p class="contact-info-label">"Email"</p>
-                                            <p class="contact-info-value">"Contact via form below"</p>
-                                        </div>
-                                    </div>
                                     <div class="contact-info-item">
                                         <span class="contact-info-icon">"\u{1f4cd}"</span>
                                         <div>
@@ -103,49 +65,55 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                                         <span class="contact-info-icon">"\u{1f4bc}"</span>
                                         <div>
                                             <p class="contact-info-label">"Status"</p>
-                                            <p class="contact-info-value">
-                                                "Currently Employed - Open to Opportunities"
-                                            </p>
+                                            <p class="contact-info-value">"Available now"</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="contact-info-panel stagger-item" style="--item-index: 1;">
                             <div>
                                 <h4 class="contact-social-title">"Social Links"</h4>
                                 <div class="social-grid">
-                                    <button class="social-link">
-                                        <span class="social-icon">"\u{1f4bb}"</span>
+                                    <a
+                                        class="social-link"
+                                        href="https://github.com/Natchica"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <span class="social-icon" aria-hidden="true">"\u{1f4bb}"</span>
                                         <span class="social-name">"GitHub"</span>
-                                    </button>
-                                    <button class="social-link">
-                                        <span class="social-icon">"\u{1f4bc}"</span>
+                                    </a>
+                                    <a
+                                        class="social-link"
+                                        href="https://www.linkedin.com/in/nathan-gaud"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <span class="social-icon" aria-hidden="true">"\u{1f4bc}"</span>
                                         <span class="social-name">"LinkedIn"</span>
-                                    </button>
-                                    <button class="social-link">
-                                        <span class="social-icon">"\u{1f426}"</span>
-                                        <span class="social-name">"Twitter"</span>
-                                    </button>
-                                    <button class="social-link">
-                                        <span class="social-icon">"\u{1f4e7}"</span>
-                                        <span class="social-name">"Email"</span>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                             <div class="cv-download-wrapper">
-                                <button class="btn-primary btn-full btn-cv">
-                                    "\u{1f4c4} Download CV"
-                                </button>
+                                <a
+                                    class="btn-primary btn-full btn-cv"
+                                    href="https://www.linkedin.com/in/nathan-gaud"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    "View CV on LinkedIn"
+                                </a>
                             </div>
                         </div>
                     </div>
-                    // Loop back
                     <div class="loop-back-section stagger-item" style="--item-index: 2;">
-                        <p class="loop-back-text">"The blockchain continues..."</p>
+                        <p class="loop-back-text">"The voyage continues..."</p>
                         <button
                             class="btn-outline btn-genesis"
                             on:click=move |_| nav_about("about".to_string())
                         >
-                            "\u{2693} Return to Genesis Block"
+                            "\u{2693} Return to the First Poneglyph"
                         </button>
                     </div>
                 </div>
