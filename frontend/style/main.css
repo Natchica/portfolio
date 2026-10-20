@@ -848,7 +848,8 @@ body::before {
   border-bottom: 1px solid color-mix(in srgb, var(--cyber-400) 25%, transparent);
 }
 
-.project-grid + .project-group-title {
+.project-grid + .project-group-title,
+.experience-list + .project-group-title {
   margin-top: 3rem;
 }
 
@@ -1092,6 +1093,21 @@ body::before {
   color: white;
   font-weight: 600;
   margin: 0;
+}
+
+.language-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: white;
+  font-weight: 600;
+}
+
+.language-flag {
+  margin-right: 0.5rem;
 }
 
 .contact-social-title {
