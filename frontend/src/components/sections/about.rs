@@ -2,6 +2,7 @@ use leptos::prelude::*;
 
 use crate::components::poneglyph_overlay::PoneglyphOverlay;
 use crate::components::poneglyph_section::PoneglyphSection;
+use crate::context::ContactDecodeRequest;
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -25,6 +26,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
 
     let nav_skills = on_navigate.clone();
     let nav_contact = on_navigate.clone();
+    let contact_request = expect_context::<ContactDecodeRequest>();
 
     view! {
         <PoneglyphSection id="about-inner">
@@ -92,7 +94,10 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                             </button>
                             <button
                                 class="btn-outline"
-                                on:click=move |_| nav_contact("contact".to_string())
+                                on:click=move |_| {
+                                    contact_request.requested_at.set(Some(js_sys::Date::now()));
+                                    nav_contact("contact".to_string());
+                                }
                             >
                                 "Get in Touch"
                             </button>
