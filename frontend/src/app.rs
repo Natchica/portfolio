@@ -10,7 +10,7 @@ use crate::components::sections::experience::ExperienceSection;
 use crate::components::sections::projects::ProjectsSection;
 use crate::components::sections::skills::SkillsSection;
 use crate::components::transition_section::TransitionSection;
-use crate::context::EasterEggState;
+use crate::context::{ContactDecodeRequest, EasterEggState};
 use crate::hooks::use_throttled_scroll::use_throttled_scroll;
 
 const SECTIONS: &[&str] = &["about", "skills", "experience", "projects", "contact"];
@@ -70,6 +70,9 @@ pub fn App() -> impl IntoView {
         decoder_open: RwSignal::new(false),
     };
     provide_context(easter_egg);
+    provide_context(ContactDecodeRequest {
+        requested_at: RwSignal::new(None),
+    });
 
     let recalculate_positions = move || {
         let positions: Vec<SectionPosition> = SECTIONS
