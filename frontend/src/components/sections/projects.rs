@@ -1,11 +1,7 @@
 use leptos::either::Either;
 use leptos::prelude::*;
 
-use crate::components::poneglyph_overlay::PoneglyphOverlay;
-use crate::components::poneglyph_section::PoneglyphSection;
-use crate::hooks::use_intersection_observer::{
-    IntersectionObserverOptions, use_intersection_observer,
-};
+use crate::components::slab_cluster::{ClusterSlab, SlabCluster};
 
 pub(super) const PONEGLYPH_QUOTE: &str = "I am going to be the Pirate King";
 pub(super) const QUOTE_AUTHOR: &str = "Monkey D Luffy";
@@ -117,107 +113,89 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
 
 #[component]
 pub fn ProjectsSection() -> impl IntoView {
-    let node_ref = NodeRef::<leptos::html::Div>::new();
-    let is_visible = use_intersection_observer(
-        node_ref,
-        IntersectionObserverOptions {
-            once: true,
-            root_margin: "-10%",
-            ..Default::default()
-        },
-    );
-    let (decoded, set_decoded) = signal(false);
-
     view! {
-        <PoneglyphSection id="projects-inner">
-            <div
-                node_ref=node_ref
-                class={move || {
-                    if is_visible.get() {
-                        "section-entrance-wrapper section-entrance visible"
-                    } else {
-                        "section-entrance-wrapper section-entrance"
-                    }
-                }}
-            >
-                <PoneglyphOverlay
-                    author=QUOTE_AUTHOR
-                    quote=PONEGLYPH_QUOTE
-                    columns=15
-                    on_decode_complete=Callback::new(move |_| set_decoded.set(true))
-                />
-                <div class=move || if decoded.get() {
-                    "poneglyph-block content-layer content-decoded"
-                } else {
-                    "poneglyph-block content-layer"
-                }>
-                    <h2 class="section-header">"Log Pose"</h2>
-                    {PROJECT_GROUPS
+        <SlabCluster
+            id="projects-inner"
+            title="Log Pose"
+            author=QUOTE_AUTHOR
+            quote=PONEGLYPH_QUOTE
+        >
+            {PROJECT_GROUPS
+                .iter()
+                .enumerate()
+                .map(|(group_index, group)| {
+                    let offset: usize = PROJECT_GROUPS[..group_index]
                         .iter()
-                        .enumerate()
-                        .map(|(group_index, group)| {
-                            let offset: usize = PROJECT_GROUPS[..group_index]
-                                .iter()
-                                .map(|g| g.projects.len())
-                                .sum();
-                            view! {
-                                <h3 class="project-group-title">{group.label}</h3>
-                                <div class="project-grid">
-                                    {group
-                                        .projects
-                                        .iter()
-                                        .enumerate()
-                                        .map(|(i, project)| {
-                                            let stagger = format!("--item-index: {};", offset + i);
-                                            let title = match project.href {
-                                                Some(href) => {
-                                                    Either::Left(
-                                                        view! {
-                                                            <a
-                                                                class="project-link"
-                                                                href=href
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                            >
-                                                                {project.title}
-                                                            </a>
-                                                        },
-                                                    )
-                                                }
-                                                None => Either::Right(project.title),
-                                            };
-                                            view! {
-                                                <div class="project-card stagger-scale" style={stagger}>
-                                                    <div class="project-card-header">
-                                                        <span class="project-icon">{project.icon}</span>
-                                                        <div>
-                                                            <h4 class="project-title">{title}</h4>
-                                                            <span class={format!(
-                                                                "status-badge {}",
-                                                                project.status_class,
-                                                            )}>{project.status}</span>
-                                                        </div>
-                                                    </div>
-                                                    <p class="project-description">{project.description}</p>
-                                                    <div class="tech-tags">
-                                                        {project
-                                                            .tech
-                                                            .iter()
-                                                            .map(|t| {
-                                                                view! { <span class="tech-tag">{*t}</span> }
-                                                            })
-                                                            .collect_view()}
+                        .map(|g| g.projects.len())
+                        .sum();
+                    view! {
+                        <ClusterSlab index=group_index label=group.label>
+                            <div class="project-grid">
+                                {group
+                                    .projects
+                                    .iter()
+                                    .enumerate()
+                                    .map(|(i, project)| {
+                                        let stagger = format!("--item-index: {};", offset + i);
+                                        let title = match project.href {
+                                            Some(href) => {
+                                                Either::Left(
+                                                    view! {
+                                                        <a
+                                                            class="project-link"
+                                                            href=href
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            {project.title}
+                                                        </a>
+                                                    },
+                                                )
+                                            }
+                                            None => Either::Right(project.title),
+                                        };
+                                        view! {
+                                            <div class="project-card stagger-scale" style={stagger}>
+                                                <div class="project-card-header">
+                                                    <span class="project-icon">{project.icon}</span>
+                                                    <div>
+                                                        <h4 class="project-title">{title}</h4>
+                                                        <span class={format!(
+                                                            "status-badge {}",
+                                                            project.status_class,
+                                                        )}>{project.status}</span>
                                                     </div>
                                                 </div>
-                                            }
-                                        })
-                                        .collect_view()}
-                                </div>
-                            }
-                        })
-                        .collect_view()}
-                </div>
-            </div>
-        </PoneglyphSection>
+                                                <p class="project-description">{project.description}</p>
+                                                <div class="tech-tags">
+                                                    {project
+                                                        .tech
+                                                        .iter()
+                                                        .map(|t| {
+                                                            view! { <span class="tech-tag">{*t}</span> }
+                                                        })
+                                                        .collect_view()}
+                                                </div>
+                                            </div>
+                                        }
+                                    })
+                                    .collect_view()}
+                            </div>
+                        </ClusterSlab>
+                    }
+                })
+                .collect_view()}
+        </SlabCluster>
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PROJECT_GROUPS;
+    use crate::utils::quote_split::CLUSTER_SLABS;
+
+    #[test]
+    fn groups_fill_one_cluster() {
+        assert_eq!(PROJECT_GROUPS.len(), CLUSTER_SLABS);
     }
 }
