@@ -430,6 +430,11 @@ body::before {
   animation: fadeBackground var(--decode-total, 3s) ease-in forwards;
 }
 
+/* Once the block is decoded the overlay is transparent but still sits above it: let clicks reach the content */
+.poneglyph-overlay:has(+ .content-decoded) {
+  pointer-events: none;
+}
+
 .poneglyph-grid {
   overflow: hidden;
   align-content: start;
