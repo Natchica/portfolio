@@ -63,25 +63,24 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                         </div>
                         <h1 class="section-header about-title stagger-item" style="--item-index: 1;">"Nathan GAUD"</h1>
                         <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Software Engineer"</p>
-                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Java and Rust backends. AI-assisted developer tooling."</p>
+                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Java and Rust backends. Event-driven services, performance and reliable releases."</p>
                         <div class="description stagger-item" style="--item-index: 3;">
                             <p>
                                 "Welcome to my digital Poneglyph. I am a backend software engineer \
                                  who builds and optimizes services in Java and Rust. At iExec, from \
-                                 2024 to 2026, I led three event-driven Rust services in the Nox \
-                                 protocol, rewrote two middleware components from Java to Rust for a \
-                                 75% gain in core performance, and led iexec-stork, the tool that \
-                                 migrates secrets from Intel SGX to Intel TDX."
+                                 2024 to 2026, I led three event-driven Rust services, rewrote two \
+                                 middleware components from Java to Rust for a 75% gain in core \
+                                 performance, and led iexec-stork, a Java and Spring tool that \
+                                 migrates secrets between service instances."
                             </p>
                             <p>
-                                "Web3 is the domain I shipped in: decentralized cloud computing, \
-                                 trusted execution environments and blockchain middleware. \
-                                 AI-assisted developer tooling is where I am growing next, starting \
-                                 with my own Claude Code plugins and automation. I work in French \
-                                 (native), English (C2) and German (B1)."
+                                "I am open to any field where solid backend engineering matters. \
+                                 I care about readable code, thorough tests and releases that \
+                                 ship without drama. I work in French (native), English (C2) and \
+                                 German (B1)."
                             </p>
                             <p class="highlight-text">
-                                "\u{1f980} Rust Services \u{2022} \u{2615} Java and Spring \u{2022} \u{1f512} Confidential Computing"
+                                "\u{1f980} Rust Services \u{2022} \u{2615} Java and Spring \u{2022} \u{26a1} Event-Driven Systems"
                             </p>
                         </div>
                         <div class="cta-buttons stagger-item" style="--item-index: 4;">
