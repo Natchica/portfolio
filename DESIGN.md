@@ -20,8 +20,6 @@ colors:
   status-dev-text: "#fef9c3"
   status-complete: "#166534"
   status-complete-text: "#dcfce7"
-  status-planned: "#1e40af"
-  status-planned-text: "#dbeafe"
 typography:
   display:
     fontFamily: "Young Serif, Iowan Old Style, Georgia, serif"
@@ -154,12 +152,6 @@ components:
   status-badge-complete:
     backgroundColor: "{colors.status-complete}"
     textColor: "{colors.status-complete-text}"
-    typography: "{typography.label}"
-    rounded: "{rounded.pill}"
-    padding: "0.125rem 0.5rem"
-  status-badge-planned:
-    backgroundColor: "{colors.status-planned}"
-    textColor: "{colors.status-planned-text}"
     typography: "{typography.label}"
     rounded: "{rounded.pill}"
     padding: "0.125rem 0.5rem"

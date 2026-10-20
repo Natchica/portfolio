@@ -873,11 +873,6 @@ body::before {
   color: var(--status-complete-text);
 }
 
-.status-planned {
-  background: var(--status-planned);
-  color: var(--status-planned-text);
-}
-
 .project-description {
   color: var(--stone-300);
   margin-bottom: 1rem;
