@@ -90,7 +90,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <span class="social-icon" aria-hidden="true">"\u{1f4bc}"</span>
+                                        <span class="social-icon" aria-hidden="true">"\u{1f517}"</span>
                                         <span class="social-name">"LinkedIn"</span>
                                     </a>
                                 </div>
