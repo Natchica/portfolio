@@ -1435,6 +1435,12 @@ a.btn-cv {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* A lone last card spans the row instead of leaving an empty slot */
+  .skill-card:last-child:nth-child(odd),
+  .project-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
   .alphabet-grid-letters {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -1450,7 +1456,18 @@ a.btn-cv {
 
 @media (min-width: 1024px) {
   .skill-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .skill-card,
+  .skill-card:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+
+  /* A last row of two cards shares the full width */
+  .skill-card:last-child:nth-child(3n + 2),
+  .skill-card:nth-last-child(2):nth-child(3n + 1) {
+    grid-column: span 3;
   }
 
   .contact-grid {
