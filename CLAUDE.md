@@ -82,7 +82,7 @@ cval portfolio-frontend
 cval portfolio-backend
 ```
 
-Native unit tests cover the render-mode decision (`utils/render.rs`) and the glyph grid encoder (`components/poneglyph_overlay.rs`). Everything that touches the browser is checked by hand or with Playwright against a running `trunk serve`.
+Native unit tests cover the render-mode decision (`utils/render.rs`), the glyph grid encoder (`components/poneglyph_overlay.rs`) and the section quotes, whose every non-space character must map through `char_to_symbol` (`components/sections/mod.rs`). Everything that touches the browser is checked by hand or with Playwright against a running `trunk serve`.
 
 ### Linting / Formatting
 
@@ -123,6 +123,7 @@ make build-backend
 12. **Rust and JS contract**: in WebGL mode the overlay renders no glyph cells and the helix renders no nodes. `scene.js` reads `data-grid`, `data-cols` and `data-origin` on `.poneglyph-grid-full`, the `decoding` class and `--decode-speed` / `--decode-total` on `.poneglyph-overlay`, and `data-helix` / `data-fade` on `.helix-container`. Change both sides together
 13. **Frozen behavior**: the infinite-scroll teleport and the overlay logic are tuned; do not change them while restyling
 14. **Accessibility**: honor `prefers-reduced-motion` in CSS and in `scene.js` (no tilt, frozen helix, fade-only decode). On touch, no pointer light or pointer tilt. Keep text at WCAG AA
+15. **Section quotes**: `PONEGLYPH_QUOTE` and `QUOTE_AUTHOR` in each section are `pub(super)` and use letters, digits and spaces only (no punctuation, apostrophes or accents).
 
 ## Verifying Visual Changes
 
