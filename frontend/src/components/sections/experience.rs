@@ -19,7 +19,7 @@ struct ExperienceItem {
 
 const EXPERIENCES: &[ExperienceItem] = &[
     ExperienceItem {
-        kind: "Experience",
+        kind: "Work",
         title: "Backend Software Engineer - iExec",
         period: "Sep 2024 to Oct 2026",
         bullets: &[
@@ -54,7 +54,7 @@ const EXPERIENCES: &[ExperienceItem] = &[
         icon: "\u{1f9ea}",
     },
     ExperienceItem {
-        kind: "Leadership",
+        kind: "Work",
         title: "Assistant Director - Youth Supervision",
         period: "Jul 2017 to Aug 2022",
         bullets: &[
@@ -65,13 +65,23 @@ const EXPERIENCES: &[ExperienceItem] = &[
     },
     ExperienceItem {
         kind: "Training",
+        title: "Claude Code Training - Selina, at iExec",
+        period: "Jun 2026",
+        bullets: &[
+            "10.5-hour in-house training on fitting Claude Code into a shared software development lifecycle: context engineering, SDLC skills, commands, hooks, agents and plugins.",
+            "Delivered a project CLAUDE.md, a library of SDLC skills, commands, pre- and post-tool hooks, a specialized agent and a plugin published on iExec's shared repository.",
+        ],
+        icon: "\u{1f9f0}",
+    },
+    ExperienceItem {
+        kind: "Training",
         title: "Rust Training - Bashroom",
         period: "Jun 2025 to Sep 2025",
         bullets: &["Rust development training."],
         icon: "\u{1f980}",
     },
     ExperienceItem {
-        kind: "Bootcamp",
+        kind: "Training",
         title: "EVM Bootcamp - Encode",
         period: "Mar 2025 to Apr 2025",
         bullets: &["Bootcamp on EVM blockchain development."],
@@ -88,7 +98,7 @@ const EXPERIENCES: &[ExperienceItem] = &[
         icon: "\u{1f393}",
     },
     ExperienceItem {
-        kind: "Certification",
+        kind: "Training",
         title: "Blockchain Certificate - University of Nicosia",
         period: "Sep 2023 to Dec 2023",
         bullets: &[
