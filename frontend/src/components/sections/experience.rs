@@ -17,6 +17,26 @@ struct ExperienceItem {
     icon: &'static str,
 }
 
+struct ExperienceGroup {
+    label: &'static str,
+    kinds: &'static [&'static str],
+}
+
+const GROUPS: &[ExperienceGroup] = &[
+    ExperienceGroup {
+        label: "Professional Experience",
+        kinds: &["Work", "Internship"],
+    },
+    ExperienceGroup {
+        label: "Trainings",
+        kinds: &["Training"],
+    },
+    ExperienceGroup {
+        label: "Studies",
+        kinds: &["Education"],
+    },
+];
+
 const EXPERIENCES: &[ExperienceItem] = &[
     ExperienceItem {
         kind: "Work",
@@ -145,34 +165,43 @@ pub fn ExperienceSection() -> impl IntoView {
                     "poneglyph-block content-layer"
                 }>
                     <h2 class="section-header">"Historical Records"</h2>
-                    <div class="experience-list">
-                        {EXPERIENCES
-                            .iter()
-                            .enumerate()
-                            .map(|(index, item)| {
-                                let stagger = format!("--item-index: {index};");
-                                view! {
-                                    <div class="experience-item stagger-slide" style={stagger}>
-                                        <div class="experience-icon">{item.icon}</div>
-                                        <div class="experience-content">
-                                            <div class="experience-header">
-                                                <h3 class="experience-title">{item.title}</h3>
-                                                <span class="experience-period">{item.period}</span>
-                                            </div>
-                                            <p class="experience-type">{item.kind}</p>
-                                            <ul class="experience-bullets">
-                                                {item
-                                                    .bullets
-                                                    .iter()
-                                                    .map(|b| view! { <li>{*b}</li> })
-                                                    .collect_view()}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                }
-                            })
-                            .collect_view()}
-                    </div>
+                    {GROUPS
+                        .iter()
+                        .map(|group| {
+                            view! {
+                                <h3 class="project-group-title">{group.label}</h3>
+                                <div class="experience-list">
+                                    {EXPERIENCES
+                                        .iter()
+                                        .enumerate()
+                                        .filter(|(_, item)| group.kinds.contains(&item.kind))
+                                        .map(|(index, item)| {
+                                            let stagger = format!("--item-index: {index};");
+                                            view! {
+                                                <div class="experience-item stagger-slide" style={stagger}>
+                                                    <div class="experience-icon">{item.icon}</div>
+                                                    <div class="experience-content">
+                                                        <div class="experience-header">
+                                                            <h4 class="experience-title">{item.title}</h4>
+                                                            <span class="experience-period">{item.period}</span>
+                                                        </div>
+                                                        <p class="experience-type">{item.kind}</p>
+                                                        <ul class="experience-bullets">
+                                                            {item
+                                                                .bullets
+                                                                .iter()
+                                                                .map(|b| view! { <li>{*b}</li> })
+                                                                .collect_view()}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            }
+                                        })
+                                        .collect_view()}
+                                </div>
+                            }
+                        })
+                        .collect_view()}
                 </div>
             </div>
         </PoneglyphSection>
