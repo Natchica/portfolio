@@ -276,10 +276,10 @@ pub fn PoneglyphAlphabetSection() -> impl IntoView {
                              tamper-proof records of truth."
                         </p>
                         <p>
-                            "Much like blockchain technology, Poneglyphs are "
-                            <span class="highlight-inline">"permanent, distributed, and verifiable"</span>
-                            " \u{2014} a fitting metaphor for decentralized systems where data \
-                             integrity and transparency are paramount."
+                            "Poneglyphs are "
+                            <span class="highlight-inline">"engraved, durable, and verifiable"</span>
+                            " \u{2014} a fitting picture of records you can trust because they \
+                             cannot be quietly rewritten."
                         </p>
                         <p class="alphabet-footnote">
                             "Below is the complete Poneglyph writing system that inspired the \
@@ -304,9 +304,8 @@ pub fn PoneglyphAlphabetSection() -> impl IntoView {
 
                 <div class="alphabet-footer">
                     <p>
-                        "This ancient script serves as a visual representation of \
-                         blockchain principles throughout this portfolio \u{2014} immutability \
-                         meets artistry."
+                        "This ancient script is the visual thread of the whole portfolio \
+                         \u{2014} permanence meets artistry."
                     </p>
                 </div>
             </div>
