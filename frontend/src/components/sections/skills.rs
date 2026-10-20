@@ -31,14 +31,7 @@ const SKILL_GROUPS: &[SkillGroup] = &[
     SkillGroup {
         name: "Backend",
         icon: "\u{2699}\u{fe0f}",
-        tags: &[
-            "Spring",
-            "NATS JetStream",
-            "Event-driven services",
-            "H2",
-            "Web3j",
-            "Ethereum",
-        ],
+        tags: &["Spring", "NATS JetStream", "Event-driven services", "H2"],
     },
     SkillGroup {
         name: "Infrastructure",
@@ -46,20 +39,14 @@ const SKILL_GROUPS: &[SkillGroup] = &[
         tags: &["Docker", "OCI images", "GitHub Actions", "Jenkins", "CI/CD"],
     },
     SkillGroup {
-        name: "Security and TEE",
+        name: "Security",
         icon: "\u{1f510}",
-        tags: &[
-            "Intel TDX",
-            "Intel SGX",
-            "AES encryption",
-            "TEE authorization",
-            "Secret migration",
-        ],
+        tags: &["AES encryption", "Authorization", "Secret migration"],
     },
     SkillGroup {
         name: "Tooling",
         icon: "\u{1f6e0}\u{fe0f}",
-        tags: &["Git", "GitHub", "Gradle", "Claude Code", "Test automation"],
+        tags: &["Git", "GitHub", "Gradle", "Test automation"],
     },
 ];
 
