@@ -1,6 +1,6 @@
 # Nathan's Portfolio
 
-A personal portfolio website combining One Piece Poneglyphs with blockchain aesthetics. Built entirely in Rust -- Leptos WASM frontend, Axum backend, pure CSS styling.
+A personal portfolio website combining One Piece Poneglyphs with an endless scroll and a Three.js stone layer. Built in Rust -- Leptos WASM frontend, Axum backend, pure CSS styling.
 
 ## Tech Stack
 

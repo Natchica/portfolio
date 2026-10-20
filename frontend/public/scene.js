@@ -6,10 +6,11 @@
 //
 // Add ?debug to the URL to expose window.__webgl (state and measurement helpers) and ?force=touch,reduce.
 
-const VERSION = 5;
+const VERSION = 6;
 const DEG = Math.PI / 180;
 const POINTER_TILT = 4; // CSS degrees at the slab edge nearest the pointer
 const NEAREST_HYSTERESIS = 40; // px: stops tilt flicker when the pointer sits between two slabs
+const MAX_EDGE_SHIFT = 6; // px: most a slab edge may drift from the flat DOM content through tilt or entry scale
 const HELIX_NODES = 48; // 2 strands of 24
 const HELIX_PER_STRAND = 24;
 const HELIX_STEMS = ['a', 'bv', 'd', 'e', 'f', 'g', 'kqc', 'm', 'n', 'o', 'r', 't', 'x']; // same 13 as the Rust GLYPHS
@@ -589,6 +590,16 @@ async function main() {
     } else if (!mode.reduced) {
       ax += pt.ax;
       ay += pt.ay;
+      // The DOM content stays flat, so a tall slab that leans or shrinks about its center would slide its edges
+      // away from the content. Cap the edge shift at MAX_EDGE_SHIFT px, shared by the tilt and the scale: short
+      // slabs keep the full effect.
+      const minCosX = clamp(1 - MAX_EDGE_SHIFT / rect.height, -1, 1);
+      const minCosY = clamp(1 - MAX_EDGE_SHIFT / rect.width, -1, 1);
+      const maxAx = Math.acos(minCosX) / DEG;
+      const maxAy = Math.acos(minCosY) / DEG;
+      ax = clamp(ax, -maxAx, maxAx);
+      ay = clamp(ay, -maxAy, maxAy);
+      s = Math.max(s, clamp(minCosX, 0, 1));
     }
 
     slab.group.rotation.set(-ax * DEG, ay * DEG, 0);

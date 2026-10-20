@@ -430,6 +430,11 @@ body::before {
   animation: fadeBackground var(--decode-total, 3s) ease-in forwards;
 }
 
+/* Once the block is decoded the overlay is transparent but still sits above it: let clicks reach the content */
+.poneglyph-overlay:has(+ .content-decoded) {
+  pointer-events: none;
+}
+
 .poneglyph-grid {
   overflow: hidden;
   align-content: start;
@@ -662,26 +667,6 @@ body::before {
   color: var(--ocean-900);
 }
 
-.btn-full {
-  width: 100%;
-}
-
-.btn-coming-soon {
-  background: linear-gradient(to right, var(--cyber-600), var(--cyber-500));
-}
-
-.btn-coming-soon:hover {
-  background: linear-gradient(to right, var(--cyber-500), var(--cyber-400));
-}
-
-.btn-cv {
-  background: linear-gradient(to right, var(--cyber-600), var(--cyber-500));
-}
-
-.btn-cv:hover {
-  background: linear-gradient(to right, var(--cyber-500), var(--cyber-400));
-}
-
 .btn-genesis {
   border-color: var(--ocean-400);
   color: var(--ocean-400);
@@ -728,26 +713,6 @@ body::before {
   font-weight: 600;
   color: white;
   margin: 0;
-}
-
-.skill-bar {
-  width: 100%;
-  background: var(--stone-600);
-  border-radius: 9999px;
-  height: 0.5rem;
-}
-
-.skill-bar-fill {
-  background: linear-gradient(to right, var(--cyber-400), var(--ocean-400));
-  height: 0.5rem;
-  border-radius: 9999px;
-}
-
-.skill-proficiency {
-  font-size: 0.875rem;
-  color: var(--stone-300);
-  margin-top: 0.5rem;
-  margin-bottom: 0;
 }
 
 /* ============================================================
@@ -808,9 +773,17 @@ body::before {
   margin-top: 0;
 }
 
-.experience-description {
-  color: var(--stone-300);
+.experience-bullets {
   margin: 0;
+  padding-left: 1.25rem;
+  color: var(--stone-300);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.experience-bullets li::marker {
+  color: var(--cyber-400);
 }
 
 /* ============================================================
@@ -852,6 +825,38 @@ body::before {
   margin: 0 0 0.25rem 0;
 }
 
+.project-group-title {
+  font-family: var(--font-body);
+  font-size: var(--fs-lead);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cyber-400);
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyber-400) 25%, transparent);
+}
+
+.project-grid + .project-group-title,
+.experience-list + .project-group-title {
+  margin-top: 3rem;
+}
+
+.project-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--cyber-400) 45%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.project-link:hover {
+  text-decoration-color: var(--cyber-400);
+}
+
+.project-link:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 3px;
+}
+
 .status-badge {
   font-size: 0.875rem;
   padding: 0.125rem 0.5rem;
@@ -890,10 +895,6 @@ body::before {
   color: var(--ocean-100);
   border-radius: 0.375rem;
   font-size: 0.875rem;
-}
-
-.mt-8 {
-  margin-top: 2rem;
 }
 
 /* ============================================================
@@ -1048,55 +1049,6 @@ body::before {
   margin-top: 0;
 }
 
-.contact-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--stone-700);
-  border: 1px solid var(--stone-600);
-  border-radius: 0.5rem;
-  color: white;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-}
-
-.form-input::placeholder {
-  color: var(--stone-400);
-}
-
-.form-input:focus {
-  border-color: var(--cyber-400);
-  outline: none;
-}
-
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--stone-700);
-  border: 1px solid var(--stone-600);
-  border-radius: 0.5rem;
-  color: white;
-  font-size: 1rem;
-  resize: none;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-}
-
-.form-textarea::placeholder {
-  color: var(--stone-400);
-}
-
-.form-textarea:focus {
-  border-color: var(--cyber-400);
-  outline: none;
-}
-
 .contact-info-panel {
   display: flex;
   flex-direction: column;
@@ -1131,6 +1083,21 @@ body::before {
   margin: 0;
 }
 
+.language-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: white;
+  font-weight: 600;
+}
+
+.language-flag {
+  margin-right: 0.5rem;
+}
+
 .contact-social-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -1141,7 +1108,7 @@ body::before {
 
 .social-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -1171,9 +1138,13 @@ body::before {
   font-weight: 600;
 }
 
-.cv-download-wrapper {
-  padding-top: 1rem;
-  border-top: 1px solid var(--stone-600);
+a.social-link {
+  text-decoration: none;
+}
+
+.social-link:focus-visible {
+  outline: 2px solid var(--cyber-400);
+  outline-offset: 3px;
 }
 
 .loop-back-section {
@@ -1456,6 +1427,12 @@ body::before {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* A lone last card spans the row instead of leaving an empty slot */
+  .skill-card:last-child:nth-child(odd),
+  .project-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
   .alphabet-grid-letters {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -1471,7 +1448,7 @@ body::before {
 
 @media (min-width: 1024px) {
   .skill-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .contact-grid {

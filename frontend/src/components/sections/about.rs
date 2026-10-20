@@ -6,9 +6,9 @@ use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
 
-const PONEGLYPH_QUOTE: &str =
-    "The root problem with conventional currency is all the trust that is required to make it work";
-const QUOTE_AUTHOR: &str = "Satoshi Nakamoto";
+pub(super) const PONEGLYPH_QUOTE: &str =
+    "Inherited will the destiny of the age the dreams of the people these things cannot be stopped";
+pub(super) const QUOTE_AUTHOR: &str = "Gol D Roger";
 
 #[component]
 pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> impl IntoView {
@@ -62,24 +62,25 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                             />
                         </div>
                         <h1 class="section-header about-title stagger-item" style="--item-index: 1;">"Nathan GAUD"</h1>
-                        <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Web3 Software Engineer"</p>
-                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Genesis Block - The Origin Story"</p>
+                        <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Software Engineer"</p>
+                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Software engineer specialized in building and optimizing backend systems in Rust and Java."</p>
                         <div class="description stagger-item" style="--item-index: 3;">
                             <p>
-                                "Welcome to my digital Poneglyph. As a Backend Web3 Software \
-                                 Engineer at iExec, I develop decentralized applications and \
-                                 blockchain infrastructure that power the future of distributed \
-                                 computing. My work focuses on building secure, scalable backend \
-                                 systems using Rust and Java."
+                                "Welcome to my digital Poneglyph. I am a backend software engineer \
+                                 who builds and optimizes services in Java and Rust. I care about \
+                                 readable code, thorough tests and releases that ship without \
+                                 drama, and I am open to any field where solid backend \
+                                 engineering matters."
                             </p>
                             <p>
-                                "What drives me in Web3 is the immutability and transparency of \
-                                 blockchain technology - you can\u{2019}t lie with the blockchain. For \
-                                 me, Web3 represents freedom and the power to build systems where \
-                                 truth is verifiable and trust is built into the code itself."
+                                "On my own time I use AI assistants to shape my development \
+                                 environment: with Claude Code I built hooks, guards and small \
+                                 automations that make my daily work smoother. It is a personal \
+                                 workbench, not how I ship production code. Off screen I play \
+                                 competitive badminton, train for ultra trails and travel."
                             </p>
                             <p class="highlight-text">
-                                "\u{1f980} Rust & Java Developer \u{2022} \u{1f517} Blockchain Enthusiast \u{2022} \u{1f30a} Building the Decentralized Future"
+                                "\u{1f980} Rust Services \u{2022} \u{2615} Java and Spring \u{2022} \u{26a1} Event-Driven Systems"
                             </p>
                         </div>
                         <div class="cta-buttons stagger-item" style="--item-index: 4;">
@@ -93,7 +94,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                                 class="btn-outline"
                                 on:click=move |_| nav_contact("contact".to_string())
                             >
-                                "Connect Blocks"
+                                "Get in Touch"
                             </button>
                         </div>
                     </div>

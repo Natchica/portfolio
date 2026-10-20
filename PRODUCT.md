@@ -18,6 +18,8 @@ A One Piece poneglyph-themed personal portfolio: about, skills, experience, proj
 
 Poneglyph stone blocks, glyph helix chains linking them, and a scroll that never ends. No neighboring portfolio shares this world.
 
+Professionally the site presents a Backend Software Engineer working in Java and Rust, open to any field. The owner does not want to be typecast by iExec's topics, so Web3 and confidential computing are never headlines, taglines or skill groups; they appear only as plain facts in the experience history. The owner uses AI as a personal assistant and never presents it as a way of shipping production code, so copy never claims AI-assisted engineering, and personal tooling is labelled as such. The Claude Code training at iExec (June 2026) is professional training and sits with the other trainings in the experience history. Section quotes stay off crypto slogans.
+
 ## Operating Context
 
 Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/`, Axum backend on port 3000 for `/api/health`. A WebGL layer (`frontend/public/scene.js` with Three.js 0.170.0 vendored in `frontend/public/vendor/`) draws slabs, glyphs and helix when the browser has hardware accelerated WebGL. Dev server at `http://localhost:8080`.
@@ -29,6 +31,7 @@ Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/`, Axum 
 - Backend stays untouched.
 - No Tailwind. Release WASM stays near the current ~212K; the 692KB Three.js module loads only when the page runs in WebGL mode.
 - Rust decides WebGL or DOM rendering once at startup (`data-render` on `<html>`). Visitors without hardware WebGL get the CSS look plus a notice on how to enable hardware acceleration. `?webgl=off` forces the DOM look, `?debug` exposes the WebGL test surface.
+- Section quotes and authors use letters, digits and spaces only; a native test in `frontend/src/components/sections/mod.rs` fails on any character `char_to_symbol` cannot map.
 
 ## Brand Commitments
 
@@ -37,7 +40,7 @@ Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/`, Axum 
 
 ## Evidence on Hand
 
-Written content is current and stays verbatim. Assets: `frontend/public/Nathan-G.png`, `poneglyph_alphabet.jpeg`, `symbols/`, `favicon.svg`. Reference capture: `.claude/visual/image.png`. No testimonials or metrics exist, so none are invented.
+Written content comes from the owner's English CV (October 2026) and the owner reviews every copy change; rewrite it only from the CV or the owner's own words. Professional work at iExec is named with its outcomes (Nox protocol services, iexec-stork, the Java 17 migration) and carries no links; links go only to public repos. Contact shows GitHub, LinkedIn, location, availability and spoken languages and nothing else, and no CV file lives in the repo. Assets: `frontend/public/Nathan-G.png`, `poneglyph_alphabet.jpeg`, `symbols/`, `favicon.svg`. Reference capture: `.claude/visual/image.png`. No testimonials exist and the only figures are the CV's own (75% core performance, 1,250+ unit tests), so none are invented.
 
 ## Product Principles
 
