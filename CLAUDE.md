@@ -64,6 +64,8 @@ make dev-frontend   # Trunk at localhost:8080 (proxies /api/ to backend)
 cd frontend && trunk serve --port 8081
 ```
 
+`make dev` runs `make check-port` first and refuses to start while port 3000 is taken: it prints the listener from `ss -ltnp` and stops. The check is skipped when `ss` is not installed.
+
 Query parameters on any page:
 
 | Parameter | Effect |
