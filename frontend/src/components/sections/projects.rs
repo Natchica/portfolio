@@ -31,8 +31,8 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
         projects: &[
             Project {
                 title: "Nox Protocol Services",
-                description: "Lead developer of three event-driven Rust services (Handle Gateway, Observer, Ingestor-Replayer) over NATS JetStream, and co-developer of the KMS, Runner and Ingestor that run TEE computation in Intel TDX.",
-                tech: &["Rust", "NATS JetStream", "Intel TDX", "TEE"],
+                description: "Lead developer of three event-driven Rust services (Handle Gateway, Observer, Ingestor-Replayer) over NATS JetStream, and co-developer and reviewer of the KMS, Runner and Ingestor services.",
+                tech: &["Rust", "NATS JetStream", "Event-driven"],
                 status: "Delivered",
                 status_class: "status-complete",
                 icon: "\u{1f980}",
@@ -40,8 +40,8 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
             },
             Project {
                 title: "iexec-stork and Java 17 Migration",
-                description: "Lead developer of iexec-stork, a Java and Spring tool that migrates secrets from Intel SGX to Intel TDX. Also moved the middleware Spring services to Java 17 and Gradle 8.10 for the coordinated 9.0.0 release.",
-                tech: &["Java", "Spring", "Intel SGX", "Intel TDX", "Gradle"],
+                description: "Lead developer of iexec-stork, a Java and Spring tool that migrates secrets between two service instances. Also moved the middleware Spring services to Java 17 and Gradle 8.10 for the coordinated 9.0.0 release.",
+                tech: &["Java", "Spring", "Gradle", "Docker"],
                 status: "Delivered",
                 status_class: "status-complete",
                 icon: "\u{1f510}",
@@ -50,7 +50,7 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
             Project {
                 title: "Autonomous Worker and Rust Middleware",
                 description: "Merged the scheduler and worker into an autonomous worker without REST/STOMP or JWT between components, keeping 100% coverage across 1,250+ unit tests. Later rewrote two middleware components from Java to Rust for a 75% gain in core performance.",
-                tech: &["Java", "Spring", "Rust", "Web3j"],
+                tech: &["Java", "Spring", "Rust"],
                 status: "Delivered",
                 status_class: "status-complete",
                 icon: "\u{2699}\u{fe0f}",
@@ -59,11 +59,11 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
         ],
     },
     ProjectGroup {
-        label: "Built with AI",
+        label: "Tools for Myself",
         projects: &[
             Project {
                 title: "claude-plugins",
-                description: "Function-hook plugins for Claude Code: model routing when agents spawn, a fail-closed guard on secret-file reads and edits, and stable handles with delivery and read receipts for messages between sessions.",
+                description: "Small hook plugins that tune my own Claude Code setup: a guard on secret-file access, model routing and messaging between my sessions. A personal workbench, not production code.",
                 tech: &["TypeScript", "Claude Code"],
                 status: "Active",
                 status_class: "status-dev",
@@ -72,8 +72,8 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
             },
             Project {
                 title: "cc-window-primer",
-                description: "A systemd user timer that sends one minimal Claude Code message at laptop boot and again after each 5-hour usage window, so a fresh quota lands earlier in the working day.",
-                tech: &["Node.js", "systemd", "Claude Code"],
+                description: "A systemd user timer that starts my Claude Code usage window when my laptop boots, so a fresh quota lands earlier in the working day.",
+                tech: &["Node.js", "systemd"],
                 status: "Active",
                 status_class: "status-dev",
                 icon: "\u{23f1}\u{fe0f}",
@@ -81,8 +81,8 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
             },
             Project {
                 title: "career-ops (fork)",
-                description: "My fork of career-ops, the open-source AI job search agent that scans job portals, scores listings and tailors a CV, running locally in Claude Code.",
-                tech: &["JavaScript", "Claude Code"],
+                description: "My fork of career-ops, an open-source tool that helps organize a job search: it scans job portals, scores listings and keeps track of applications.",
+                tech: &["JavaScript"],
                 status: "Active",
                 status_class: "status-dev",
                 icon: "\u{1f9ed}",
@@ -91,7 +91,7 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
         ],
     },
     ProjectGroup {
-        label: "Personal",
+        label: "Side Projects",
         projects: &[
             Project {
                 title: "Poneglyph Portfolio",
