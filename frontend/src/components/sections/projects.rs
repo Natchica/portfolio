@@ -33,7 +33,7 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
                 title: "Nox Protocol Services",
                 description: "Lead developer of three event-driven Rust services (Handle Gateway, Observer, Ingestor-Replayer) over NATS JetStream, and co-developer and reviewer of the KMS, Runner and Ingestor services.",
                 tech: &["Rust", "NATS JetStream", "Event-driven"],
-                status: "Delivered",
+                status: "Shipped",
                 status_class: "status-complete",
                 icon: "\u{1f980}",
                 href: None,
@@ -42,7 +42,7 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
                 title: "iexec-stork and Java 17 Migration",
                 description: "Lead developer of iexec-stork, a Java and Spring tool that migrates secrets between two service instances. Also moved the middleware Spring services to Java 17 and Gradle 8.10 for the coordinated 9.0.0 release.",
                 tech: &["Java", "Spring", "Gradle", "Docker"],
-                status: "Delivered",
+                status: "Shipped",
                 status_class: "status-complete",
                 icon: "\u{1f510}",
                 href: None,
@@ -51,7 +51,7 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
                 title: "Autonomous Worker and Rust Middleware",
                 description: "Merged the scheduler and worker into an autonomous worker without REST/STOMP or JWT between components, keeping 100% coverage across 1,250+ unit tests. Later rewrote two middleware components from Java to Rust for a 75% gain in core performance.",
                 tech: &["Java", "Spring", "Rust"],
-                status: "Delivered",
+                status: "Shipped",
                 status_class: "status-complete",
                 icon: "\u{2699}\u{fe0f}",
                 href: None,
@@ -103,24 +103,6 @@ const PROJECT_GROUPS: &[ProjectGroup] = &[
                 href: Some("https://github.com/Natchica/portfolio"),
             },
             Project {
-                title: "TimeGuard",
-                description: "Concept for a mobile app that stops you from getting lost in social feeds and going to bed hours after you meant to.",
-                tech: &["Mobile"],
-                status: "Concept",
-                status_class: "status-planned",
-                icon: "\u{1f319}",
-                href: Some("https://github.com/Natchica/TimeGuard"),
-            },
-            Project {
-                title: "Wikipedia Traffic Forecasting",
-                description: "Data mining project that forecasts future traffic of Wikipedia pages, with exploratory analysis, SARIMA and Huber regression notebooks.",
-                tech: &["Python", "Jupyter", "SARIMA"],
-                status: "Complete",
-                status_class: "status-complete",
-                icon: "\u{1f4c8}",
-                href: Some("https://github.com/Natchica/DM_WebTraffic"),
-            },
-            Project {
                 title: "Ethereum Bootcamp Projects",
                 description: "Personal code from an Ethereum developer bootcamp: a block explorer, ECDSA and transaction signing, and Hardhat practice.",
                 tech: &["Solidity", "JavaScript", "Hardhat"],
@@ -169,7 +151,7 @@ pub fn ProjectsSection() -> impl IntoView {
                 } else {
                     "poneglyph-block content-layer"
                 }>
-                    <h2 class="section-header">"Treasure Maps"</h2>
+                    <h2 class="section-header">"Log Pose"</h2>
                     {PROJECT_GROUPS
                         .iter()
                         .enumerate()
