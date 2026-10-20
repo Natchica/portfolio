@@ -203,14 +203,12 @@ h3,
 }
 
 /* White label needs 4.5:1; ocean-700/800 clear it, ocean-500/600 do not */
-.btn-primary,
-.btn-cv {
+.btn-primary {
   background: linear-gradient(to right, var(--ocean-800), var(--ocean-700));
   box-shadow: var(--elev-1);
 }
 
-.btn-primary:hover,
-.btn-cv:hover {
+.btn-primary:hover {
   background: linear-gradient(to right, var(--ocean-700), var(--ocean-hover));
   transform: translateY(-2px);
   box-shadow: var(--elev-1), var(--glow-cyan);
