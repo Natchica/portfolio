@@ -238,7 +238,7 @@ A cold, saturated-at-one-point palette: deep sea blues and weathered stone greys
 - **Display** (400, clamp(2.25rem, 4vw + 1rem, 3.5rem), 1.05; token holds the maximum): Hero title in glyph-halo with 20px cyan glow.
 - **Headline** (400, clamp(1.875rem, 3vw + 1rem, 2.75rem), 1.2; token holds the maximum): Section headers and the alphabet title in Cyber Cyan with 18px glow.
 - **Title** (400, 1.25rem): Project, experience and card titles in Young Serif.
-- **Group title** (DM Sans 700, 1.5rem, 1.3; the `lead` token): Project group labels `Professional`, `Built with AI` and `Personal` in Cyber Cyan over a 1px cyan rule at 25% alpha.
+- **Group title** (DM Sans 700, 1.5rem, 1.3; the `lead` token): Project group labels `Professional`, `Tools for Myself` and `Side Projects` in Cyber Cyan over a 1px cyan rule at 25% alpha.
 - **Body** (400, 1.125rem, 1.7): Descriptions in stone-text. Intro copy is capped near 42rem.
 - **Button** (600, 1rem, 0.01em): Buttons in DM Sans.
 - **Label** (400, 0.875rem): Tech tags, skill tags and metadata.
