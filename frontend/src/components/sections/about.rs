@@ -7,8 +7,8 @@ use crate::hooks::use_intersection_observer::{
 };
 
 pub(super) const PONEGLYPH_QUOTE: &str =
-    "Programs must be written for people to read and only incidentally for machines to execute";
-pub(super) const QUOTE_AUTHOR: &str = "Abelson and Sussman";
+    "Inherited will the destiny of the age the dreams of the people these things cannot be stopped";
+pub(super) const QUOTE_AUTHOR: &str = "Gol D Roger";
 
 #[component]
 pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> impl IntoView {
@@ -63,21 +63,21 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                         </div>
                         <h1 class="section-header about-title stagger-item" style="--item-index: 1;">"Nathan GAUD"</h1>
                         <p class="subtitle stagger-item" style="--item-index: 2;">"Backend Software Engineer"</p>
-                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Java and Rust backends. Event-driven services, performance and reliable releases."</p>
+                        <p class="section-subtitle stagger-item" style="--item-index: 2;">"Software engineer specialized in building and optimizing backend systems in Rust and Java."</p>
                         <div class="description stagger-item" style="--item-index: 3;">
                             <p>
                                 "Welcome to my digital Poneglyph. I am a backend software engineer \
-                                 who builds and optimizes services in Java and Rust. At iExec, from \
-                                 2024 to 2026, I led three event-driven Rust services, rewrote two \
-                                 middleware components from Java to Rust for a 75% gain in core \
-                                 performance, and led iexec-stork, a Java and Spring tool that \
-                                 migrates secrets between service instances."
+                                 who builds and optimizes services in Java and Rust. I care about \
+                                 readable code, thorough tests and releases that ship without \
+                                 drama, and I am open to any field where solid backend \
+                                 engineering matters."
                             </p>
                             <p>
-                                "I am open to any field where solid backend engineering matters. \
-                                 I care about readable code, thorough tests and releases that \
-                                 ship without drama. I work in French (native), English (C2) and \
-                                 German (B1)."
+                                "On my own time I use AI assistants to shape my development \
+                                 environment: with Claude Code I built hooks, guards and small \
+                                 automations that make my daily work smoother. It is a personal \
+                                 workbench, not how I ship production code. Off screen I play \
+                                 competitive badminton, train for ultra trails and travel."
                             </p>
                             <p class="highlight-text">
                                 "\u{1f980} Rust Services \u{2022} \u{2615} Java and Spring \u{2022} \u{26a1} Event-Driven Systems"
@@ -94,7 +94,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                                 class="btn-outline"
                                 on:click=move |_| nav_contact("contact".to_string())
                             >
-                                "Connect Blocks"
+                                "Get in Touch"
                             </button>
                         </div>
                     </div>
