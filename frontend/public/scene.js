@@ -6,7 +6,7 @@
 //
 // Add ?debug to the URL to expose window.__webgl (state and measurement helpers) and ?force=touch,reduce.
 
-const VERSION = 6;
+const VERSION = 7;
 const DEG = Math.PI / 180;
 const POINTER_TILT = 4; // CSS degrees at the slab edge nearest the pointer
 const NEAREST_HYSTERESIS = 40; // px: stops tilt flicker when the pointer sits between two slabs
@@ -111,6 +111,7 @@ async function main() {
   const colorEnd = new THREE.Color(SLAB_COLOR_END);
 
   let slabs = [];
+  const clusterStart = new WeakMap();
   let chains = [];
 
   const mqTouch = matchMedia('(hover: none)');
@@ -256,12 +257,14 @@ async function main() {
     Object.assign(debug.light, { visible: on, x: lightState.x, y: lightState.y });
   }
 
-  // Nearest visible slab to the pointer, with hysteresis so the tilt does not flicker between two slabs.
+  // Nearest visible slab to the pointer (distance to its rect, 0 inside), with hysteresis so the tilt does not flicker between two slabs.
   function pickNearest(rects) {
     if (!pointer.seen || mode.touch || mode.reduced) return -1;
     const dist = (i) => {
       const r = rects[i];
-      return Math.hypot(pointer.x - (r.left + r.width / 2), pointer.y - (r.top + r.height / 2));
+      const dx = Math.max(r.left - pointer.x, 0, pointer.x - r.right);
+      const dy = Math.max(r.top - pointer.y, 0, pointer.y - r.bottom);
+      return Math.hypot(dx, dy);
     };
     const visible = rects.map((r) => r.bottom > -100 && r.top < innerHeight + 100);
     let best = -1;
@@ -319,6 +322,7 @@ async function main() {
         glyphCount: 0,
         decode: { started: false, pending: false, frames: 0, t0: 0, originCells: null, originPx: null, speed: 1, total: 3, elapsed: 0, done: false, flipped: 0, maxDelay: 0 },
         observers: [],
+        cluster: block.closest('.slab-cluster'),
       };
 
       if (grid && button) {
@@ -326,7 +330,11 @@ async function main() {
         gridObserver.observe(grid, { attributes: true, attributeFilter: ['data-grid', 'data-cols'] });
         const buttonObserver = new MutationObserver(() => {
           if (button.classList.contains('decoding') && !slab.decode.started) {
-            Object.assign(slab.decode, { started: true, pending: true, frames: 0, t0: performance.now() });
+            // slabs of one cluster share the first start time
+            const now = performance.now();
+            const t0 = slab.cluster ? (clusterStart.get(slab.cluster) ?? now) : now;
+            if (slab.cluster) clusterStart.set(slab.cluster, t0);
+            Object.assign(slab.decode, { started: true, pending: true, frames: 0, t0 });
           }
         });
         buttonObserver.observe(button, { attributes: true, attributeFilter: ['class'] });
@@ -538,6 +546,7 @@ async function main() {
       glyphVisible: !!slab.glyphs?.visible,
       decode: {
         started: d.started,
+        t0: d.t0,
         origin: d.originPx,
         speed: d.speed,
         total: d.total,
