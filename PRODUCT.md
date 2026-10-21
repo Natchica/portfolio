@@ -29,7 +29,7 @@ Leptos CSR (Rust to WASM) built with Trunk, Pure CSS in `frontend/style/`, Axum 
 - Infinite-scroll teleport and overlay logic from PRs #8 to #10 stays untouched, except the auto decode window (2026-10-21): after the first tap on any block, slabs decode and re-encode with the viewport.
 - `poneglyph_converter.rs` and the symbol assets stay as they are.
 - Backend stays untouched.
-- No Tailwind. Release WASM stays near the current ~212K; the 692KB Three.js module loads only when the page runs in WebGL mode.
+- No Tailwind. Release WASM stays near the current ~345K (measured 2026-10-21, `main` was 340K before the auto decode window); the 692KB Three.js module loads only when the page runs in WebGL mode.
 - Rust decides WebGL or DOM rendering once at startup (`data-render` on `<html>`). Visitors without hardware WebGL get the CSS look plus a notice on how to enable hardware acceleration. `?webgl=off` forces the DOM look, `?debug` exposes the WebGL test surface.
 - Section quotes and authors use letters, digits and spaces only; a native test in `frontend/src/components/sections/mod.rs` fails on any character `char_to_symbol` cannot map.
 
