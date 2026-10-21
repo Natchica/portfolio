@@ -2,7 +2,7 @@ use leptos::portal::Portal;
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::context::{AutoDecode, AutoMode, auto_mode, hint_visible};
+use crate::context::{AutoDecode, AutoMode, SlabState, auto_mode, hint_visible, whole_slab_next};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -77,6 +77,9 @@ pub fn PoneglyphOverlay(
     quote: &'static str,
     #[prop(default = 15)] columns: usize,
     #[prop(optional)] on_decode_complete: Option<Callback<()>>,
+    /// Whole-slab mode: called when a decoded slab leaves the viewport and encodes again.
+    #[prop(optional)]
+    on_encode: Option<Callback<()>>,
     /// Cluster mode: the tap shared by the slabs of one cluster, in page coordinates.
     #[prop(optional)]
     shared_start: Option<RwSignal<Option<(f64, f64)>>>,
@@ -92,6 +95,7 @@ pub fn PoneglyphOverlay(
     let click_coords: RwSignal<Option<(f64, f64)>> = RwSignal::new(None);
     let decode_duration: RwSignal<f64> = RwSignal::new(0.0);
     let decode_speed_factor: RwSignal<f64> = RwSignal::new(1.0);
+    let slab_state = RwSignal::new(SlabState::Encoded);
     let container_ref = NodeRef::<leptos::html::Div>::new();
 
     // ResizeObserver to track container size
@@ -169,6 +173,10 @@ pub fn PoneglyphOverlay(
         decode_duration.set(dur);
         click_coords.set(Some((x, y)));
         set_has_started.set(true);
+        slab_state.set(SlabState::Decoding);
+        run_after_ms((dur * 0.7 * 1000.0) as i32, move || {
+            slab_state.set(SlabState::Decoded);
+        });
         if let Some(cb) = on_decode_complete {
             schedule_callback(dur, cb);
         }
@@ -188,6 +196,40 @@ pub fn PoneglyphOverlay(
             start_decode(page_x - sx - rect.left(), page_y - sy - rect.top());
         });
     }
+
+    // Whole-slab fallback (DOM look, reduced motion): the slab decodes when it reaches the middle of the
+    // viewport and encodes again once it is fully out. `Window` mode never encodes from here.
+    let in_viewport = use_intersection_observer(
+        container_ref,
+        IntersectionObserverOptions {
+            threshold: 0.0,
+            root_margin: "0px",
+            once: false,
+        },
+    );
+    Effect::new(move |_| {
+        if auto_mode(webgl, prefers_reduced_motion(), armed.get()) != AutoMode::WholeSlab {
+            return;
+        }
+        // The two observers fire separately: a stale `in_view` must never restart a slab that just left.
+        let on_screen = in_viewport.get();
+        match whole_slab_next(slab_state.get(), in_view.get() && on_screen, on_screen) {
+            Some(SlabState::Decoding) => start_decode(
+                container_width.get_untracked() as f64 / 2.0,
+                container_height.get_untracked() as f64 / 2.0,
+            ),
+            Some(SlabState::Encoded) => {
+                set_has_started.set(false);
+                click_coords.set(None);
+                decode_duration.set(0.0);
+                slab_state.set(SlabState::Encoded);
+                if let Some(cb) = on_encode {
+                    cb.run(());
+                }
+            }
+            _ => {}
+        }
+    });
 
     // Once armed, the WebGL window needs every slab decoded so `scene.js` can re-encode the glyphs
     // outside the viewport. A slab the visitor did not tap starts from its own center. A slab of a
@@ -244,8 +286,8 @@ pub fn PoneglyphOverlay(
                 });
                 if let Some((x, y)) = origin {
                     match shared_start {
-                        None => start_decode(x, y),
-                        Some(start) => {
+                        // Once armed a tap starts this slab alone: the shared first wave is over.
+                        Some(start) if !armed.get_untracked() => {
                             if start.get_untracked().is_none()
                                 && let Some(el) = container_ref.get_untracked()
                             {
@@ -254,6 +296,7 @@ pub fn PoneglyphOverlay(
                                 start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
                             }
                         }
+                        _ => start_decode(x, y),
                     }
                 }
                 armed.set(true);
@@ -267,8 +310,8 @@ pub fn PoneglyphOverlay(
                         container_height.get_untracked() as f64 / 2.0,
                     );
                     match shared_start {
-                        None => start_decode(x, y),
-                        Some(start) => {
+                        // Once armed a tap starts this slab alone: the shared first wave is over.
+                        Some(start) if !armed.get_untracked() => {
                             if start.get_untracked().is_none()
                                 && let Some(el) = container_ref.get_untracked()
                             {
@@ -277,6 +320,7 @@ pub fn PoneglyphOverlay(
                                 start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
                             }
                         }
+                        _ => start_decode(x, y),
                     }
                     armed.set(true);
                 }
