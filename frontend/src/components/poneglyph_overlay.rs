@@ -2,6 +2,7 @@ use leptos::portal::Portal;
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
+use crate::context::{AutoDecode, hint_visible};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -75,6 +76,7 @@ pub fn PoneglyphOverlay(
     show_hint: bool,
 ) -> impl IntoView {
     let webgl = crate::utils::render::webgl();
+    let armed = expect_context::<AutoDecode>().armed;
     let (has_started, set_has_started) = signal(false);
     let (container_width, set_container_width) = signal(0u32);
     let (container_height, set_container_height) = signal(0u32);
@@ -228,6 +230,7 @@ pub fn PoneglyphOverlay(
                         }
                     }
                 }
+                armed.set(true);
             }
             on:keydown=move |ev| {
                 let key = ev.key();
@@ -249,13 +252,14 @@ pub fn PoneglyphOverlay(
                             }
                         }
                     }
+                    armed.set(true);
                 }
             }
         >
             {move || {
                 // The popup lives in the body, fixed to the viewport, so it is visible wherever
                 // the slab sits on a tall page. It shows only while this slab is in view.
-                (show_hint && hint_ready.get() && in_view.get() && !has_started.get())
+                hint_visible(show_hint, hint_ready.get(), in_view.get(), has_started.get(), armed.get())
                     .then(|| {
                         view! {
                             <Portal>
