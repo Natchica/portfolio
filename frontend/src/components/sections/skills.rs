@@ -85,6 +85,7 @@ pub fn SkillsSection() -> impl IntoView {
                     quote=PONEGLYPH_QUOTE
                     columns=15
                     on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                    on_encode=Callback::new(move |_| set_decoded.set(false))
                 />
                 <div class=move || if decoded.get() {
                     "poneglyph-block content-layer content-decoded"
