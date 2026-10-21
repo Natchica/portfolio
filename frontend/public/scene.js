@@ -17,6 +17,9 @@ const TAIL_NODES = 40; // glyph slots per tail, one tail at each end of a chain
 const TAIL_PITCH = 18; // px between tail glyphs before the chaos is added, close to the spacing inside the helix
 const TAIL_MIN = 96; // px: least visible tail, the helix body shrinks to make room when a slab sits right at the spacer
 const TAIL_OPACITY = 0.5; // starting opacity, close to the strand average so helix and tail read as one chain
+const TAIL_EDGE_GAP = 0; // px: centre of the glyph nearest a slab to the visible slab edge, the same at both ends of a chain; 0 lets its drift carry it behind the stone
+// Tails sit behind every slab face: a tall slab leans so far that its top edge lies at z = -200 or lower, in front of anything shallower
+const TAIL_Z = -600;
 const TAIL_FADE = 0.6; // share of the opacity lost by the glyph at the slab edge, so the last glyphs stay readable
 const TAIL_JITTER_X = 6; // px: reach of each tail glyph's own chaotic drift
 const TAIL_JITTER_Y = 4;
@@ -499,22 +502,26 @@ async function main() {
       size.setX(n, 28 * node.scale * (96 / 56)); // the 96 px glowing cell keeps a 28 px glyph
       opacity.setX(n, node.opacity);
     }
-    // Tails: slots 0..TAIL_NODES-1 hang above the body, the next TAIL_NODES below it. z sits behind the slab face.
+    // Tails: slots 0..TAIL_NODES-1 hang above the body, the next TAIL_NODES below it. z sits behind the whole slab (TAIL_Z).
     [top, bottom].forEach((plan, side) => {
       for (let k = 0; k < TAIL_NODES; k++) {
         const n = HELIX_NODES + side * TAIL_NODES + k;
-        // one glyph more than fits at TAIL_PITCH: the spacing shrinks a little to make room
+        // one glyph more than fits at TAIL_PITCH, minus the one next to the helix. The glyph nearest the slab is pinned
+        // TAIL_EDGE_GAP from its visible edge, the rest spread evenly back to where the first one used to sit. The
+        // chain start (side 0) meets the lit bottom face of a slab that leans back, which shows below its DOM rect.
         const count = plan ? Math.ceil(plan.len / TAIL_PITCH) : 0;
-        const u = plan ? ((k + 1) * plan.len) / (count + 1) : 0;
-        if (!plan || k === 0 || k >= count) { // k = 0 would sit next to the helix, left out on purpose
+        if (!plan || k === 0 || k >= count) {
           opacity.setX(n, 0);
           continue;
         }
+        const near = plan.len - TAIL_EDGE_GAP - (side === 0 ? SLAB_DEPTH * Math.sin(REST_TILT_X * DEG) : 0);
+        const far = (2 * plan.len) / (count + 1);
+        const u = count > 2 ? far + ((k - 1) * (near - far)) / (count - 2) : near;
         // each glyph drifts on its own two slow sine pairs, so no gap stays fixed, not even the one next to the body
         const [dx, dy] = chaosAt(chain, n, tSec);
         const y = (side === 0 ? bodyTop - u : bodyTop + bodyH + u) + dy;
         const f = clamp((u - 0.3 * plan.len) / (0.7 * plan.len), 0, 1);
-        pos.setXYZ(n, cx + dx, -y, -10);
+        pos.setXYZ(n, cx + dx, -y, TAIL_Z);
         size.setX(n, 28 * (0.6 + s0(chain, n * 6 + 4) * 0.25) * (96 / 56));
         opacity.setX(n, TAIL_OPACITY * (1 - TAIL_FADE * f * f * (3 - 2 * f)));
       }
