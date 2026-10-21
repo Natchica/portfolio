@@ -266,7 +266,7 @@ Rust decides once at startup and publishes it as `data-render` on `<html>`. With
 Without hardware WebGL (`dom`) the page keeps the CSS look: `perspective` 1600px on sections and 900px on the helix, `translateZ`, `rotateX` and `rotateY`, a hover tilt of about 2 degrees on pointer devices at 1024px and up, and a scroll-driven rotateX entrance where supported. `?webgl=off` forces this mode for comparison.
 
 ### Named Rules
-**The Reduced Motion Rule.** Under `prefers-reduced-motion` the slabs stop tilting and scaling, the helix freezes, the decode fades in place instead of flipping, and the light and parallax are removed. On touch the light and pointer tilt are off but the scroll entrance still runs.
+**The Reduced Motion Rule.** Under `prefers-reduced-motion` the slabs stop tilting and scaling, the helix freezes, the decode fades in place instead of flipping, the light and parallax are removed, and the auto decode window becomes a whole-slab fade with no text mask. On touch the light and pointer tilt are off but the scroll entrance still runs.
 
 **The One Projection Rule.** In WebGL mode the mesh and its DOM block share one orthographic rotation. Never add CSS `perspective` to a section while the canvas is on, or text and stone drift apart.
 
@@ -303,6 +303,13 @@ Fixed right-side panel: abyss tint at 60% alpha, 14px backdrop blur, cyan 25% bo
 ### Glyph helix
 Signature element. Two strands of poneglyph symbols in luminous cyan (strand A) and a lighter blue (strand B) with a white core and soft glow, orbiting in real z depth. In WebGL mode they are instanced quads sampled from a glow atlas; in DOM mode they are filtered images.
 
+### Auto decode window
+Once a visitor has decoded one block by hand (a tap, or Enter or Space on the focused stone), the stones stop asking for taps for the rest of that page visit. A reload starts the discovery again, nothing is stored. The Get in Touch decode does not count as the first tap. The first tap itself plays today's radial decode from the tap point, and the decode hint never shows again.
+
+From then on every slab follows the viewport. In WebGL mode each glyph cell is decoded while it sits inside the viewport and flips back to its glyph in a thin band at the top and bottom edge, 9% of the viewport height each, so the middle of the screen stays clear for reading. The flip and the cyan flash are the same as the tap decode, and the glyph ink is the same dark ink as before the first tap. Inside the band the stone itself returns to the shipped grey (`#4a5568`) and darkens to `#27333f` towards the clear middle, so the dark ink stays readable. The block text fades in only after the glyphs have dissolved, over the next 40% of the band, so no line is ever drawn under a glyph. The window repeats on every scroll pass and a slab never needs another tap. Links inside the masked bands stay clickable, and keyboard focus scrolls them into the clear middle.
+
+The DOM look and reduced motion use whole slabs instead of a window. A slab decodes when it reaches the middle of the viewport and encodes again once it is fully out of view. Under reduced motion the cells only fade, with no radial wave, no flip and no mask.
+
 ### WebGL notice
 Shown only in the DOM fallback when hardware accelerated WebGL is unavailable, never with `?webgl=off`. A cyan-ringed abyss card fixed above the bottom edge (42rem wide, 12px gutters on phones) that says 3D effects are off and how to turn on hardware acceleration in Chrome, Edge and Firefox, with a dismiss button.
 
@@ -321,4 +328,4 @@ Shown only in the DOM fallback when hardware accelerated WebGL is unavailable, n
 - **Don't** let the canvas and the DOM disagree: one orthographic rotation for both, and no CSS `perspective` on sections while the canvas is on.
 - **Don't** replace the poneglyph materials (ocean field, stone blocks, cyan glyphs) with another world.
 - **Don't** add bold to Young Serif headings.
-- **Don't** touch the scroll teleport and overlay behavior when restyling.
+- **Don't** touch the scroll teleport and the overlay decode logic when restyling. The auto decode window is the one sanctioned change to the overlay.
