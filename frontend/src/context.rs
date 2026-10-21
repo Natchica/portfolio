@@ -53,13 +53,99 @@ pub fn auto_mode(webgl: bool, reduced_motion: bool, armed: bool) -> AutoMode {
     }
 }
 
+/// Where a slab stands in the whole-slab fallback. A slab never leaves `Decoding` by itself: its own
+/// completion timer moves it to `Decoded`, so a re-encode can never race a pending completion.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SlabState {
+    Encoded,
+    Decoding,
+    Decoded,
+}
+
+/// The next state of a slab in whole-slab mode, or `None` when nothing changes.
+/// `in_middle`: the slab crosses the middle band of the viewport. `in_viewport`: any part is on screen.
+pub fn whole_slab_next(state: SlabState, in_middle: bool, in_viewport: bool) -> Option<SlabState> {
+    match state {
+        SlabState::Encoded if in_middle => Some(SlabState::Decoding),
+        SlabState::Decoded if !in_viewport => Some(SlabState::Encoded),
+        _ => None,
+    }
+}
+
+/// Whether a cluster slab shows its content. Before the first tap and during the shared first wave the
+/// whole cluster reveals together. After that each slab follows its own state.
+pub fn cluster_slab_shows(
+    armed: bool,
+    wave_running: bool,
+    cluster_decoded: bool,
+    slab_decoded: bool,
+) -> bool {
+    if !armed || wave_running {
+        cluster_decoded
+    } else {
+        slab_decoded
+    }
+}
+
 pub fn contact_decode_requested(requested_at: Option<f64>, now: f64) -> bool {
     requested_at.is_some_and(|at| (0.0..=CONTACT_DECODE_WINDOW_MS).contains(&(now - at)))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{AutoMode, auto_mode, contact_decode_requested, hint_visible};
+    use super::{
+        AutoMode, SlabState, auto_mode, cluster_slab_shows, contact_decode_requested, hint_visible,
+        whole_slab_next,
+    };
+
+    #[test]
+    fn encoded_slab_decodes_in_the_middle() {
+        assert_eq!(
+            whole_slab_next(SlabState::Encoded, true, true),
+            Some(SlabState::Decoding)
+        );
+    }
+
+    #[test]
+    fn encoded_slab_waits_outside_the_middle() {
+        assert_eq!(whole_slab_next(SlabState::Encoded, false, true), None);
+    }
+
+    #[test]
+    fn decoded_slab_encodes_once_fully_out() {
+        assert_eq!(
+            whole_slab_next(SlabState::Decoded, false, false),
+            Some(SlabState::Encoded)
+        );
+    }
+
+    #[test]
+    fn decoded_slab_stays_while_any_part_is_on_screen() {
+        assert_eq!(whole_slab_next(SlabState::Decoded, false, true), None);
+    }
+
+    #[test]
+    fn decoding_slab_never_changes_state_by_itself() {
+        assert_eq!(whole_slab_next(SlabState::Decoding, true, true), None);
+        assert_eq!(whole_slab_next(SlabState::Decoding, false, false), None);
+    }
+
+    #[test]
+    fn unarmed_cluster_follows_the_cluster() {
+        assert!(cluster_slab_shows(false, false, true, false));
+        assert!(!cluster_slab_shows(false, false, false, true));
+    }
+
+    #[test]
+    fn running_first_wave_follows_the_cluster() {
+        assert!(!cluster_slab_shows(true, true, false, true));
+    }
+
+    #[test]
+    fn armed_cluster_slab_follows_itself() {
+        assert!(cluster_slab_shows(true, false, true, true));
+        assert!(!cluster_slab_shows(true, false, true, false));
+    }
 
     #[test]
     fn unarmed_is_always_off() {
