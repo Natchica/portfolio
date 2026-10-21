@@ -61,6 +61,21 @@ html[data-render="webgl"] .poneglyph-block:not(.content-decoded) > * {
   opacity: 0;
 }
 
+/* Armed auto decode: the block text follows the glyph window. `scene.js` writes --auto-a..d in px, in the
+   block's own box: transparent above a, opaque from b to c, transparent below d. Unset vars hide everything,
+   so the rule lives only under `data-auto`. Reduced motion keeps whole-slab decoding and no mask. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-render="webgl"][data-auto] .poneglyph-block.content-layer {
+    -webkit-mask-image: linear-gradient(to bottom, transparent var(--auto-a, 0px), #000 var(--auto-b, 0px), #000 var(--auto-c, 0px), transparent var(--auto-d, 0px));
+    mask-image: linear-gradient(to bottom, transparent var(--auto-a, 0px), #000 var(--auto-b, 0px), #000 var(--auto-c, 0px), transparent var(--auto-d, 0px));
+  }
+}
+
+/* Links in the masked edge bands stay clickable; keyboard focus scrolls them into the readable band. */
+html[data-auto] .poneglyph-block :is(a, button) {
+  scroll-margin-block: 20vh;
+}
+
 /* Parallax: cards sit on different depth layers and drift with the pointer (the individual translate property composes with hover transforms) */
 html[data-render="webgl"] .poneglyph-block :is(.section-header, .stagger-item, .stagger-slide, .stagger-scale) {
   --layer-depth: calc(6 + var(--item-index, 0) * 1.5);
