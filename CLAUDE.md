@@ -193,4 +193,4 @@ portfolio/
 - Rust decides the renderer once at startup; JS and CSS follow the `data-render` attribute
 - `Closure::forget()` for long-lived JS callbacks (acceptable in SPA context)
 - `get_untracked()` on signals in scroll handlers to avoid reactive tracking overhead
-- Release profile: `opt-level = "z"`, LTO enabled, single codegen unit for minimal WASM size (~212K). Three.js (692KB) loads only in WebGL mode
+- Release profile: `opt-level = "z"`, LTO enabled, single codegen unit for minimal WASM size (~345K, measured 2026-10-21). Three.js (692KB) loads only in WebGL mode
