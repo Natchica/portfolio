@@ -36,13 +36,51 @@ pub fn hint_visible(
     show_hint && hint_ready && in_view && !has_started && !armed
 }
 
+/// How armed auto decode drives a slab. `Window` is the WebGL per-glyph viewport window,
+/// `WholeSlab` the fade-only fallback of the DOM look and of reduced motion.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AutoMode {
+    Off,
+    Window,
+    WholeSlab,
+}
+
+pub fn auto_mode(webgl: bool, reduced_motion: bool, armed: bool) -> AutoMode {
+    match (armed, webgl && !reduced_motion) {
+        (false, _) => AutoMode::Off,
+        (true, true) => AutoMode::Window,
+        (true, false) => AutoMode::WholeSlab,
+    }
+}
+
 pub fn contact_decode_requested(requested_at: Option<f64>, now: f64) -> bool {
     requested_at.is_some_and(|at| (0.0..=CONTACT_DECODE_WINDOW_MS).contains(&(now - at)))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{contact_decode_requested, hint_visible};
+    use super::{AutoMode, auto_mode, contact_decode_requested, hint_visible};
+
+    #[test]
+    fn unarmed_is_always_off() {
+        assert_eq!(auto_mode(true, false, false), AutoMode::Off);
+        assert_eq!(auto_mode(false, true, false), AutoMode::Off);
+    }
+
+    #[test]
+    fn armed_webgl_with_motion_uses_the_window() {
+        assert_eq!(auto_mode(true, false, true), AutoMode::Window);
+    }
+
+    #[test]
+    fn armed_reduced_motion_uses_whole_slab() {
+        assert_eq!(auto_mode(true, true, true), AutoMode::WholeSlab);
+    }
+
+    #[test]
+    fn armed_dom_look_uses_whole_slab() {
+        assert_eq!(auto_mode(false, false, true), AutoMode::WholeSlab);
+    }
 
     #[test]
     fn hint_shows_when_ready_in_view_and_unarmed() {
