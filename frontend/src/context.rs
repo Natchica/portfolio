@@ -17,13 +17,52 @@ pub struct ContactDecodeRequest {
     pub requested_at: RwSignal<Option<f64>>,
 }
 
+/// Set once a visitor has decoded a block by hand (tap or Enter). Lives for the page visit only,
+/// a reload starts the discovery over. The Get in Touch decode never sets it.
+#[derive(Clone, Copy, Debug)]
+pub struct AutoDecode {
+    pub armed: RwSignal<bool>,
+}
+
+/// The decode hint shows only while a slab waits to be discovered: never once the visitor
+/// has armed auto decode, and never on a slab that already started.
+pub fn hint_visible(
+    show_hint: bool,
+    hint_ready: bool,
+    in_view: bool,
+    has_started: bool,
+    armed: bool,
+) -> bool {
+    show_hint && hint_ready && in_view && !has_started && !armed
+}
+
 pub fn contact_decode_requested(requested_at: Option<f64>, now: f64) -> bool {
     requested_at.is_some_and(|at| (0.0..=CONTACT_DECODE_WINDOW_MS).contains(&(now - at)))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::contact_decode_requested;
+    use super::{contact_decode_requested, hint_visible};
+
+    #[test]
+    fn hint_shows_when_ready_in_view_and_unarmed() {
+        assert!(hint_visible(true, true, true, false, false));
+    }
+
+    #[test]
+    fn hint_hidden_once_armed() {
+        assert!(!hint_visible(true, true, true, false, true));
+    }
+
+    #[test]
+    fn hint_hidden_after_start() {
+        assert!(!hint_visible(true, true, true, true, false));
+    }
+
+    #[test]
+    fn hint_hidden_without_show_hint() {
+        assert!(!hint_visible(false, true, true, false, false));
+    }
 
     #[test]
     fn no_request_never_decodes() {
