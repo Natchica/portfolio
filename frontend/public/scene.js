@@ -383,7 +383,9 @@ async function main() {
         const gridObserver = new MutationObserver(() => rebuildGlyphs(slab));
         gridObserver.observe(grid, { attributes: true, attributeFilter: ['data-grid', 'data-cols'] });
         const buttonObserver = new MutationObserver(() => {
-          if (button.classList.contains('decoding') && !slab.decode.started) {
+          if (!button.classList.contains('decoding') && slab.decode.started) {
+            resetDecode(slab); // Rust encoded the slab again (whole-slab mode)
+          } else if (button.classList.contains('decoding') && !slab.decode.started) {
             // slabs of one cluster share the first start time
             const now = performance.now();
             const t0 = slab.cluster ? (clusterStart.get(slab.cluster) ?? now) : now;
@@ -536,6 +538,16 @@ async function main() {
     if (slab.decode.started && !slab.decode.pending) uploadDelays(slab);
   }
 
+  // Back to the encoded look: grey stone, every glyph drawn, no decode in flight.
+  function resetDecode(slab) {
+    Object.assign(slab.decode, { started: false, pending: false, radialDone: false, elapsed: 0, flipped: 0, maxDelay: 0 });
+    slab.material.color.copy(colorStart);
+    if (slab.glyphs) {
+      slab.glyphs.material.uniforms.uElapsed.value = -1;
+      slab.glyphs.visible = true;
+    }
+  }
+
   function uploadDelays(slab) {
     const attr = slab.glyphs.geometry.getAttribute('aDelay');
     let max = 0;
@@ -550,6 +562,7 @@ async function main() {
 
   // Same formula as Rust's --decode-delay times 0.04 s times the speed factor.
   function decodeDelay(slab, col, row) {
+    if (auto.armed && mode.reduced) return 0; // whole-slab fade once armed
     const o = slab.decode.originCells ?? [slab.cols / 2, slab.rows.length / 2];
     return Math.hypot(col - o[0], row - o[1]) * 0.04 * slab.decode.speed;
   }
