@@ -6,7 +6,7 @@
 //
 // Add ?debug to the URL to expose window.__webgl (state and measurement helpers) and ?force=touch,reduce.
 
-const VERSION = 7;
+const VERSION = 8;
 const DEG = Math.PI / 180;
 const POINTER_TILT = 4; // CSS degrees at the slab edge nearest the pointer
 const NEAREST_HYSTERESIS = 40; // px: stops tilt flicker when the pointer sits between two slabs
@@ -28,6 +28,7 @@ const ENTRY_TILT_X = 9; // CSS degrees added while a slab enters (matches blockS
 
 const query = new URLSearchParams(location.search);
 const DEBUG = query.has('debug');
+const WINDOW_FEATHER = 0.09; // armed window: share of the viewport height that re-encodes at each edge
 const FORCE = DEBUG ? (query.get('force') || '').split(',') : [];
 
 // Rust publishes the decision before mounting, but this module can run first: wait for it.
@@ -114,6 +115,28 @@ async function main() {
   const clusterStart = new WeakMap();
   let chains = [];
 
+  // Armed auto decode: Rust sets <html data-auto> after the first hand decode. Every glyph then computes its
+  // own viewport window in the vertex shader from these shared uniforms, so the CPU writes them once a frame.
+  const win = {
+    uViewport: { value: new THREE.Vector2(0, innerHeight) },
+    uFeather: { value: new THREE.Vector2(0, 0) },
+    uAuto: { value: 0 },
+  };
+  const auto = { armed: false, feather: [0, 0] };
+  const autoOn = () => auto.armed && !mode.reduced;
+  const glyphsShown = (slab) => !slab.decode.radialDone || autoOn();
+  const refreshAuto = () => {
+    win.uAuto.value = autoOn() ? 1 : 0;
+    slabs?.forEach((s) => {
+      if (s.glyphs) s.glyphs.visible = glyphsShown(s);
+    });
+  };
+  const readArmed = () => {
+    auto.armed = document.documentElement.hasAttribute('data-auto');
+    refreshAuto();
+  };
+  new MutationObserver(readArmed).observe(document.documentElement, { attributes: true, attributeFilter: ['data-auto'] });
+
   const mqTouch = matchMedia('(hover: none)');
   const mqReduced = matchMedia('(prefers-reduced-motion: reduce)');
   const mode = { touch: false, reduced: false };
@@ -123,8 +146,10 @@ async function main() {
     slabs?.forEach((s) => {
       if (s.glyphs) s.glyphs.material.uniforms.uReduced.value = mode.reduced ? 1 : 0;
     });
+    refreshAuto();
   };
   refreshMode();
+  readArmed();
   mqTouch.addEventListener('change', refreshMode);
   mqReduced.addEventListener('change', refreshMode);
 
@@ -158,6 +183,10 @@ async function main() {
     frames: [],
     cpu: [],
     delayOf: (i, col, row) => decodeDelay(slabs[i], col, row),
+    auto,
+    maskOf: (i) => slabs[i].mask,
+    // JS mirror of the GLSL viewport window: 1 inside, 0 at the viewport edge.
+    windowAt: (y) => viewportWindow(y, win.uViewport.value, win.uFeather.value),
     light: { visible: false, x: 0, y: 0, decay: light.decay, distance: light.distance },
     helices: [],
     helixTimeDeg: 0,
@@ -220,6 +249,13 @@ async function main() {
     requestAnimationFrame(frame);
     const cpuStart = performance.now();
 
+    if (autoOn()) {
+      const f = WINDOW_FEATHER * innerHeight;
+      auto.feather = [f, f];
+      win.uViewport.value.set(0, innerHeight);
+      win.uFeather.value.set(f, f);
+    }
+
     // a. read all layout first
     const slabRects = slabs.map((s) => s.wrapper.getBoundingClientRect());
     const chainRects = chains.map((c) => c.el.getBoundingClientRect());
@@ -230,12 +266,14 @@ async function main() {
     nearest = pickNearest(slabRects);
     const writes = slabs.map((slab, i) => updateSlab(slab, slabRects[i], i, dt, i === nearest));
     slabs.forEach((slab, i) => updateDecode(slab, now, i));
+    const masks = slabs.map((slab, i) => planMask(slab, slabRects[i], i));
     const timeDeg = mode.reduced ? 0 : (((now - T_START) / 10000) * 360) % 360;
     debug.helixTimeDeg = timeDeg;
     chains.forEach((chain, i) => updateChain(chain, chainRects[i], timeDeg, i));
 
     // c. write DOM transforms after every read
     writes.forEach((w, i) => w && writeSlabTransform(slabs[i], w));
+    masks.forEach((m, i) => writeMask(slabs[i], m));
 
     // d. render
     renderer.render(scene, camera);
@@ -303,6 +341,22 @@ async function main() {
         normalMap: normal,
         normalScale: new THREE.Vector2(1.2, 1.2),
       });
+      // Armed: the stone goes back to the shipped grey where the glyph window re-encodes it, so the glyphs keep
+      // the ink they had before the first tap. Same window as GLYPH_VERTEX, read from the shared uniforms.
+      material.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, win, { uEncodedColor: { value: colorStart } });
+        shader.vertexShader = shader.vertexShader
+          .replace('void main() {', 'varying float vScreenY;\nvoid main() {')
+          .replace('#include <begin_vertex>', '#include <begin_vertex>\n  vScreenY = -(modelMatrix * vec4(transformed, 1.0)).y;');
+        shader.fragmentShader = shader.fragmentShader
+          .replace('void main() {', 'uniform vec2 uViewport;\nuniform vec2 uFeather;\nuniform float uAuto;\nuniform vec3 uEncodedColor;\nvarying float vScreenY;\nvoid main() {')
+          .replace('#include <color_fragment>', `#include <color_fragment>
+  if (uAuto > 0.5) {
+    float w = smoothstep(uViewport.x, uViewport.x + uFeather.x, vScreenY)
+      * (1.0 - smoothstep(uViewport.y - uFeather.y, uViewport.y, vScreenY));
+    diffuseColor.rgb = mix(uEncodedColor, diffuseColor.rgb, w);
+  }`);
+      };
       const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
       mesh.position.z = -SLAB_DEPTH / 2; // front face sits on the DOM plane at z = 0
       group.add(mesh);
@@ -320,7 +374,7 @@ async function main() {
         cols: 0,
         gridVersion: 0,
         glyphCount: 0,
-        decode: { started: false, pending: false, frames: 0, t0: 0, originCells: null, originPx: null, speed: 1, total: 3, elapsed: 0, done: false, flipped: 0, maxDelay: 0 },
+        decode: { started: false, pending: false, frames: 0, t0: 0, originCells: null, originPx: null, speed: 1, total: 3, elapsed: 0, radialDone: false, flipped: 0, maxDelay: 0 },
         observers: [],
         cluster: block.closest('.slab-cluster'),
       };
@@ -329,7 +383,9 @@ async function main() {
         const gridObserver = new MutationObserver(() => rebuildGlyphs(slab));
         gridObserver.observe(grid, { attributes: true, attributeFilter: ['data-grid', 'data-cols'] });
         const buttonObserver = new MutationObserver(() => {
-          if (button.classList.contains('decoding') && !slab.decode.started) {
+          if (!button.classList.contains('decoding') && slab.decode.started) {
+            resetDecode(slab); // Rust encoded the slab again (whole-slab mode)
+          } else if (button.classList.contains('decoding') && !slab.decode.started) {
             // slabs of one cluster share the first start time
             const now = performance.now();
             const t0 = slab.cluster ? (clusterStart.get(slab.cluster) ?? now) : now;
@@ -464,9 +520,10 @@ async function main() {
       uniforms: {
         uAtlas: { value: atlases.ink },
         uGlyph: { value: (glyph * 64) / 56 }, // the 56 px drawing sits inside a 64 px atlas cell
-        uElapsed: { value: -1 },
+        uElapsed: { value: slab.decode.started && !slab.decode.pending ? slab.decode.elapsed : -1 },
         uSpeed: { value: slab.decode.speed },
         uReduced: { value: mode.reduced ? 1 : 0 },
+        ...win, // shared by reference: one write per frame serves every slab
       },
       vertexShader: GLYPH_VERTEX,
       fragmentShader: GLYPH_FRAGMENT,
@@ -475,10 +532,20 @@ async function main() {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.frustumCulled = false; // positions come from attributes, so the default bounds are wrong
     mesh.position.z = 1;
-    mesh.visible = !slab.decode.done;
+    mesh.visible = glyphsShown(slab);
     slab.glyphs = mesh;
     slab.group.add(mesh);
     if (slab.decode.started && !slab.decode.pending) uploadDelays(slab);
+  }
+
+  // Back to the encoded look: grey stone, every glyph drawn, no decode in flight.
+  function resetDecode(slab) {
+    Object.assign(slab.decode, { started: false, pending: false, radialDone: false, elapsed: 0, flipped: 0, maxDelay: 0 });
+    slab.material.color.copy(colorStart);
+    if (slab.glyphs) {
+      slab.glyphs.material.uniforms.uElapsed.value = -1;
+      slab.glyphs.visible = true;
+    }
   }
 
   function uploadDelays(slab) {
@@ -495,6 +562,7 @@ async function main() {
 
   // Same formula as Rust's --decode-delay times 0.04 s times the speed factor.
   function decodeDelay(slab, col, row) {
+    if (auto.armed && mode.reduced) return 0; // whole-slab fade once armed
     const o = slab.decode.originCells ?? [slab.cols / 2, slab.rows.length / 2];
     return Math.hypot(col - o[0], row - o[1]) * 0.04 * slab.decode.speed;
   }
@@ -521,7 +589,7 @@ async function main() {
       }
     }
 
-    if (d.started && !d.pending && !d.done) {
+    if (d.started && !d.pending && !d.radialDone) {
       d.elapsed = (now - d.t0) / 1000;
       if (slab.glyphs) {
         slab.glyphs.material.uniforms.uElapsed.value = d.elapsed;
@@ -535,8 +603,10 @@ async function main() {
       const t = clamp(d.elapsed / d.total, 0, 1);
       slab.material.color.lerpColors(colorStart, colorEnd, t * t);
       if (d.elapsed > d.maxDelay + 0.6 * d.speed) {
-        d.done = true;
-        if (slab.glyphs) slab.glyphs.visible = false;
+        d.radialDone = true;
+        if (slab.glyphs) {
+          slab.glyphs.visible = glyphsShown(slab);
+        }
       }
     }
 
@@ -551,10 +621,47 @@ async function main() {
         speed: d.speed,
         total: d.total,
         elapsed: d.elapsed,
-        done: d.done,
+        done: d.radialDone,
+        radialDone: d.radialDone,
         flippedFraction: d.flipped,
       },
     };
+  }
+
+  // Block text follows the glyph window: transparent over the encoded band, opaque once the glyphs have
+  // dissolved. Stops are px in the block's own box (CSS has no fixed mask attachment), so they derive from the
+  // untransformed wrapper rect. Returns the stops to write, `false` to clear, or null to leave as is.
+  function planMask(slab, rect, i) {
+    const visible = rect.bottom > -100 && rect.top < innerHeight + 100;
+    if (!autoOn()) return slab.mask ? false : null;
+    if (!visible) {
+      slab.mask = null; // rewrite unconditionally when the slab comes back into view
+      return null;
+    }
+    const [ft, fb] = auto.feather;
+    // Text appears only once the glyphs have dissolved (window = 1 at the feather end), fading in over the next
+    // 40% of the feather, so no line is ever drawn under a glyph.
+    const a = ft * 0.9 - rect.top;
+    const b = ft * 1.4 - rect.top;
+    const c = innerHeight - fb * 1.4 - rect.top;
+    const d = innerHeight - fb * 0.9 - rect.top;
+    const next = [a, b, c, d];
+    const prev = slab.mask;
+    if (prev && next.every((v, k) => Math.abs(v - prev[k]) < 0.5)) return null;
+    debug.slabs[i] = { ...debug.slabs[i], mask: next };
+    return next;
+  }
+
+  function writeMask(slab, stops) {
+    if (stops === null) return;
+    const names = ['--auto-a', '--auto-b', '--auto-c', '--auto-d'];
+    if (stops === false) {
+      names.forEach((n) => slab.block.style.removeProperty(n));
+      slab.mask = null;
+      return;
+    }
+    names.forEach((n, k) => slab.block.style.setProperty(n, `${stops[k].toFixed(1)}px`));
+    slab.mask = stops;
   }
 
   // Returns the DOM transform to write (or null) so every read happens before any write.
@@ -744,6 +851,9 @@ const GLYPH_VERTEX = /* glsl */ `
   uniform float uElapsed;
   uniform float uSpeed;
   uniform float uReduced;
+  uniform vec2 uViewport;
+  uniform vec2 uFeather;
+  uniform float uAuto;
   varying vec2 vUv;
   varying float vAlpha;
   varying float vFlash;
@@ -751,6 +861,13 @@ const GLYPH_VERTEX = /* glsl */ `
   void main() {
     // uElapsed < 0 means the decode has not started: every cell sits at p = 0.
     float p = uElapsed < 0.0 ? 0.0 : clamp((uElapsed - aDelay) / (0.6 * uSpeed), 0.0, 1.0);
+    if (uAuto > 0.5) {
+      // Armed: the radial decode still plays, then each glyph follows its own screen row.
+      float y = -(modelMatrix * vec4(aOffset, 0.0, 1.0)).y;
+      float w = smoothstep(uViewport.x, uViewport.x + uFeather.x, y)
+        * (1.0 - smoothstep(uViewport.y - uFeather.y, uViewport.y, y));
+      p = min(p, w);
+    }
     float q = p < 0.55 ? pow(p / 0.55, 2.0) : 1.0;
     bool reduced = uReduced > 0.5;
     float angle = reduced ? 0.0 : q * 1.5707963;
@@ -854,6 +971,14 @@ async function buildAtlases(THREE) {
 
 function rectOf(r) {
   return { left: r.left, top: r.top, width: r.width, height: r.height };
+}
+
+function viewportWindow(y, viewport, feather) {
+  const step = (a, b, x) => {
+    const t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+  return step(viewport.x, viewport.x + feather.x, y) * (1 - step(viewport.y - feather.y, viewport.y, y));
 }
 
 function clamp(v, lo, hi) {

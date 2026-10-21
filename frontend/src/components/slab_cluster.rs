@@ -4,6 +4,7 @@ use leptos::prelude::*;
 
 use crate::components::poneglyph_overlay::PoneglyphOverlay;
 use crate::components::poneglyph_section::PoneglyphSection;
+use crate::context::{AutoDecode, cluster_slab_shows};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -58,6 +59,18 @@ pub fn ClusterSlab(index: usize, label: &'static str, children: Children) -> imp
             ..Default::default()
         },
     );
+    let armed = expect_context::<AutoDecode>().armed;
+    // After the first tap each slab follows its own state, the shared wave only covers the first decode.
+    let slab_decoded = RwSignal::new(false);
+    let shows = move || {
+        let wave_running = ctx.start.get().is_some() && !ctx.decoded.get();
+        cluster_slab_shows(
+            armed.get(),
+            wave_running,
+            ctx.decoded.get(),
+            slab_decoded.get(),
+        )
+    };
     let (author, quote) = slab_inscription(ctx.author, ctx.quote, index);
     let show_hint = index == 0;
     view! {
@@ -79,9 +92,13 @@ pub fn ClusterSlab(index: usize, label: &'static str, children: Children) -> imp
                     columns=15
                     shared_start=ctx.start
                     show_hint=show_hint
-                    on_decode_complete=Callback::new(move |_| ctx.finished.update(|n| *n += 1))
+                    on_decode_complete=Callback::new(move |_| {
+                        slab_decoded.set(true);
+                        ctx.finished.update(|n| *n += 1);
+                    })
+                    on_encode=Callback::new(move |_| slab_decoded.set(false))
                 />
-                <div class=move || if ctx.decoded.get() {
+                <div class=move || if shows() {
                     "poneglyph-block content-layer content-decoded"
                 } else {
                     "poneglyph-block content-layer"

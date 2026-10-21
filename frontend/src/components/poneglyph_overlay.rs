@@ -2,6 +2,7 @@ use leptos::portal::Portal;
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
+use crate::context::{AutoDecode, AutoMode, SlabState, auto_mode, hint_visible, whole_slab_next};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -37,6 +38,16 @@ fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> 
         .fold(0.0_f64, f64::max)
 }
 
+fn prefers_reduced_motion() -> bool {
+    web_sys::window()
+        .and_then(|w| {
+            w.match_media("(prefers-reduced-motion: reduce)")
+                .ok()
+                .flatten()
+        })
+        .is_some_and(|m| m.matches())
+}
+
 /// Phones and reduced-motion users get a decode twice as fast.
 fn decode_speed() -> f64 {
     let Some(window) = web_sys::window() else {
@@ -47,12 +58,11 @@ fn decode_speed() -> f64 {
         .ok()
         .and_then(|w| w.as_f64())
         .is_some_and(|w| w < 768.0);
-    let reduced_motion = window
-        .match_media("(prefers-reduced-motion: reduce)")
-        .ok()
-        .flatten()
-        .is_some_and(|m| m.matches());
-    if narrow || reduced_motion { 0.5 } else { 1.0 }
+    if narrow || prefers_reduced_motion() {
+        0.5
+    } else {
+        1.0
+    }
 }
 
 fn page_scroll() -> (f64, f64) {
@@ -67,6 +77,9 @@ pub fn PoneglyphOverlay(
     quote: &'static str,
     #[prop(default = 15)] columns: usize,
     #[prop(optional)] on_decode_complete: Option<Callback<()>>,
+    /// Whole-slab mode: called when a decoded slab leaves the viewport and encodes again.
+    #[prop(optional)]
+    on_encode: Option<Callback<()>>,
     /// Cluster mode: the tap shared by the slabs of one cluster, in page coordinates.
     #[prop(optional)]
     shared_start: Option<RwSignal<Option<(f64, f64)>>>,
@@ -75,12 +88,15 @@ pub fn PoneglyphOverlay(
     show_hint: bool,
 ) -> impl IntoView {
     let webgl = crate::utils::render::webgl();
+    let armed = expect_context::<AutoDecode>().armed;
     let (has_started, set_has_started) = signal(false);
     let (container_width, set_container_width) = signal(0u32);
     let (container_height, set_container_height) = signal(0u32);
     let click_coords: RwSignal<Option<(f64, f64)>> = RwSignal::new(None);
     let decode_duration: RwSignal<f64> = RwSignal::new(0.0);
     let decode_speed_factor: RwSignal<f64> = RwSignal::new(1.0);
+    // With `has_started` this gives a `SlabState`; plain `bool` signals keep the reactive code monomorphic.
+    let decode_done = RwSignal::new(false);
     let container_ref = NodeRef::<leptos::html::Div>::new();
 
     // ResizeObserver to track container size
@@ -158,6 +174,8 @@ pub fn PoneglyphOverlay(
         decode_duration.set(dur);
         click_coords.set(Some((x, y)));
         set_has_started.set(true);
+        decode_done.set(false);
+        run_after_ms((dur * 0.7 * 1000.0) as i32, move || decode_done.set(true));
         if let Some(cb) = on_decode_complete {
             schedule_callback(dur, cb);
         }
@@ -177,6 +195,72 @@ pub fn PoneglyphOverlay(
             start_decode(page_x - sx - rect.left(), page_y - sy - rect.top());
         });
     }
+
+    // One effect drives the armed slab. `Window` (WebGL): every slab must be decoded so `scene.js` can
+    // re-encode the glyphs outside the viewport; a slab the visitor did not tap starts from its own center,
+    // a slab of a tapped cluster is started by the shared tap above. `WholeSlab` (DOM look, reduced motion):
+    // the slab decodes when it reaches the middle of the viewport and encodes again once it is fully out.
+    let in_viewport = use_intersection_observer(
+        container_ref,
+        IntersectionObserverOptions {
+            threshold: 0.0,
+            root_margin: "0px",
+            once: false,
+        },
+    );
+    Effect::new(move |_| {
+        let mode = auto_mode(webgl, prefers_reduced_motion(), armed.get());
+        if mode == AutoMode::Off {
+            return;
+        }
+        let from_center = move || {
+            start_decode(
+                container_width.get_untracked() as f64 / 2.0,
+                container_height.get_untracked() as f64 / 2.0,
+            )
+        };
+        if mode == AutoMode::Window {
+            let cluster_tapped = shared_start.is_some_and(|s| s.get_untracked().is_some());
+            if !has_started.get_untracked() && !cluster_tapped {
+                from_center();
+            }
+            return;
+        }
+        // The two observers fire separately: a stale `in_view` must never restart a slab that just left.
+        let on_screen = in_viewport.get();
+        let state = match (has_started.get(), decode_done.get()) {
+            (false, _) => SlabState::Encoded,
+            (true, false) => SlabState::Decoding,
+            (true, true) => SlabState::Decoded,
+        };
+        match whole_slab_next(state, in_view.get() && on_screen, on_screen) {
+            Some(SlabState::Decoding) => from_center(),
+            Some(SlabState::Encoded) => {
+                set_has_started.set(false);
+                click_coords.set(None);
+                decode_duration.set(0.0);
+                decode_done.set(false);
+                if let Some(cb) = on_encode {
+                    cb.run(());
+                }
+            }
+            _ => {}
+        }
+    });
+
+    // A tap or Enter on the stone. Once armed it starts this slab alone: the shared first wave is over.
+    let tap = move |x: f64, y: f64| match shared_start {
+        Some(start) if !armed.get_untracked() => {
+            if start.get_untracked().is_none()
+                && let Some(el) = container_ref.get_untracked()
+            {
+                let rect = el.get_bounding_client_rect();
+                let (sx, sy) = page_scroll();
+                start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
+            }
+        }
+        _ => start_decode(x, y),
+    };
 
     view! {
         <button
@@ -215,19 +299,9 @@ pub fn PoneglyphOverlay(
                     }
                 });
                 if let Some((x, y)) = origin {
-                    match shared_start {
-                        None => start_decode(x, y),
-                        Some(start) => {
-                            if start.get_untracked().is_none()
-                                && let Some(el) = container_ref.get_untracked()
-                            {
-                                let rect = el.get_bounding_client_rect();
-                                let (sx, sy) = page_scroll();
-                                start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
-                            }
-                        }
-                    }
+                    tap(x, y);
                 }
+                armed.set(true);
             }
             on:keydown=move |ev| {
                 let key = ev.key();
@@ -237,25 +311,15 @@ pub fn PoneglyphOverlay(
                         container_width.get_untracked() as f64 / 2.0,
                         container_height.get_untracked() as f64 / 2.0,
                     );
-                    match shared_start {
-                        None => start_decode(x, y),
-                        Some(start) => {
-                            if start.get_untracked().is_none()
-                                && let Some(el) = container_ref.get_untracked()
-                            {
-                                let rect = el.get_bounding_client_rect();
-                                let (sx, sy) = page_scroll();
-                                start.set(Some((rect.left() + x + sx, rect.top() + y + sy)));
-                            }
-                        }
-                    }
+                    tap(x, y);
+                    armed.set(true);
                 }
             }
         >
             {move || {
                 // The popup lives in the body, fixed to the viewport, so it is visible wherever
                 // the slab sits on a tall page. It shows only while this slab is in view.
-                (show_hint && hint_ready.get() && in_view.get() && !has_started.get())
+                hint_visible(show_hint, hint_ready.get(), in_view.get(), has_started.get(), armed.get())
                     .then(|| {
                         view! {
                             <Portal>

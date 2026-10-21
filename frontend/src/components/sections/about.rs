@@ -45,6 +45,7 @@ pub fn AboutSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> im
                     quote=PONEGLYPH_QUOTE
                     columns=15
                     on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                    on_encode=Callback::new(move |_| set_decoded.set(false))
                 />
                 <div class=move || if decoded.get() {
                     "poneglyph-block text-center content-layer content-decoded"
