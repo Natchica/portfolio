@@ -83,6 +83,7 @@ pub fn ContactSection(on_navigate: impl Fn(String) + Send + 'static + Clone) -> 
                     columns=15
                     shared_start=shared_start
                     on_decode_complete=Callback::new(move |_| set_decoded.set(true))
+                    on_encode=Callback::new(move |_| set_decoded.set(false))
                 />
                 <div class=move || if decoded.get() {
                     "poneglyph-block content-layer content-decoded"
