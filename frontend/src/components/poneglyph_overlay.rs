@@ -2,7 +2,7 @@ use leptos::portal::Portal;
 use leptos::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::context::{AutoDecode, hint_visible};
+use crate::context::{AutoDecode, AutoMode, auto_mode, hint_visible};
 use crate::hooks::use_intersection_observer::{
     IntersectionObserverOptions, use_intersection_observer,
 };
@@ -38,6 +38,16 @@ fn max_corner_distance(click_col: f64, click_row: f64, cols: f64, rows: f64) -> 
         .fold(0.0_f64, f64::max)
 }
 
+fn prefers_reduced_motion() -> bool {
+    web_sys::window()
+        .and_then(|w| {
+            w.match_media("(prefers-reduced-motion: reduce)")
+                .ok()
+                .flatten()
+        })
+        .is_some_and(|m| m.matches())
+}
+
 /// Phones and reduced-motion users get a decode twice as fast.
 fn decode_speed() -> f64 {
     let Some(window) = web_sys::window() else {
@@ -48,12 +58,11 @@ fn decode_speed() -> f64 {
         .ok()
         .and_then(|w| w.as_f64())
         .is_some_and(|w| w < 768.0);
-    let reduced_motion = window
-        .match_media("(prefers-reduced-motion: reduce)")
-        .ok()
-        .flatten()
-        .is_some_and(|m| m.matches());
-    if narrow || reduced_motion { 0.5 } else { 1.0 }
+    if narrow || prefers_reduced_motion() {
+        0.5
+    } else {
+        1.0
+    }
 }
 
 fn page_scroll() -> (f64, f64) {
@@ -179,6 +188,23 @@ pub fn PoneglyphOverlay(
             start_decode(page_x - sx - rect.left(), page_y - sy - rect.top());
         });
     }
+
+    // Once armed, the WebGL window needs every slab decoded so `scene.js` can re-encode the glyphs
+    // outside the viewport. A slab the visitor did not tap starts from its own center. A slab of a
+    // tapped cluster is started by the shared tap above, so it is left alone here.
+    Effect::new(move |_| {
+        if auto_mode(webgl, prefers_reduced_motion(), armed.get()) != AutoMode::Window {
+            return;
+        }
+        let cluster_tapped = shared_start.is_some_and(|s| s.get_untracked().is_some());
+        if has_started.get_untracked() || cluster_tapped {
+            return;
+        }
+        start_decode(
+            container_width.get_untracked() as f64 / 2.0,
+            container_height.get_untracked() as f64 / 2.0,
+        );
+    });
 
     view! {
         <button
