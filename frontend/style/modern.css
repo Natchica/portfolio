@@ -426,6 +426,12 @@ body:has(.webgl-notice) .poneglyph-hint {
     animation: none;
   }
 
+  /* Armed auto decode: the whole slab fades at once, no radial wave */
+  html[data-auto] .poneglyph-symbol-cell.animating {
+    animation-name: poneglyphFade;
+    animation-delay: 0s;
+  }
+
   .helix-node {
     transform: translate(
         calc(-50% + var(--helix-x) + var(--repel-x, 0px)),
