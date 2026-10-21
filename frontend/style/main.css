@@ -590,6 +590,16 @@ body::before {
   }
 }
 
+/* Reduced motion, once the visitor has decoded a block: the cell only fades, no scale or colour shift */
+@keyframes poneglyphFade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .poneglyph-symbol-cell {
   background: #4a5568;
   width: 100%;
