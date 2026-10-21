@@ -86,7 +86,7 @@ make fmt
 - Intersection observer-driven section entrance animations
 - Interactive poneglyph overlay with staggered fade-out animation
 - Responsive layout with CSS custom properties theming
-- ~212K optimized WASM binary
+- ~345K optimized WASM binary
 
 ## License
 
