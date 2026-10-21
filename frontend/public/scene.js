@@ -6,13 +6,21 @@
 //
 // Add ?debug to the URL to expose window.__webgl (state and measurement helpers) and ?force=touch,reduce.
 
-const VERSION = 8;
+const VERSION = 9;
 const DEG = Math.PI / 180;
 const POINTER_TILT = 4; // CSS degrees at the slab edge nearest the pointer
 const NEAREST_HYSTERESIS = 40; // px: stops tilt flicker when the pointer sits between two slabs
 const MAX_EDGE_SHIFT = 6; // px: most a slab edge may drift from the flat DOM content through tilt or entry scale
 const HELIX_NODES = 48; // 2 strands of 24
 const HELIX_PER_STRAND = 24;
+const TAIL_NODES = 40; // glyph slots per tail, one tail at each end of a chain
+const TAIL_PITCH = 18; // px between tail glyphs before the chaos is added, close to the spacing inside the helix
+const TAIL_MIN = 96; // px: least visible tail, the helix body shrinks to make room when a slab sits right at the spacer
+const TAIL_OPACITY = 0.5; // starting opacity, close to the strand average so helix and tail read as one chain
+const TAIL_FADE = 0.6; // share of the opacity lost by the glyph at the slab edge, so the last glyphs stay readable
+const TAIL_JITTER_X = 6; // px: reach of each tail glyph's own chaotic drift
+const TAIL_JITTER_Y = 4;
+const HELIX_TOTAL = HELIX_NODES + 2 * TAIL_NODES;
 const HELIX_STEMS = ['a', 'bv', 'd', 'e', 'f', 'g', 'kqc', 'm', 'n', 'o', 'r', 't', 'x']; // same 13 as the Rust GLYPHS
 const T_START = performance.now();
 // 30 glyph stems: 20 letters then 10 digits. Single digits live in numbers/, the rest in letters/.
@@ -269,7 +277,7 @@ async function main() {
     const masks = slabs.map((slab, i) => planMask(slab, slabRects[i], i));
     const timeDeg = mode.reduced ? 0 : (((now - T_START) / 10000) * 360) % 360;
     debug.helixTimeDeg = timeDeg;
-    chains.forEach((chain, i) => updateChain(chain, chainRects[i], timeDeg, i));
+    chains.forEach((chain, i) => updateChain(chain, chainRects[i], slabRects, timeDeg, mode.reduced ? 0 : (now - T_START) / 1000, i));
 
     // c. write DOM transforms after every read
     writes.forEach((w, i) => w && writeSlabTransform(slabs[i], w));
@@ -412,21 +420,27 @@ async function main() {
       .filter((c) => c.container)
       .map((c) => {
         const fade = c.container.dataset.fade === '1';
+        // slabs of the neighbouring sections: the tails run to the one that covers the chain axis
+        const slabsIn = (el) => slabs.flatMap((s, k) => (el && el.contains(s.wrapper) ? [k] : []));
+        // per helix and tail glyph: phase and speed for two independent drifts (x, y) and a size factor
+        const seeds = Float32Array.from({ length: HELIX_TOTAL * 6 }, Math.random);
+        c = { ...c, seeds, prev: slabsIn(c.el.previousElementSibling), next: slabsIn(c.el.nextElementSibling) };
         const geometry = new THREE.InstancedBufferGeometry();
         geometry.copy(new THREE.PlaneGeometry(1, 1));
-        geometry.instanceCount = HELIX_NODES;
-        const atlas = new Float32Array(HELIX_NODES);
-        const strand = new Float32Array(HELIX_NODES);
-        for (let n = 0; n < HELIX_NODES; n++) {
+        geometry.instanceCount = HELIX_TOTAL;
+        const atlas = new Float32Array(HELIX_TOTAL);
+        const strand = new Float32Array(HELIX_TOTAL);
+        for (let n = 0; n < HELIX_TOTAL; n++) {
           atlas[n] = atlases.index[HELIX_STEMS[Math.floor(Math.random() * HELIX_STEMS.length)]];
-          strand[n] = n < HELIX_PER_STRAND ? 0 : 1;
+          // body: strand A then B; tails alternate so the line keeps both colors
+          strand[n] = n < HELIX_NODES ? (n < HELIX_PER_STRAND ? 0 : 1) : n % 2;
         }
         const dynamic = (array, size) => new THREE.InstancedBufferAttribute(array, size).setUsage(THREE.DynamicDrawUsage);
         geometry.setAttribute('aAtlas', new THREE.InstancedBufferAttribute(atlas, 1));
         geometry.setAttribute('aStrand', new THREE.InstancedBufferAttribute(strand, 1));
-        geometry.setAttribute('aPos', dynamic(new Float32Array(HELIX_NODES * 3), 3));
-        geometry.setAttribute('aSize', dynamic(new Float32Array(HELIX_NODES), 1));
-        geometry.setAttribute('aOpacity', dynamic(new Float32Array(HELIX_NODES), 1));
+        geometry.setAttribute('aPos', dynamic(new Float32Array(HELIX_TOTAL * 3), 3));
+        geometry.setAttribute('aSize', dynamic(new Float32Array(HELIX_TOTAL), 1));
+        geometry.setAttribute('aOpacity', dynamic(new Float32Array(HELIX_TOTAL), 1));
 
         const material = new THREE.ShaderMaterial({
           transparent: true,
@@ -443,10 +457,35 @@ async function main() {
     debug.helices = chains.map((c) => ({ fade: c.fade, count: HELIX_NODES, visible: false }));
   }
 
-  function updateChain(chain, rect, timeDeg, i) {
-    const visible = rect.bottom > -100 && rect.top < innerHeight + 100;
+  // One end of a chain: a straight tail of glyphs on the chain axis that runs to the slab edge covering the axis
+  // and fades out before it. Returns the visible tail length and how far the helix body must pull in to make room.
+  function tailPlan(chain, rect, slabRects, side) {
+    const cx = rect.left + rect.width / 2;
+    const rects = (side < 0 ? chain.prev : chain.next).map((k) => slabRects[k]);
+    if (!rects.length) return null;
+    const covering = rects.filter((r) => r.left <= cx && cx <= r.right);
+    let edge;
+    if (covering.length) {
+      edge = side < 0 ? Math.max(...covering.map((r) => r.bottom)) : Math.min(...covering.map((r) => r.top));
+    } else {
+      const dist = (r) => (cx < r.left ? r.left - cx : cx - r.right);
+      const near = rects.reduce((a, b) => (dist(b) < dist(a) ? b : a));
+      edge = side < 0 ? near.bottom : near.top;
+    }
+    const gap = Math.max(0, side < 0 ? rect.top - edge : edge - rect.bottom);
+    const cap = TAIL_NODES * TAIL_PITCH;
+    const len = Math.min(Math.max(TAIL_MIN, gap), cap);
+    return { len, inset: Math.max(0, len - gap) };
+  }
+
+  function updateChain(chain, rect, slabRects, timeDeg, tSec, i) {
+    const top = tailPlan(chain, rect, slabRects, -1);
+    const bottom = tailPlan(chain, rect, slabRects, 1);
+    const bodyTop = rect.top + (top?.inset ?? 0);
+    const bodyH = rect.height - (top?.inset ?? 0) - (bottom?.inset ?? 0);
+    const visible = bodyTop + bodyH + (bottom?.len ?? 0) > -100 && bodyTop - (top?.len ?? 0) < innerHeight + 100;
     chain.mesh.visible = visible;
-    debug.helices[i] = { fade: chain.fade, count: HELIX_NODES, visible };
+    debug.helices[i] = { fade: chain.fade, count: HELIX_NODES, tails: [top?.len ?? 0, bottom?.len ?? 0], visible };
     if (!visible) return;
 
     const pos = chain.mesh.geometry.getAttribute('aPos');
@@ -455,10 +494,31 @@ async function main() {
     const cx = rect.left + rect.width / 2;
     for (let n = 0; n < HELIX_NODES; n++) {
       const node = helixNodeAt(chain.fade, n, timeDeg);
-      pos.setXYZ(n, cx + node.xOffset, -(rect.top + (node.yPct / 100) * rect.height), node.z);
+      const [dx, dy] = chaosAt(chain, n, tSec);
+      pos.setXYZ(n, cx + node.xOffset + dx, -(bodyTop + (node.yPct / 100) * bodyH + dy), node.z);
       size.setX(n, 28 * node.scale * (96 / 56)); // the 96 px glowing cell keeps a 28 px glyph
       opacity.setX(n, node.opacity);
     }
+    // Tails: slots 0..TAIL_NODES-1 hang above the body, the next TAIL_NODES below it. z sits behind the slab face.
+    [top, bottom].forEach((plan, side) => {
+      for (let k = 0; k < TAIL_NODES; k++) {
+        const n = HELIX_NODES + side * TAIL_NODES + k;
+        // one glyph more than fits at TAIL_PITCH: the spacing shrinks a little to make room
+        const count = plan ? Math.ceil(plan.len / TAIL_PITCH) : 0;
+        const u = plan ? ((k + 1) * plan.len) / (count + 1) : 0;
+        if (!plan || k === 0 || k >= count) { // k = 0 would sit next to the helix, left out on purpose
+          opacity.setX(n, 0);
+          continue;
+        }
+        // each glyph drifts on its own two slow sine pairs, so no gap stays fixed, not even the one next to the body
+        const [dx, dy] = chaosAt(chain, n, tSec);
+        const y = (side === 0 ? bodyTop - u : bodyTop + bodyH + u) + dy;
+        const f = clamp((u - 0.3 * plan.len) / (0.7 * plan.len), 0, 1);
+        pos.setXYZ(n, cx + dx, -y, -10);
+        size.setX(n, 28 * (0.6 + s0(chain, n * 6 + 4) * 0.25) * (96 / 56));
+        opacity.setX(n, TAIL_OPACITY * (1 - TAIL_FADE * f * f * (3 - 2 * f)));
+      }
+    });
     pos.needsUpdate = true;
     size.needsUpdate = true;
     opacity.needsUpdate = true;
@@ -979,6 +1039,18 @@ function viewportWindow(y, viewport, feather) {
     return t * t * (3 - 2 * t);
   };
   return step(viewport.x, viewport.x + feather.x, y) * (1 - step(viewport.y - feather.y, viewport.y, y));
+}
+
+// Each glyph drifts on its own two slow sine pairs, so no gap stays fixed. Returns [dx, dy] in px.
+function chaosAt(chain, n, tSec) {
+  const b = n * 6;
+  const drift = (a, c) => (Math.sin(tSec * (0.5 + chain.seeds[b + a] * 0.9) + chain.seeds[b + c] * 6.28)
+    + 0.5 * Math.sin(tSec * (1.1 + chain.seeds[b + c] * 1.3) + chain.seeds[b + a] * 6.28)) / 1.5;
+  return [drift(0, 1) * TAIL_JITTER_X, drift(2, 3) * TAIL_JITTER_Y];
+}
+
+function s0(chain, i) {
+  return chain.seeds[i];
 }
 
 function clamp(v, lo, hi) {
