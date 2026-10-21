@@ -10,7 +10,7 @@ use crate::components::sections::experience::ExperienceSection;
 use crate::components::sections::projects::ProjectsSection;
 use crate::components::sections::skills::SkillsSection;
 use crate::components::transition_section::TransitionSection;
-use crate::context::{ContactDecodeRequest, EasterEggState};
+use crate::context::{AutoDecode, ContactDecodeRequest, EasterEggState};
 use crate::hooks::use_throttled_scroll::use_throttled_scroll;
 
 const SECTIONS: &[&str] = &["about", "skills", "experience", "projects", "contact"];
@@ -72,6 +72,20 @@ pub fn App() -> impl IntoView {
     provide_context(easter_egg);
     provide_context(ContactDecodeRequest {
         requested_at: RwSignal::new(None),
+    });
+    let auto_decode = AutoDecode {
+        armed: RwSignal::new(false),
+    };
+    provide_context(auto_decode);
+    // `scene.js` follows this attribute. It is never removed: a reload starts the visit over.
+    Effect::new(move |_| {
+        if auto_decode.armed.get()
+            && let Some(root) = web_sys::window()
+                .and_then(|w| w.document())
+                .and_then(|d| d.document_element())
+        {
+            let _ = root.set_attribute("data-auto", "");
+        }
     });
 
     let recalculate_positions = move || {
